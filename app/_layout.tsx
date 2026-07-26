@@ -17,7 +17,8 @@ import { tokenCache } from '@/lib/tokenCache';
 import { AppDataProvider } from '@/providers/app-data-provider';
 import { SettingsProvider, useSettings } from '@/providers/settings-provider';
 
-// Safe no-op when EXPO_PUBLIC_SENTRY_DSN is unset.
+// Single init point. Reads the DSN from env and no-ops when it's unset.
+// See lib/sentry.ts for the privacy and sampling choices.
 initSentry();
 
 export const unstable_settings = {

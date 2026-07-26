@@ -6,7 +6,27 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { clerkErrorMessage } from '@/lib/clerkErrors';
 
-type SecondFactorStrategy = 'totp' | 'phone_code' | 'backup_code';
+type SecondFactorStrategy = 'totp' | 'phone_code' | 'backup_code' | 'email_code';
+
+const SUPPORTED_STRATEGIES: SecondFactorStrategy[] = [
+  'email_code',
+  'phone_code',
+  'totp',
+  'backup_code',
+];
+
+function isSupportedStrategy(s: string): s is SecondFactorStrategy {
+  return (SUPPORTED_STRATEGIES as string[]).includes(s);
+}
+
+/** Strategies where Clerk has to send the code before the user can enter it. */
+type PreparableStrategy = Extract<SecondFactorStrategy, 'email_code' | 'phone_code'>;
+
+/** totp and backup_code are read from something the user already has;
+ *  email_code and phone_code have to be sent first. */
+function needsPreparation(s: SecondFactorStrategy): s is PreparableStrategy {
+  return s === 'email_code' || s === 'phone_code';
+}
 
 export default function SignInScreen() {
   const { signIn, setActive, isLoaded } = useSignIn();
@@ -33,21 +53,33 @@ export default function SignInScreen() {
         return;
       }
       if (attempt.status === 'needs_second_factor') {
-        const supported = (attempt.supportedSecondFactors ?? [])
-          .map((f) => f.strategy as SecondFactorStrategy)
-          .filter((s): s is SecondFactorStrategy =>
-            s === 'totp' || s === 'phone_code' || s === 'backup_code',
+        const offered = attempt.supportedSecondFactors ?? [];
+        const supported = offered
+          .map((f) => f.strategy)
+          .filter(isSupportedStrategy);
+
+        if (supported.length === 0) {
+          // Don't guess at a strategy — showing the wrong instructions is worse
+          // than saying we can't handle it.
+          const names = offered.map((f) => f.strategy).join(', ') || 'none reported';
+          Alert.alert(
+            'Unsupported verification',
+            `This account requires a verification method this app can't handle yet (${names}). Sign in at ${'https://prepared-katydid-33.accounts.dev'} instead.`,
           );
-        setSupportedStrategies(supported.length > 0 ? supported : ['totp']);
-        setMfaStrategy(supported[0] ?? 'totp');
+          return;
+        }
+
+        const chosen = supported[0];
+        setSupportedStrategies(supported);
+        setMfaStrategy(chosen);
         setNeedsSecondFactor(true);
 
-        // If the chosen strategy is phone_code, send the SMS now.
-        if (supported[0] === 'phone_code') {
+        // email_code / phone_code have to be requested before the user can type one.
+        if (needsPreparation(chosen)) {
           try {
-            await signIn.prepareSecondFactor({ strategy: 'phone_code' });
-          } catch {
-            // user can retry from the form
+            await signIn.prepareSecondFactor({ strategy: chosen });
+          } catch (err) {
+            Alert.alert('Could not send code', clerkErrorMessage(err));
           }
         }
         return;
@@ -89,9 +121,9 @@ export default function SignInScreen() {
   const onSwitchStrategy = async (next: SecondFactorStrategy) => {
     setMfaStrategy(next);
     setMfaCode('');
-    if (next === 'phone_code' && signIn) {
+    if (needsPreparation(next) && signIn) {
       try {
-        await signIn.prepareSecondFactor({ strategy: 'phone_code' });
+        await signIn.prepareSecondFactor({ strategy: next });
       } catch (err) {
         Alert.alert('Could not send code', clerkErrorMessage(err));
       }
@@ -103,7 +135,7 @@ export default function SignInScreen() {
       <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
         <View className="flex-1 justify-center px-6">
           <Text className="text-3xl font-bold text-neutral-900 dark:text-neutral-50">
-            Two-factor required
+            {strategyTitle(mfaStrategy)}
           </Text>
           <Text className="mb-8 mt-1 text-base text-neutral-500 dark:text-neutral-400">
             {strategyHelpText(mfaStrategy)}
@@ -216,12 +248,21 @@ export default function SignInScreen() {
 }
 
 function strategyLabel(s: SecondFactorStrategy): string {
+  if (s === 'email_code') return 'Email code';
   if (s === 'totp') return 'Authenticator app';
   if (s === 'phone_code') return 'Text message';
   return 'Backup code';
 }
 
+function strategyTitle(s: SecondFactorStrategy): string {
+  if (s === 'email_code') return 'Check your email';
+  if (s === 'phone_code') return 'Check your messages';
+  return 'Two-factor required';
+}
+
 function strategyHelpText(s: SecondFactorStrategy): string {
+  if (s === 'email_code')
+    return "We've sent a verification code to your email address. Enter it below to finish signing in.";
   if (s === 'totp')
     return 'Open your authenticator app (Google Authenticator, 1Password, etc.) and enter the 6-digit code shown for Plinth.';
   if (s === 'phone_code')

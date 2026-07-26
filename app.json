@@ -44,10 +44,11 @@
       ],
       "expo-secure-store",
       [
-        "@sentry/react-native",
+        "@sentry/react-native/expo",
         {
-          "organization": "plinth",
-          "project": "plinth-mobile"
+          "url": "https://sentry.io/",
+          "project": "plinth-mobile",
+          "organization": "kozo-curious-creations"
         }
       ]
     ],

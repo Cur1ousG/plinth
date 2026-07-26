@@ -1,6 +1,8 @@
-const { getDefaultConfig } = require('expo/metro-config');
+const { getSentryExpoConfig } = require('@sentry/react-native/metro');
 const { withNativeWind } = require('nativewind/metro');
 
-const config = getDefaultConfig(__dirname);
+// getSentryExpoConfig wraps Expo's default Metro config and adds the sourcemap
+// plumbing Sentry needs. NativeWind is layered on top of it.
+const config = getSentryExpoConfig(__dirname);
 
 module.exports = withNativeWind(config, { input: './global.css' });

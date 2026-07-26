@@ -15,7 +15,7 @@
         "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_cHJlcGFyZWQta2F0eWRpZC0zMy5jbGVyay5hY2NvdW50cy5kZXYk",
         "EXPO_PUBLIC_CONVEX_URL": "https://intent-kingfisher-855.eu-west-1.convex.cloud",
         "EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_ID": "1613955",
-        "EXPO_PUBLIC_SENTRY_DSN": "",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://0187487063afc0d6f6ddc51bcd6e696a@o4511802840252416.ingest.de.sentry.io/4511802937311312",
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
     },
@@ -32,7 +32,7 @@
         "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_cHJlcGFyZWQta2F0eWRpZC0zMy5jbGVyay5hY2NvdW50cy5kZXYk",
         "EXPO_PUBLIC_CONVEX_URL": "https://intent-kingfisher-855.eu-west-1.convex.cloud",
         "EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_ID": "1613955",
-        "EXPO_PUBLIC_SENTRY_DSN": "",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://0187487063afc0d6f6ddc51bcd6e696a@o4511802840252416.ingest.de.sentry.io/4511802937311312",
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
     },
@@ -46,7 +46,7 @@
         "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_cHJlcGFyZWQta2F0eWRpZC0zMy5jbGVyay5hY2NvdW50cy5kZXYk",
         "EXPO_PUBLIC_CONVEX_URL": "https://insightful-opossum-557.eu-west-1.convex.cloud",
         "EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_ID": "1613955",
-        "EXPO_PUBLIC_SENTRY_DSN": "",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://0187487063afc0d6f6ddc51bcd6e696a@o4511802840252416.ingest.de.sentry.io/4511802937311312",
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
     }

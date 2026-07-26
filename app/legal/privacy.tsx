@@ -12,7 +12,7 @@ export default function PrivacyPolicyScreen() {
         Privacy policy
       </Text>
       <Text className="mb-6 text-xs text-neutral-500 dark:text-neutral-400">
-        Last updated: 5 May 2026
+        Last updated: 27 July 2026
       </Text>
 
       <Section title="Who we are">
@@ -42,8 +42,13 @@ export default function PrivacyPolicyScreen() {
           never touch our servers.
         </Bullet>
         <Bullet>
-          <B>Diagnostic data</B> — basic logs (errors, request timestamps) from our backend. We
-          don&apos;t track your behaviour with third-party analytics.
+          <B>Crash and error reports</B> — when something goes wrong in the app we record the
+          error, a stack trace, your device model and OS version, and an anonymous identifier for
+          your account so we can tell repeat failures apart. We do not record your screen, and we
+          do not use third-party advertising or behavioural analytics.
+        </Bullet>
+        <Bullet>
+          <B>Diagnostic data</B> — basic logs (errors, request timestamps) from our backend.
         </Bullet>
       </Section>
 
@@ -77,6 +82,11 @@ export default function PrivacyPolicyScreen() {
         <Bullet>
           <B>Lemon Squeezy</B> (payments) — handles subscription checkout and stores billing data.
           We receive only your subscription status, not your payment details.
+        </Bullet>
+        <Bullet>
+          <B>Sentry</B> (crash reporting) — receives error reports when the app misbehaves,
+          including device model, OS version, and an anonymous account identifier. It never
+          receives your email, name, saved recipes, or meal plans. Hosted in the EU.
         </Bullet>
         {'\n'}
         We do not sell your data, and we do not run third-party advertising trackers.
