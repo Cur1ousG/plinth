@@ -1,0 +1,24 @@
+# Things to keep out of the EAS Build upload tarball.
+# (Falls back to .gitignore if this file doesn't exist; we explicitly list to avoid Windows symlink issues.)
+
+# Convex AI helpers — created when you accepted Convex's "set up AI files" prompt.
+# Contain symlinks Windows can't copy without Developer Mode.
+.agents/
+.claude/
+
+# Local env files (EAS uses the env block in eas.json, not these)
+.env
+.env*.local
+
+# Build artifacts / caches
+node_modules/
+.expo/
+.expo-test-export/
+dist/
+web-build/
+*.tsbuildinfo
+.metro-health-check*
+
+# OS noise
+.DS_Store
+Thumbs.db
