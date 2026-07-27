@@ -28,7 +28,7 @@ function CuisineInner() {
   const cuisine = typeof name === 'string' ? name : '';
   const { hasPremium } = useEntitlement();
   const { isSaved, toggle } = useSavedRecipes();
-  const { dietary } = useSettings();
+  const { dietary, intolerances, excludedIngredients } = useSettings();
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,13 +39,14 @@ function CuisineInner() {
     let active = true;
     setLoading(true);
     setError('');
-    const filters = dietaryFiltersToParams(dietary);
+    const filters = dietaryFiltersToParams(dietary, intolerances, excludedIngredients);
     convex
       .action(api.spoonacular.byCuisine, {
         cuisine,
         number: 16,
         diet: filters.diet,
         intolerances: filters.intolerances,
+        excludeIngredients: filters.excludeIngredients,
       })
       .then((data) => {
         if (active) setRecipes(data);
@@ -59,7 +60,7 @@ function CuisineInner() {
     return () => {
       active = false;
     };
-  }, [cuisine, hasPremium, dietary]);
+  }, [cuisine, hasPremium, dietary, intolerances, excludedIngredients]);
 
   if (!hasPremium) {
     return (

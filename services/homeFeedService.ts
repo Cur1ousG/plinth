@@ -1,12 +1,10 @@
 import { api } from '@/convex/_generated/api';
 import { convex } from '@/lib/convex';
+import type { RecipeFilters } from '@/lib/dietaryFilters';
 
 import type { Recipe } from './types';
 
-export type FeedFilters = {
-  diet?: string;
-  intolerances?: string;
-};
+export type FeedFilters = RecipeFilters;
 
 /**
  * Home feed rails.
@@ -30,6 +28,7 @@ class ConvexHomeFeedService implements HomeFeedService {
     return convex.action(api.spoonacular.quickWeeknight, {
       diet: filters?.diet,
       intolerances: filters?.intolerances,
+      excludeIngredients: filters?.excludeIngredients,
     });
   }
 
@@ -37,6 +36,7 @@ class ConvexHomeFeedService implements HomeFeedService {
     return convex.action(api.spoonacular.weekendProjects, {
       diet: filters?.diet,
       intolerances: filters?.intolerances,
+      excludeIngredients: filters?.excludeIngredients,
     });
   }
 }

@@ -7,7 +7,12 @@ import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { AuthGate } from '@/components/auth-gate';
 
 type RowSpec = {
-  href: '/settings/account' | '/settings/notifications' | '/settings/language' | '/settings/display';
+  href:
+    | '/settings/account'
+    | '/settings/food'
+    | '/settings/notifications'
+    | '/settings/language'
+    | '/settings/display';
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   sub: string;
@@ -19,6 +24,12 @@ const rows: RowSpec[] = [
     icon: 'person-circle-outline',
     label: 'Account',
     sub: 'Name, email, password',
+  },
+  {
+    href: '/settings/food',
+    icon: 'nutrition-outline',
+    label: 'Food preferences',
+    sub: 'Diet, allergies, ingredients to avoid',
   },
   {
     href: '/settings/notifications',

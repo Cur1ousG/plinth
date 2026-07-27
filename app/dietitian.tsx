@@ -17,15 +17,63 @@ import { AuthGate } from '@/components/auth-gate';
 import { api } from '@/convex/_generated/api';
 import { useEntitlement } from '@/hooks/useEntitlement';
 import { convex } from '@/lib/convex';
+import { dietaryFiltersToParams } from '@/lib/dietaryFilters';
+import { useSettings } from '@/providers/settings-provider';
 import type { Recipe } from '@/services/types';
 
 type Goal = 'cut' | 'maintain' | 'bulk';
 
-const GOALS: { id: Goal; label: string; icon: keyof typeof Ionicons.glyphMap; multiplier: number; desc: string }[] = [
-  { id: 'cut', label: 'Cut', icon: 'trending-down-outline', multiplier: 24, desc: 'Lose fat while preserving muscle' },
-  { id: 'maintain', label: 'Maintain', icon: 'remove-outline', multiplier: 30, desc: 'Keep your current physique' },
-  { id: 'bulk', label: 'Bulk', icon: 'trending-up-outline', multiplier: 36, desc: 'Gain muscle, gain weight' },
+type GoalSpec = {
+  id: Goal;
+  label: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  /** kcal per kg of bodyweight per day. */
+  kcalPerKg: number;
+  /**
+   * Protein grams per kg of bodyweight per day. Cutting gets the highest ratio —
+   * in a calorie deficit, high protein is what preserves muscle. Maintenance
+   * needs the least.
+   */
+  proteinPerKg: number;
+  desc: string;
+};
+
+const GOALS: GoalSpec[] = [
+  {
+    id: 'cut',
+    label: 'Cut',
+    icon: 'trending-down-outline',
+    kcalPerKg: 24,
+    proteinPerKg: 2.4,
+    desc: 'Lose fat while preserving muscle',
+  },
+  {
+    id: 'maintain',
+    label: 'Maintain',
+    icon: 'remove-outline',
+    kcalPerKg: 30,
+    proteinPerKg: 1.8,
+    desc: 'Keep your current physique',
+  },
+  {
+    id: 'bulk',
+    label: 'Bulk',
+    icon: 'trending-up-outline',
+    kcalPerKg: 36,
+    proteinPerKg: 2.2,
+    desc: 'Gain muscle, gain weight',
+  },
 ];
+
+/**
+ * How far above/below the per-meal calorie target we'll accept.
+ *
+ * Searching with only an upper bound doesn't work: Spoonacular sorts by
+ * popularity, and popular recipes cluster well below even a cutting ceiling —
+ * so every goal returned the same recipes. Targeting a band forces genuinely
+ * different results per goal.
+ */
+const CALORIE_BAND = 0.25;
 
 export default function DietitianScreen() {
   return (
@@ -38,6 +86,7 @@ export default function DietitianScreen() {
 function DietitianInner() {
   const router = useRouter();
   const { hasPremium } = useEntitlement();
+  const { dietary, intolerances, excludedIngredients } = useSettings();
 
   const [weightKg, setWeightKg] = useState('');
   const [goal, setGoal] = useState<Goal>('maintain');
@@ -62,10 +111,15 @@ function DietitianInner() {
   const weightNum = Number.parseFloat(weightKg);
   const valid = Number.isFinite(weightNum) && weightNum > 30 && weightNum < 300;
   const goalSpec = GOALS.find((g) => g.id === goal)!;
-  const dailyCalories = valid ? Math.round(weightNum * goalSpec.multiplier) : 0;
-  const dailyProtein = valid ? Math.round(weightNum * 2.2) : 0;
+
+  const dailyCalories = valid ? Math.round(weightNum * goalSpec.kcalPerKg) : 0;
+  const dailyProtein = valid ? Math.round(weightNum * goalSpec.proteinPerKg) : 0;
   const perMealCalories = valid ? Math.round(dailyCalories / 3) : 0;
   const perMealProtein = valid ? Math.round(dailyProtein / 3) : 0;
+
+  // Target a band around the per-meal figure rather than just a ceiling.
+  const minCalories = valid ? Math.round(perMealCalories * (1 - CALORIE_BAND)) : 0;
+  const maxCalories = valid ? Math.round(perMealCalories * (1 + CALORIE_BAND)) : 0;
 
   const onFindRecipes = async () => {
     if (!valid) {
@@ -74,12 +128,25 @@ function DietitianInner() {
     }
     setLoading(true);
     try {
+      const filters = dietaryFiltersToParams(dietary, intolerances, excludedIngredients);
       const data = await convex.action(api.spoonacular.byMacros, {
-        maxCalories: perMealCalories,
+        minCalories,
+        maxCalories,
+        // Allow a little slack under the protein target — demanding the exact
+        // figure returns almost nothing.
         minProtein: Math.round(perMealProtein * 0.8),
         number: 12,
+        diet: filters.diet,
+        intolerances: filters.intolerances,
+        excludeIngredients: filters.excludeIngredients,
       });
       setRecipes(data);
+      if (data.length === 0) {
+        Alert.alert(
+          'No matches',
+          'No recipes fit that calorie and protein range. Try a different goal, or loosen your dietary filters in Settings → Display.',
+        );
+      }
     } catch (err) {
       Alert.alert('Could not load recipes', err instanceof Error ? err.message : 'Try again.');
     } finally {
@@ -159,6 +226,10 @@ function DietitianInner() {
             </View>
             <Text className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
               Per meal (3 meals): ~{perMealCalories} kcal · ~{perMealProtein}g protein
+            </Text>
+            <Text className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+              Searching {minCalories}–{maxCalories} kcal with at least{' '}
+              {Math.round(perMealProtein * 0.8)}g protein per serving.
             </Text>
           </View>
         )}

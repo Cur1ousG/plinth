@@ -86,6 +86,7 @@ function ThemedShell() {
         <Stack.Screen name="shopping-cart" options={{ title: 'Shopping Cart' }} />
         <Stack.Screen name="settings/index" options={{ title: 'Settings' }} />
         <Stack.Screen name="settings/account" options={{ title: 'Account' }} />
+        <Stack.Screen name="settings/food" options={{ title: 'Food preferences' }} />
         <Stack.Screen name="settings/notifications" options={{ title: 'Notifications' }} />
         <Stack.Screen name="settings/language" options={{ title: 'Language' }} />
         <Stack.Screen name="settings/display" options={{ title: 'Display' }} />

@@ -34,7 +34,7 @@ type Status = 'idle' | 'loading' | 'success' | 'error';
 
 export default function DiscoverScreen() {
   const router = useRouter();
-  const { dietary } = useSettings();
+  const { dietary, intolerances, excludedIngredients } = useSettings();
 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<RecipeSource[]>([]);
@@ -48,7 +48,7 @@ export default function DiscoverScreen() {
     setStatus('loading');
     setErrorMessage('');
     try {
-      const filters = dietaryFiltersToParams(dietary);
+      const filters = dietaryFiltersToParams(dietary, intolerances, excludedIngredients);
       const items = await searchService.search(trimmed, filters);
       setResults(items);
       setStatus('success');

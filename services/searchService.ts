@@ -1,12 +1,10 @@
 import { api } from '@/convex/_generated/api';
 import { convex } from '@/lib/convex';
+import type { RecipeFilters } from '@/lib/dietaryFilters';
 
 import type { RecipeSource } from './types';
 
-export type SearchFilters = {
-  diet?: string;
-  intolerances?: string;
-};
+export type SearchFilters = RecipeFilters;
 
 export interface SearchService {
   search(query: string, filters?: SearchFilters): Promise<RecipeSource[]>;
@@ -18,6 +16,7 @@ class ConvexSearchService implements SearchService {
       query,
       diet: filters?.diet,
       intolerances: filters?.intolerances,
+      excludeIngredients: filters?.excludeIngredients,
     });
   }
 }

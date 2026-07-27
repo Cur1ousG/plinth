@@ -14,8 +14,11 @@ type State = {
 const empty: State = { trending: [], quickWeeknight: [], weekendProjects: [] };
 
 export function useHomeFeed() {
-  const { dietary } = useSettings();
-  const filters = useMemo(() => dietaryFiltersToParams(dietary), [dietary]);
+  const { dietary, intolerances, excludedIngredients } = useSettings();
+  const filters = useMemo(
+    () => dietaryFiltersToParams(dietary, intolerances, excludedIngredients),
+    [dietary, intolerances, excludedIngredients],
+  );
 
   const [data, setData] = useState<State>(empty);
   const [loading, setLoading] = useState(true);

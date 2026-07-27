@@ -95,9 +95,35 @@ function toRecipeCard(r: SpoonacularSearchResult): RecipeCard {
   };
 }
 
-/** Stable cache-key fragment for dietary filters. */
-function filterSig(diet?: string, intolerances?: string): string {
-  return `${diet ?? ''}|${intolerances ?? ''}`;
+/** Dietary filters applied to a recipe query. */
+type Filters = {
+  diet?: string;
+  intolerances?: string;
+  excludeIngredients?: string;
+};
+
+/** Convex arg validators for the filter set — spread into each action's args. */
+const filterArgs = {
+  diet: v.optional(v.string()),
+  intolerances: v.optional(v.string()),
+  excludeIngredients: v.optional(v.string()),
+};
+
+/**
+ * Stable cache-key fragment. Two users with different filters must never share
+ * a cache entry — someone with a peanut allergy seeing another user's cached
+ * results would be genuinely dangerous.
+ */
+function filterSig(f: Filters = {}): string {
+  return `${f.diet ?? ''}|${f.intolerances ?? ''}|${f.excludeIngredients ?? ''}`;
+}
+
+/** Merge filters into a Spoonacular query param bag. */
+function applyFilters(params: Record<string, string>, f: Filters): Record<string, string> {
+  if (f.diet) params.diet = f.diet;
+  if (f.intolerances) params.intolerances = f.intolerances;
+  if (f.excludeIngredients) params.excludeIngredients = f.excludeIngredients;
+  return params;
 }
 
 /** Today's date in UTC, used to key the daily dish. */
@@ -144,29 +170,31 @@ function fetchTrending() {
   );
 }
 
-function fetchQuickWeeknight(diet?: string, intolerances?: string) {
-  const params: Record<string, string> = {
-    maxReadyTime: '25',
-    number: '10',
-    sort: 'popularity',
-    addRecipeInformation: 'true',
-  };
-  if (diet) params.diet = diet;
-  if (intolerances) params.intolerances = intolerances;
+function fetchQuickWeeknight(f: Filters = {}) {
+  const params = applyFilters(
+    {
+      maxReadyTime: '25',
+      number: '10',
+      sort: 'popularity',
+      addRecipeInformation: 'true',
+    },
+    f,
+  );
   return fetchJson<SearchResponse>('/recipes/complexSearch', params).then((d) =>
     d.results.map(toRecipeCard),
   );
 }
 
-function fetchWeekendProjects(diet?: string, intolerances?: string) {
-  const params: Record<string, string> = {
-    minReadyTime: '60',
-    number: '8',
-    sort: 'popularity',
-    addRecipeInformation: 'true',
-  };
-  if (diet) params.diet = diet;
-  if (intolerances) params.intolerances = intolerances;
+function fetchWeekendProjects(f: Filters = {}) {
+  const params = applyFilters(
+    {
+      minReadyTime: '60',
+      number: '8',
+      sort: 'popularity',
+      addRecipeInformation: 'true',
+    },
+    f,
+  );
   return fetchJson<SearchResponse>('/recipes/complexSearch', params).then((d) =>
     d.results.map(toRecipeCard),
   );
@@ -185,27 +213,21 @@ export const trending = action({
 });
 
 export const quickWeeknight = action({
-  args: { diet: v.optional(v.string()), intolerances: v.optional(v.string()) },
-  handler: async (ctx, { diet, intolerances }) => {
+  args: { ...filterArgs },
+  handler: async (ctx, filters) => {
     await requireAuth(ctx);
-    return cachedFeed(
-      ctx,
-      `rail:quick:${filterSig(diet, intolerances)}`,
-      FEED_TTL_MS,
-      () => fetchQuickWeeknight(diet, intolerances),
+    return cachedFeed(ctx, `rail:quick:${filterSig(filters)}`, FEED_TTL_MS, () =>
+      fetchQuickWeeknight(filters),
     );
   },
 });
 
 export const weekendProjects = action({
-  args: { diet: v.optional(v.string()), intolerances: v.optional(v.string()) },
-  handler: async (ctx, { diet, intolerances }) => {
+  args: { ...filterArgs },
+  handler: async (ctx, filters) => {
     await requireAuth(ctx);
-    return cachedFeed(
-      ctx,
-      `rail:weekend:${filterSig(diet, intolerances)}`,
-      FEED_TTL_MS,
-      () => fetchWeekendProjects(diet, intolerances),
+    return cachedFeed(ctx, `rail:weekend:${filterSig(filters)}`, FEED_TTL_MS, () =>
+      fetchWeekendProjects(filters),
     );
   },
 });
@@ -214,25 +236,25 @@ export const byCuisine = action({
   args: {
     cuisine: v.string(),
     number: v.optional(v.number()),
-    diet: v.optional(v.string()),
-    intolerances: v.optional(v.string()),
+    ...filterArgs,
   },
-  handler: async (ctx, { cuisine, number, diet, intolerances }) => {
+  handler: async (ctx, { cuisine, number, ...filters }) => {
     await requireAuth(ctx);
     const count = number ?? 12;
     return cachedFeed(
       ctx,
-      `cuisine:${cuisine.toLowerCase()}:${count}:${filterSig(diet, intolerances)}`,
+      `cuisine:${cuisine.toLowerCase()}:${count}:${filterSig(filters)}`,
       FEED_TTL_MS,
       () => {
-        const params: Record<string, string> = {
-          cuisine,
-          number: String(count),
-          sort: 'popularity',
-          addRecipeInformation: 'true',
-        };
-        if (diet) params.diet = diet;
-        if (intolerances) params.intolerances = intolerances;
+        const params = applyFilters(
+          {
+            cuisine,
+            number: String(count),
+            sort: 'popularity',
+            addRecipeInformation: 'true',
+          },
+          filters,
+        );
         return fetchJson<SearchResponse>('/recipes/complexSearch', params).then((d) =>
           d.results.map(toRecipeCard),
         );
@@ -247,21 +269,25 @@ export const byMacros = action({
     maxCalories: v.optional(v.number()),
     minCalories: v.optional(v.number()),
     number: v.optional(v.number()),
+    ...filterArgs,
   },
-  handler: async (ctx, { minProtein, maxCalories, minCalories, number }) => {
+  handler: async (ctx, { minProtein, maxCalories, minCalories, number, ...filters }) => {
     await requireAuth(ctx);
     const count = number ?? 10;
     // Round macro targets into buckets of 25 so near-identical requests from
     // different users share a cache entry instead of each hitting Spoonacular.
     const bucket = (n?: number) => (n == null ? '' : String(Math.round(n / 25) * 25));
-    const cacheKey = `macros:${bucket(minProtein)}:${bucket(maxCalories)}:${bucket(minCalories)}:${count}`;
+    const cacheKey = `macros:${bucket(minProtein)}:${bucket(maxCalories)}:${bucket(minCalories)}:${count}:${filterSig(filters)}`;
 
     return cachedFeed(ctx, cacheKey, FEED_TTL_MS, () => {
-      const params: Record<string, string> = {
-        number: String(count),
-        sort: 'popularity',
-        addRecipeInformation: 'true',
-      };
+      const params = applyFilters(
+        {
+          number: String(count),
+          sort: 'popularity',
+          addRecipeInformation: 'true',
+        },
+        filters,
+      );
       if (minProtein != null) params.minProtein = String(minProtein);
       if (maxCalories != null) params.maxCalories = String(maxCalories);
       if (minCalories != null) params.minCalories = String(minCalories);
@@ -291,15 +317,14 @@ export const search = action({
   args: {
     query: v.string(),
     number: v.optional(v.number()),
-    diet: v.optional(v.string()),
-    intolerances: v.optional(v.string()),
+    ...filterArgs,
   },
-  handler: async (ctx, { query, number, diet, intolerances }): Promise<RecipeCard[]> => {
+  handler: async (ctx, { query, number, ...filters }): Promise<RecipeCard[]> => {
     await requireAuth(ctx);
 
     const normalized = query.trim().toLowerCase();
     const count = number ?? 20;
-    const cacheKey = `q:${normalized}:${count}:${filterSig(diet, intolerances)}`;
+    const cacheKey = `q:${normalized}:${count}:${filterSig(filters)}`;
 
     const hit = await ctx.runQuery(internal.cache.getSearch, { key: cacheKey });
     if (hit && Date.now() - hit.fetchedAt < SEARCH_TTL_MS) {
@@ -307,13 +332,14 @@ export const search = action({
     }
 
     try {
-      const params: Record<string, string> = {
-        query: normalized,
-        number: String(count),
-        addRecipeInformation: 'false',
-      };
-      if (diet) params.diet = diet;
-      if (intolerances) params.intolerances = intolerances;
+      const params = applyFilters(
+        {
+          query: normalized,
+          number: String(count),
+          addRecipeInformation: 'false',
+        },
+        filters,
+      );
 
       const data = await fetchJson<SearchResponse>('/recipes/complexSearch', params);
       const results: RecipeCard[] = data.results.map((r) => ({
