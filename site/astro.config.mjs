@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  // Update this once a custom domain is attached — it's used for canonical URLs
-  // and the sitemap.
-  site: 'https://plinth.pages.dev',
+  // Used for canonical URLs and Open Graph tags, so it must match the origin the
+  // site is actually served from. Update this when a custom domain is attached.
+  site: 'https://plinth.shawnmasule07.workers.dev',
 });
