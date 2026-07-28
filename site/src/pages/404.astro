@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Page not found — Plinth"
+  description="That page doesn't exist."
+>
+  <section class="section" style="text-align: center; padding-top: clamp(4rem, 12vw, 8rem);">
+    <div class="wrap">
+      <p class="hero__tagline">404</p>
+      <h1>That page isn't on the menu</h1>
+      <p style="color: var(--ink-soft); max-width: 40ch; margin: 0 auto 2rem;">
+        The link may be old, or we may have moved something. Either way, there's nothing here.
+      </p>
+      <div class="btn-row">
+        <a class="btn btn--primary" href="/">Back to home</a>
+        <a class="btn btn--ghost" href="/support">Get help</a>
+      </div>
+    </div>
+  </section>
+</Base>

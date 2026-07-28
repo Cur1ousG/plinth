@@ -19,30 +19,44 @@ npm run build    # outputs to site/dist
 npm run preview  # serve the built output
 ```
 
-## Deploying (Cloudflare Pages — free)
+## Deploying (Cloudflare Workers — free)
 
-1. https://dash.cloudflare.com → **Workers & Pages** → **Create** → **Pages** →
-   **Connect to Git**
-2. Authorise GitHub and pick `Cur1ousG/plinth`
-3. Build settings — the root directory is the important one, since the site is a
-   subfolder:
+Cloudflare no longer offers Pages projects on new accounts; Workers serves
+static assets directly instead. [`wrangler.jsonc`](./wrangler.jsonc) configures
+that — there's no Worker script, just an `assets` directory, so Cloudflare
+serves the built HTML straight from its edge.
+
+1. https://dash.cloudflare.com → **Workers & Pages** → **Create application**
+2. Connect to Git and pick `Cur1ousG/plinth`
+3. Settings:
 
    | Setting | Value |
    | --- | --- |
-   | Framework preset | Astro |
+   | Project name | `plinth` |
    | Build command | `npm run build` |
-   | Build output directory | `dist` |
-   | Root directory | `site` |
+   | Deploy command | `npx wrangler deploy` |
+   | **Root directory** (under Advanced settings) | **`site`** |
 
-4. **Save and Deploy**
+   The root directory is the one that's easy to miss — without it Cloudflare
+   builds from the repo root and finds the Expo app instead of the site.
 
-You get `plinth.pages.dev` (or similar). Every push to `main` redeploys
-automatically; pull requests get their own preview URL.
+4. **Deploy**
+
+You'll get `plinth.<your-subdomain>.workers.dev`. Every push to `main`
+redeploys automatically.
+
+### Deploying by hand
+
+```bash
+cd site
+npm run build
+npx wrangler deploy
+```
 
 ### Attaching a custom domain later
 
-1. Cloudflare Pages → your project → **Custom domains** → **Set up a domain**
-2. Follow the DNS prompts
+1. Cloudflare dashboard → your Worker → **Settings → Domains & Routes**
+2. Add a custom domain and follow the DNS prompts
 3. Update `site` in [`astro.config.mjs`](./astro.config.mjs) to the new origin so
    canonical URLs and Open Graph tags point at the right place
 

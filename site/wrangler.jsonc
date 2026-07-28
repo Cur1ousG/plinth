@@ -1,0 +1,16 @@
+{
+  // Cloudflare Workers config for the static site.
+  //
+  // There's no Worker script here — `assets` alone tells Cloudflare to serve the
+  // built output directly from its edge network. Astro produces plain HTML, so
+  // nothing needs to run per request.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "plinth",
+  "compatibility_date": "2026-07-01",
+  "assets": {
+    "directory": "./dist",
+    // Astro emits /privacy/index.html etc., so let Cloudflare resolve directory
+    // URLs and fall back to our styled 404 for anything unmatched.
+    "not_found_handling": "404-page"
+  }
+}
