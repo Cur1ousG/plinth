@@ -309,8 +309,26 @@ function IngredientsTab({
   );
 }
 
+/**
+ * Recipe URLs come from Spoonacular, which aggregates third-party blogs — so
+ * they're semi-trusted at best. Only plain https navigation is allowed inside
+ * the WebView; anything else (javascript:, data:, file:, intent:, a custom app
+ * scheme) is refused.
+ *
+ * The risk this closes: users treat an in-app browser as part of the app, so a
+ * page that navigates somewhere hostile and imitates a Plinth login screen is a
+ * credible phishing vector.
+ */
+function isSafeWebViewUrl(url: string): boolean {
+  try {
+    return new URL(url).protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 function InstructionsTab({ recipe }: { recipe: ParsedRecipe }) {
-  if (!recipe.url) {
+  if (!recipe.url || !isSafeWebViewUrl(recipe.url)) {
     return (
       <ScrollView className="flex-1" contentContainerClassName="p-5">
         <Text className="text-base text-neutral-700 dark:text-neutral-300">
@@ -328,7 +346,17 @@ function InstructionsTab({ recipe }: { recipe: ParsedRecipe }) {
           <ActivityIndicator color="#f97316" />
         </View>
       )}
-      sharedCookiesEnabled
+      // Refuse any navigation that isn't plain https, including redirects and
+      // links tapped inside the page.
+      onShouldStartLoadWithRequest={(request) => isSafeWebViewUrl(request.url)}
+      originWhitelist={['https://*']}
+      // Don't share the system cookie jar — recipe sites have no business
+      // reading cookies set by anything else on the device.
+      sharedCookiesEnabled={false}
+      thirdPartyCookiesEnabled={false}
+      // No reason for a recipe page to reach the filesystem.
+      allowFileAccess={false}
+      allowUniversalAccessFromFileURLs={false}
       allowsBackForwardNavigationGestures
     />
   );

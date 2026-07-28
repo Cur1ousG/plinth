@@ -1,7 +1,7 @@
 import { v } from 'convex/values';
 
 import { requireUserId } from './_helpers';
-import { internalMutation, mutation, query } from './_generated/server';
+import { internalMutation, query } from './_generated/server';
 
 export const getMyStatus = query({
   args: {},
