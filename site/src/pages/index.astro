@@ -1,0 +1,141 @@
+---
+import Base from '../layouts/Base.astro';
+
+const features = [
+  {
+    icon: '🔎',
+    title: 'Find something worth cooking',
+    body: 'Search hundreds of thousands of recipes, filtered by cuisine, prep time, and what you actually eat. Tap any result for the full ingredient list and jump straight to the original instructions.',
+  },
+  {
+    icon: '🗓️',
+    title: 'Plan the whole week',
+    body: 'Slot meals into breakfast, lunch, dinner, and dessert for any day. Open the app on Wednesday and you already know what Wednesday looks like.',
+  },
+  {
+    icon: '🛒',
+    title: 'Shop without the guesswork',
+    body: "Pull a recipe's ingredients into your shopping list in one tap, then check them off in the aisle. No more standing in the shop trying to remember what the recipe said.",
+  },
+  {
+    icon: '🥗',
+    title: 'Built around your diet',
+    body: 'Vegan, keto, pescetarian, paleo. Celiac, lactose intolerance, nut allergies. Or just "no cilantro, ever." Set it once and every recipe you see respects it.',
+  },
+  {
+    icon: '❤️',
+    title: 'Keep what you love',
+    body: 'Save the recipes that worked. They sync across every device you sign in on, so the dinner you nailed last month is still there next month.',
+  },
+  {
+    icon: '🌙',
+    title: 'Easy on the eyes',
+    body: 'Proper light and dark themes that follow your phone, because nobody wants a white screen at 6am.',
+  },
+];
+
+const perks = [
+  {
+    title: 'Dishes by region',
+    body: 'Browse Italian, Thai, Mexican, Japanese, and a dozen more — curated, not just search results.',
+  },
+  {
+    title: 'A pick every morning',
+    body: "One hand-chosen recipe a day, so you've always got a starting point.",
+  },
+  {
+    title: 'Dietitian plan',
+    body: 'Tell it your weight and whether you’re cutting, maintaining, or bulking. It works out your calorie and protein targets, then finds recipes that actually fit them.',
+  },
+];
+---
+
+<Base
+  title="Plinth — Cook smart. Eat well."
+  description="A recipe app that helps you discover meals, plan your week, and shop smarter. Free to use, with an optional premium plan for meal planning by region, daily picks, and a personalised dietitian plan."
+>
+  <section class="hero">
+    <div class="wrap">
+      <img class="hero__icon" src="/icon.png" alt="Plinth app icon" width="88" height="88" />
+      <p class="hero__tagline">Cook smart. Eat well.</p>
+      <h1>Dinner, decided.</h1>
+      <p class="hero__lede">
+        Plinth helps you find recipes you'll actually make, plan them across the week, and walk
+        into the shop knowing exactly what to buy.
+      </p>
+      <div class="btn-row">
+        <a class="btn btn--primary" href="#download">Get the app</a>
+        <a class="btn btn--ghost" href="#features">See what it does</a>
+      </div>
+      <small class="btn__note">Android available now &middot; iOS coming soon</small>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="wrap">
+      <h2>Everything you need to get dinner on the table</h2>
+      <p style="color: var(--ink-soft); max-width: 52ch; margin-bottom: 2.5rem;">
+        No ads between you and the ingredients. No ten-paragraph story before the recipe.
+      </p>
+      <div class="grid">
+        {
+          features.map((f) => (
+            <article class="card">
+              <div class="card__icon" aria-hidden="true">{f.icon}</div>
+              <h3>{f.title}</h3>
+              <p>{f.body}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="premium">
+    <div class="wrap">
+      <div class="panel">
+        <h2>Plinth Premium</h2>
+        <p style="max-width: 50ch;">
+          The core app is free and stays free. Premium adds the things that help when you're
+          planning seriously rather than just browsing.
+        </p>
+
+        <ul class="perk-list">
+          {
+            perks.map((p) => (
+              <li>
+                <span class="tick" aria-hidden="true">✓</span>
+                <span>
+                  <strong>{p.title}</strong>
+                  <span>{p.body}</span>
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+
+        <p class="price-note">
+          <strong>Free for your first 21 days.</strong> No card needed to start — you only pay if
+          you decide to keep it. Cancel any time from inside the app.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="download">
+    <div class="wrap" style="text-align: center;">
+      <h2>Get Plinth</h2>
+      <p style="color: var(--ink-soft); max-width: 44ch; margin: 0 auto 2rem;">
+        Currently in testing on Android. iOS is next.
+      </p>
+      <div class="btn-row">
+        <a class="btn btn--primary" href="mailto:plinthrecipes@gmail.com?subject=Plinth%20beta%20access">
+          Request beta access
+        </a>
+      </div>
+      <small class="btn__note">
+        Send us a note and we'll add you to the Android test group.
+      </small>
+    </div>
+  </section>
+</Base>

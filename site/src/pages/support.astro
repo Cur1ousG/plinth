@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro';
+
+const faqs = [
+  {
+    q: 'How do I cancel my subscription?',
+    a: 'Open the Premium tab and tap Cancel subscription. You keep premium access until the end of the billing period you already paid for.',
+  },
+  {
+    q: 'How do I delete my account?',
+    a: 'Settings → Account → Delete account. This removes your saved recipes, meal plans, shopping cart, and profile immediately, and cannot be undone.',
+  },
+  {
+    q: "I forgot my password.",
+    a: 'On the sign-in screen, tap "Forgot password?" and we\'ll email you a code to set a new one.',
+  },
+  {
+    q: 'Can I use Plinth with a food allergy?',
+    a: 'Settings → Food preferences lets you exclude allergens like gluten, dairy, peanuts, and shellfish, plus any specific ingredients you type in. Recipes containing them are filtered out entirely. That said, recipe data comes from third parties — always check ingredients yourself before cooking.',
+  },
+  {
+    q: 'Is there an iPhone version?',
+    a: "Not yet. Android is available for testing now and iOS is next.",
+  },
+  {
+    q: 'Why does a recipe open a website instead of showing the steps?',
+    a: 'Ingredients and nutrition are shown natively in the app, but cooking instructions belong to the person who wrote the recipe — so we send you to their page rather than copying their work.',
+  },
+];
+---
+
+<Base
+  title="Support — Plinth"
+  description="Help with Plinth: cancelling a subscription, deleting your account, resetting your password, and getting in touch."
+>
+  <div class="page-head">
+    <div class="wrap">
+      <h1>Support</h1>
+      <p class="updated">We usually reply within a couple of days</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="wrap prose">
+      <h2>Get in touch</h2>
+      <p>
+        Bugs, feature ideas, billing questions, or anything else —
+        <a href="mailto:plinthrecipes@gmail.com">plinthrecipes@gmail.com</a>.
+      </p>
+      <p>
+        If you're reporting a bug, it helps enormously to include your phone model, roughly when
+        it happened, and what you were doing at the time.
+      </p>
+
+      <h2>Common questions</h2>
+      {
+        faqs.map((f) => (
+          <>
+            <h3 style="margin-top: 1.75rem;">{f.q}</h3>
+            <p>{f.a}</p>
+          </>
+        ))
+      }
+
+      <h2>Legal</h2>
+      <p>
+        <a href="/privacy">Privacy policy</a> &middot; <a href="/terms">Terms of service</a>
+      </p>
+    </div>
+  </section>
+</Base>

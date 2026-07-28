@@ -1,0 +1,143 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Keep this in sync with app/legal/privacy.tsx — the store listing links here,
+// but users read the in-app copy.
+const updated = '27 July 2026';
+---
+
+<Base
+  title="Privacy policy — Plinth"
+  description="What data Plinth collects, why, who it's shared with, and how to have it deleted."
+>
+  <div class="page-head">
+    <div class="wrap">
+      <h1>Privacy policy</h1>
+      <p class="updated">Last updated: {updated}</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="wrap prose">
+      <h2>Who we are</h2>
+      <p>
+        Plinth is a recipe discovery and meal planning app. This policy explains what data we
+        collect, why we collect it, and the choices you have.
+      </p>
+      <p>
+        Operator: Shawn Masule (Namibia)<br />
+        Contact: <a href="mailto:plinthrecipes@gmail.com">plinthrecipes@gmail.com</a>
+      </p>
+
+      <h2>What we collect</h2>
+      <ul>
+        <li>
+          <strong>Account info</strong> — your email address, name, and (optional) profile
+          picture, provided via our authentication partner Clerk.
+        </li>
+        <li>
+          <strong>Recipes and meal data</strong> — recipes you save, meals you plan in the
+          calendar, and items you add to your shopping cart. Stored on your account so they sync
+          across your devices.
+        </li>
+        <li>
+          <strong>Preferences</strong> — appearance settings, dietary preferences, language, and
+          notification preferences.
+        </li>
+        <li>
+          <strong>Subscription details</strong> — when you subscribe to Plinth Premium, we record
+          the status of your subscription. Payment card details are handled entirely by our
+          payment processor and never touch our servers.
+        </li>
+        <li>
+          <strong>Crash and error reports</strong> — when something goes wrong in the app we
+          record the error, a stack trace, your device model and OS version, and an anonymous
+          identifier for your account so we can tell repeat failures apart. We do not record your
+          screen, and we do not use third-party advertising or behavioural analytics.
+        </li>
+      </ul>
+
+      <h2>How we use it</h2>
+      <ul>
+        <li>To run the app — show your saved recipes and sync them across devices.</li>
+        <li>
+          To provide premium features — verify your subscription state and personalise meal
+          suggestions.
+        </li>
+        <li>To send notifications you opt in to — daily meal reminders, account-related emails.</li>
+        <li>To improve the app — diagnose bugs and improve performance.</li>
+      </ul>
+
+      <h2>Who we share it with</h2>
+      <p>We only share data with the service providers that make Plinth work:</p>
+      <ul>
+        <li>
+          <strong>Clerk</strong> (authentication) — stores your account credentials, email, and
+          profile image.
+        </li>
+        <li>
+          <strong>Convex</strong> (database and backend) — stores your recipes, meal plans, cart,
+          and subscription state. Hosted in the EU (Ireland).
+        </li>
+        <li>
+          <strong>Spoonacular</strong> (recipe data) — receives recipe search queries to return
+          matching results. Queries are not tied to your identity on Spoonacular's side.
+        </li>
+        <li>
+          <strong>Lemon Squeezy</strong> (payments) — handles subscription checkout and stores
+          billing data. We receive only your subscription status, not your payment details.
+        </li>
+        <li>
+          <strong>Sentry</strong> (crash reporting) — receives error reports when the app
+          misbehaves, including device model, OS version, and an anonymous account identifier. It
+          never receives your email, name, saved recipes, or meal plans. Hosted in the EU.
+        </li>
+      </ul>
+      <p>We do not sell your data, and we do not run third-party advertising trackers.</p>
+
+      <h2>Your rights</h2>
+      <ul>
+        <li>
+          <strong>Access and export</strong> — email us and we'll send you a copy of your data
+          within 30 days.
+        </li>
+        <li>
+          <strong>Deletion</strong> — delete your account from Settings → Account → Delete
+          account, which removes your data immediately. You can also email us to request it.
+        </li>
+        <li>
+          <strong>Correction</strong> — update your name, email, password, and profile photo from
+          Settings → Account at any time.
+        </li>
+        <li>
+          <strong>Opt out of notifications</strong> — Settings → Notifications.
+        </li>
+      </ul>
+
+      <h2>Data retention</h2>
+      <p>
+        We keep your account data while your account exists. When you delete your account, we
+        remove it within 30 days. Anonymised diagnostic logs may be retained for up to 12 months
+        for security and reliability analysis.
+      </p>
+
+      <h2>Children</h2>
+      <p>
+        Plinth is not directed at children under 13. We don't knowingly collect data from anyone
+        under 13. If you believe we have, contact us and we'll delete it.
+      </p>
+
+      <h2>Changes to this policy</h2>
+      <p>
+        We may update this policy when we add features or change service providers. The date at
+        the top reflects the current version. Significant changes will be announced in-app.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions or requests:
+        <a href="mailto:plinthrecipes@gmail.com">plinthrecipes@gmail.com</a>
+      </p>
+    </div>
+  </section>
+</Base>
