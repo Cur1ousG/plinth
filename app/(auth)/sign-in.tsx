@@ -223,10 +223,16 @@ export default function SignInScreen() {
           autoComplete="password"
         />
 
+        <View className="mt-1 flex-row justify-end">
+          <Link href="/forgot-password">
+            <Text className="text-sm font-medium text-brand-600">Forgot password?</Text>
+          </Link>
+        </View>
+
         <Pressable
           onPress={onSubmit}
           disabled={busy}
-          className="mt-6 items-center rounded-2xl bg-brand-500 px-5 py-4 active:opacity-80 disabled:opacity-60">
+          className="mt-5 items-center rounded-2xl bg-brand-500 px-5 py-4 active:opacity-80 disabled:opacity-60">
           {busy ? (
             <ActivityIndicator color="#fff" />
           ) : (
