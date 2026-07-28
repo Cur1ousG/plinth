@@ -4,6 +4,13 @@ import { v } from 'convex/values';
 
 import { internal } from './_generated/api';
 import { action, internalAction, type ActionCtx } from './_generated/server';
+import {
+  GLOBAL_DAILY_UPSTREAM_LIMIT,
+  USER_LIMITS,
+  globalKey,
+  userKey,
+  type RateLimitBucket,
+} from './rateLimit';
 
 const BASE = 'https://api.spoonacular.com';
 
@@ -14,9 +21,57 @@ const FEED_TTL_MS = DAY_MS;
 const RECIPE_TTL_MS = 30 * DAY_MS;
 const SEARCH_TTL_MS = 7 * DAY_MS;
 
-async function requireAuth(ctx: ActionCtx) {
+async function requireAuth(ctx: ActionCtx): Promise<string> {
   const id = await ctx.auth.getUserIdentity();
   if (!id) throw new Error('Not authenticated');
+  return id.subject;
+}
+
+function formatRetry(ms: number): string {
+  const minutes = Math.ceil(ms / 60_000);
+  if (minutes <= 1) return 'a minute';
+  if (minutes < 60) return `${minutes} minutes`;
+  const hours = Math.ceil(minutes / 60);
+  return `${hours} hour${hours === 1 ? '' : 's'}`;
+}
+
+/**
+ * Gate an upstream Spoonacular call behind both the per-user limit for its
+ * bucket and the global daily spend cap.
+ *
+ * This is deliberately called at the *cache miss* boundary rather than on every
+ * request: a cache hit costs nothing, so throttling it would only degrade the
+ * app without saving a cent. What we're limiting is the rate at which a caller
+ * can create new cache entries.
+ *
+ * Returns null when allowed, or a human-readable reason when blocked, so the
+ * caller can choose to serve stale data instead of failing.
+ */
+async function checkUpstreamAllowance(
+  ctx: ActionCtx,
+  userId: string,
+  bucket: RateLimitBucket,
+): Promise<string | null> {
+  const perUser = USER_LIMITS[bucket];
+  const user = await ctx.runMutation(internal.rateLimit.consume, {
+    key: userKey(userId, bucket),
+    limit: perUser.limit,
+    windowMs: perUser.windowMs,
+  });
+  if (!user.allowed) {
+    return `You've made a lot of requests. Try again in ${formatRetry(user.retryAfterMs)}.`;
+  }
+
+  const global = await ctx.runMutation(internal.rateLimit.consume, {
+    key: globalKey(),
+    limit: GLOBAL_DAILY_UPSTREAM_LIMIT,
+    windowMs: DAY_MS,
+  });
+  if (!global.allowed) {
+    return 'Recipe search is temporarily at capacity. Please try again later.';
+  }
+
+  return null;
 }
 
 function apiKey(): string {
@@ -138,6 +193,8 @@ function todayKey(): string {
 
 async function cachedFeed(
   ctx: ActionCtx,
+  userId: string,
+  bucket: RateLimitBucket,
   cacheKey: string,
   ttlMs: number,
   fetcher: () => Promise<RecipeCard[]>,
@@ -145,6 +202,14 @@ async function cachedFeed(
   const hit = await ctx.runQuery(internal.cache.getFeed, { key: cacheKey });
   if (hit && Date.now() - hit.fetchedAt < ttlMs) {
     return hit.recipes;
+  }
+
+  // Only cache misses cost money, so that's the only thing we throttle.
+  const blocked = await checkUpstreamAllowance(ctx, userId, bucket);
+  if (blocked) {
+    // Prefer stale content over an error message — expired data is still useful.
+    if (hit) return hit.recipes;
+    throw new Error(blocked);
   }
 
   try {
@@ -207,17 +272,22 @@ function fetchWeekendProjects(f: Filters = {}) {
 export const trending = action({
   args: {},
   handler: async (ctx) => {
-    await requireAuth(ctx);
-    return cachedFeed(ctx, 'rail:trending', FEED_TTL_MS, fetchTrending);
+    const userId = await requireAuth(ctx);
+    return cachedFeed(ctx, userId, 'feed', 'rail:trending', FEED_TTL_MS, fetchTrending);
   },
 });
 
 export const quickWeeknight = action({
   args: { ...filterArgs },
   handler: async (ctx, filters) => {
-    await requireAuth(ctx);
-    return cachedFeed(ctx, `rail:quick:${filterSig(filters)}`, FEED_TTL_MS, () =>
-      fetchQuickWeeknight(filters),
+    const userId = await requireAuth(ctx);
+    return cachedFeed(
+      ctx,
+      userId,
+      'feed',
+      `rail:quick:${filterSig(filters)}`,
+      FEED_TTL_MS,
+      () => fetchQuickWeeknight(filters),
     );
   },
 });
@@ -225,9 +295,14 @@ export const quickWeeknight = action({
 export const weekendProjects = action({
   args: { ...filterArgs },
   handler: async (ctx, filters) => {
-    await requireAuth(ctx);
-    return cachedFeed(ctx, `rail:weekend:${filterSig(filters)}`, FEED_TTL_MS, () =>
-      fetchWeekendProjects(filters),
+    const userId = await requireAuth(ctx);
+    return cachedFeed(
+      ctx,
+      userId,
+      'feed',
+      `rail:weekend:${filterSig(filters)}`,
+      FEED_TTL_MS,
+      () => fetchWeekendProjects(filters),
     );
   },
 });
@@ -239,10 +314,12 @@ export const byCuisine = action({
     ...filterArgs,
   },
   handler: async (ctx, { cuisine, number, ...filters }) => {
-    await requireAuth(ctx);
+    const userId = await requireAuth(ctx);
     const count = number ?? 12;
     return cachedFeed(
       ctx,
+      userId,
+      'feed',
       `cuisine:${cuisine.toLowerCase()}:${count}:${filterSig(filters)}`,
       FEED_TTL_MS,
       () => {
@@ -272,14 +349,14 @@ export const byMacros = action({
     ...filterArgs,
   },
   handler: async (ctx, { minProtein, maxCalories, minCalories, number, ...filters }) => {
-    await requireAuth(ctx);
+    const userId = await requireAuth(ctx);
     const count = number ?? 10;
     // Round macro targets into buckets of 25 so near-identical requests from
     // different users share a cache entry instead of each hitting Spoonacular.
     const bucket = (n?: number) => (n == null ? '' : String(Math.round(n / 25) * 25));
     const cacheKey = `macros:${bucket(minProtein)}:${bucket(maxCalories)}:${bucket(minCalories)}:${count}:${filterSig(filters)}`;
 
-    return cachedFeed(ctx, cacheKey, FEED_TTL_MS, () => {
+    return cachedFeed(ctx, userId, 'feed', cacheKey, FEED_TTL_MS, () => {
       const params = applyFilters(
         {
           number: String(count),
@@ -301,13 +378,19 @@ export const byMacros = action({
 export const dishOfTheDay = action({
   args: {},
   handler: async (ctx) => {
-    await requireAuth(ctx);
+    const userId = await requireAuth(ctx);
     // Keyed by date: everyone sees the same dish today, and it costs one upstream
     // call for the entire userbase.
-    const recipes = await cachedFeed(ctx, `dish-of-day:${todayKey()}`, DAY_MS, () =>
-      fetchJson<RandomResponse>('/recipes/random', { number: '1' }).then((d) =>
-        d.recipes.map(toRecipeCard),
-      ),
+    const recipes = await cachedFeed(
+      ctx,
+      userId,
+      'feed',
+      `dish-of-day:${todayKey()}`,
+      DAY_MS,
+      () =>
+        fetchJson<RandomResponse>('/recipes/random', { number: '1' }).then((d) =>
+          d.recipes.map(toRecipeCard),
+        ),
     );
     return recipes[0] ?? null;
   },
@@ -320,7 +403,7 @@ export const search = action({
     ...filterArgs,
   },
   handler: async (ctx, { query, number, ...filters }): Promise<RecipeCard[]> => {
-    await requireAuth(ctx);
+    const userId = await requireAuth(ctx);
 
     const normalized = query.trim().toLowerCase();
     const count = number ?? 20;
@@ -329,6 +412,14 @@ export const search = action({
     const hit = await ctx.runQuery(internal.cache.getSearch, { key: cacheKey });
     if (hit && Date.now() - hit.fetchedAt < SEARCH_TTL_MS) {
       return hit.results;
+    }
+
+    // Unique queries are the main way a caller can run up a bill, since each one
+    // is a guaranteed cache miss.
+    const blocked = await checkUpstreamAllowance(ctx, userId, 'search');
+    if (blocked) {
+      if (hit) return hit.results;
+      throw new Error(blocked);
     }
 
     try {
@@ -361,22 +452,31 @@ export const search = action({
 export const getRecipe = action({
   args: { id: v.string() },
   handler: async (ctx, { id }): Promise<RecipeDetail> => {
-    await requireAuth(ctx);
+    const userId = await requireAuth(ctx);
 
     const hit = await ctx.runQuery(internal.cache.getRecipe, { recipeId: id });
+    const asDetail = (): RecipeDetail => ({
+      id: hit!.recipeId,
+      title: hit!.title,
+      url: hit!.url,
+      thumbnail: hit!.thumbnail,
+      siteName: hit!.siteName,
+      ingredients: hit!.ingredients,
+      instructions: hit!.instructions,
+      totalTime: hit!.totalTime,
+      yields: hit!.yields,
+      nutrients: hit!.nutrients,
+    });
+
     if (hit && Date.now() - hit.fetchedAt < RECIPE_TTL_MS) {
-      return {
-        id: hit.recipeId,
-        title: hit.title,
-        url: hit.url,
-        thumbnail: hit.thumbnail,
-        siteName: hit.siteName,
-        ingredients: hit.ingredients,
-        instructions: hit.instructions,
-        totalTime: hit.totalTime,
-        yields: hit.yields,
-        nutrients: hit.nutrients,
-      };
+      return asDetail();
+    }
+
+    const blocked = await checkUpstreamAllowance(ctx, userId, 'recipeDetail');
+    if (blocked) {
+      // A stale recipe is fine — ingredients don't change.
+      if (hit) return asDetail();
+      throw new Error(blocked);
     }
 
     type Ingredient = {
@@ -441,20 +541,7 @@ export const getRecipe = action({
       const { recipeId, ...rest } = parsed;
       return { id: recipeId, ...rest };
     } catch (err) {
-      if (hit) {
-        return {
-          id: hit.recipeId,
-          title: hit.title,
-          url: hit.url,
-          thumbnail: hit.thumbnail,
-          siteName: hit.siteName,
-          ingredients: hit.ingredients,
-          instructions: hit.instructions,
-          totalTime: hit.totalTime,
-          yields: hit.yields,
-          nutrients: hit.nutrients,
-        };
-      }
+      if (hit) return asDetail();
       throw err;
     }
   },
@@ -491,9 +578,11 @@ export const warmCaches = internalAction({
       }
     }
 
-    // Housekeeping: search keys are user-driven and unbounded.
+    // Housekeeping: both tables are user-driven and unbounded.
     await ctx.runMutation(internal.cache.pruneStaleSearches, {
       olderThanMs: SEARCH_TTL_MS,
     });
+    // Anything older than a day is well past every window we use.
+    await ctx.runMutation(internal.rateLimit.pruneStale, { olderThanMs: 2 * DAY_MS });
   },
 });

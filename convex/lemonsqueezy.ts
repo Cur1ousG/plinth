@@ -3,11 +3,26 @@
 import { v } from 'convex/values';
 
 import { api, internal } from './_generated/api';
-import { action } from './_generated/server';
-
-const HOUR_MS = 60 * 60 * 1000;
+import { action, type ActionCtx } from './_generated/server';
+import { USER_LIMITS, userKey, type RateLimitBucket } from './rateLimit';
 
 const API_BASE = 'https://api.lemonsqueezy.com/v1';
+
+/** Throw if the caller has exhausted their allowance for this bucket. */
+async function enforceLimit(ctx: ActionCtx, userId: string, bucket: RateLimitBucket) {
+  const { limit, windowMs } = USER_LIMITS[bucket];
+  const result = await ctx.runMutation(internal.rateLimit.consume, {
+    key: userKey(userId, bucket),
+    limit,
+    windowMs,
+  });
+  if (!result.allowed) {
+    const minutes = Math.ceil(result.retryAfterMs / 60_000);
+    throw new Error(
+      `Too many attempts. Try again in ${minutes} minute${minutes === 1 ? '' : 's'}.`,
+    );
+  }
+}
 
 type LSCheckoutResponse = {
   data?: {
@@ -50,6 +65,8 @@ export const cancelSubscription = action({
     if (!identity) throw new Error('Not authenticated');
     const userId = identity.subject;
 
+    await enforceLimit(ctx, userId, 'subscriptionChange');
+
     const sub = await ctx.runQuery(api.subscriptions.getMyStatus, {});
     if (!sub) throw new Error('No active subscription found');
     if (!sub.lemonSqueezySubscriptionId) throw new Error('Subscription has no Lemon Squeezy id');
@@ -69,6 +86,8 @@ export const resumeSubscription = action({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error('Not authenticated');
     const userId = identity.subject;
+
+    await enforceLimit(ctx, userId, 'subscriptionChange');
 
     const sub = await ctx.runQuery(api.subscriptions.getMyStatus, {});
     if (!sub) throw new Error('No subscription found');
@@ -101,13 +120,8 @@ export const createCheckoutSession = action({
     if (!identity) throw new Error('Not authenticated');
     const userId = identity.subject;
 
-    // Rate limit: at most one checkout attempt per user per hour. Blocks brute-force fraud testing.
-    const recent = await ctx.runQuery(internal.checkoutAttempts.recentForUser, { userId });
-    if (recent && Date.now() - recent.attemptedAt < HOUR_MS) {
-      const minutes = Math.ceil((HOUR_MS - (Date.now() - recent.attemptedAt)) / 60_000);
-      throw new Error(`Too many attempts. Try again in ${minutes} minute${minutes === 1 ? '' : 's'}.`);
-    }
-    await ctx.runMutation(internal.checkoutAttempts.record, { userId });
+    // Blocks brute-force fraud testing against the checkout endpoint.
+    await enforceLimit(ctx, userId, 'checkout');
 
     const apiKey = process.env.LEMONSQUEEZY_API_KEY;
     const storeId = process.env.LEMONSQUEEZY_STORE_ID;

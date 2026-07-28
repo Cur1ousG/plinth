@@ -64,10 +64,16 @@ export default defineSchema({
     fromRecipeId: v.optional(v.string()),
   }).index('by_user', ['userId']),
 
-  checkoutAttempts: defineTable({
-    userId: v.string(),
-    attemptedAt: v.number(),
-  }).index('by_user', ['userId']),
+  // Fixed-window counters backing the rate limiter. `key` is either
+  // "<userId>:<bucket>" for per-user limits or "global:<bucket>:<date>" for the
+  // daily spend cap. See convex/rateLimit.ts.
+  rateLimits: defineTable({
+    key: v.string(),
+    windowStart: v.number(),
+    count: v.number(),
+  })
+    .index('by_key', ['key'])
+    .index('by_window', ['windowStart']),
 
   subscriptions: defineTable({
     userId: v.string(),
