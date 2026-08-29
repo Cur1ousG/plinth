@@ -157,46 +157,58 @@ function migrateLegacyDietary(
 
 const SettingsContext = createContext<Ctx | null>(null);
 
+function parseStored(raw: string | null): Settings {
+  if (!raw) return defaults;
+  try {
+    const parsed = JSON.parse(raw) as Partial<Settings>;
+    const dietary = parsed.dietary ?? defaults.dietary;
+    return {
+      appearance: parsed.appearance ?? defaults.appearance,
+      dietary,
+      intolerances: migrateLegacyDietary(dietary, parsed.intolerances ?? []),
+      excludedIngredients: parsed.excludedIngredients ?? defaults.excludedIngredients,
+      language: parsed.language ?? defaults.language,
+      notifications: { ...defaultNotifications, ...(parsed.notifications ?? {}) },
+      onboardedAt: parsed.onboardedAt ?? null,
+    };
+  } catch {
+    return defaults;
+  }
+}
+
+/** Distinguishes "nothing loaded yet" from "loaded for the signed-out guest". */
+const NOTHING_LOADED = Symbol('nothing-loaded');
+
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const userId = user?.id ?? null;
 
-  const [settings, setSettings] = useState<Settings>(defaults);
-  const [ready, setReady] = useState(false);
+  // Settings are stored together with the account they belong to. Keeping the two
+  // in one piece of state is what makes `ready` below safe: there is no render in
+  // which we hold one user's settings while claiming to describe another's.
+  const [loaded, setLoaded] = useState<{
+    forUser: string | null | typeof NOTHING_LOADED;
+    settings: Settings;
+  }>({ forUser: NOTHING_LOADED, settings: defaults });
+
+  // Derived during render, not stored. If this were state set from the effect
+  // below, it would stay true for one render after the user changes — long
+  // enough for the onboarding gate to read the previous account's (or the
+  // signed-out guest's) empty settings and send a returning user through the
+  // welcome flow. That is exactly what happened after a password reset, where
+  // setActive() swaps guest → real user and navigates in the same tick.
+  const ready = loaded.forUser === userId;
+  const settings = ready ? loaded.settings : defaults;
 
   // Reload settings whenever the signed-in user changes (incl. sign-out → null).
   useEffect(() => {
     let active = true;
-    setReady(false);
     AsyncStorage.getItem(storageKey(userId))
       .then((raw) => {
-        if (!active) return;
-        if (raw) {
-          try {
-            const parsed = JSON.parse(raw) as Partial<Settings>;
-            const dietary = parsed.dietary ?? defaults.dietary;
-            setSettings({
-              appearance: parsed.appearance ?? defaults.appearance,
-              dietary,
-              intolerances: migrateLegacyDietary(dietary, parsed.intolerances ?? []),
-              excludedIngredients: parsed.excludedIngredients ?? defaults.excludedIngredients,
-              language: parsed.language ?? defaults.language,
-              notifications: { ...defaultNotifications, ...(parsed.notifications ?? {}) },
-              onboardedAt: parsed.onboardedAt ?? null,
-            });
-          } catch {
-            setSettings(defaults);
-          }
-        } else {
-          setSettings(defaults);
-        }
-        setReady(true);
+        if (active) setLoaded({ forUser: userId, settings: parseStored(raw) });
       })
       .catch(() => {
-        if (active) {
-          setSettings(defaults);
-          setReady(true);
-        }
+        if (active) setLoaded({ forUser: userId, settings: defaults });
       });
     return () => {
       active = false;
@@ -205,10 +217,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   const persist = useCallback(
     async (next: Settings) => {
-      setSettings(next);
+      // Writing before the current account's settings have loaded would save
+      // defaults over whatever is on disk. Callers are all user-initiated, so
+      // this only trips during the brief post-sign-in window.
+      if (!ready) return;
+      setLoaded({ forUser: userId, settings: next });
       await AsyncStorage.setItem(storageKey(userId), JSON.stringify(next));
     },
-    [userId],
+    [ready, userId],
   );
 
   const setAppearance = useCallback(

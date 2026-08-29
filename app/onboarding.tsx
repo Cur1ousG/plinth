@@ -2,7 +2,7 @@ import { useUser } from '@clerk/clerk-expo';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { Stack, useRouter } from 'expo-router';
+import { Redirect, Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -36,10 +36,29 @@ function OnboardingInner() {
     toggleDietary,
     toggleIntolerance,
     markOnboarded,
+    onboardedAt,
+    ready,
   } = useSettings();
 
   const [step, setStep] = useState(0);
   const [photoBusy, setPhotoBusy] = useState(false);
+
+  // Wait for this account's settings before showing anything. Rendering the
+  // welcome copy against unloaded settings is how someone who has used the app
+  // for months ends up being greeted as brand new.
+  if (!ready) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-white dark:bg-neutral-950">
+        <Stack.Screen options={{ headerShown: false }} />
+        <ActivityIndicator color="#f97316" />
+      </SafeAreaView>
+    );
+  }
+
+  // Reached by a returning user — nothing to onboard.
+  if (onboardedAt) {
+    return <Redirect href="/" />;
+  }
 
   const finish = async () => {
     await markOnboarded();
@@ -156,7 +175,7 @@ function WelcomeStep() {
         Welcome to Plinth
       </Text>
       <Text className="mt-3 text-lg leading-7 text-neutral-600 dark:text-neutral-400">
-        Find recipes you'll actually make, plan them across the week, and walk into the shop
+        Find recipes you&apos;ll actually make, plan them across the week, and walk into the shop
         knowing exactly what to buy.
       </Text>
 
@@ -225,7 +244,7 @@ function FoodStep({
         How do you eat?
       </Text>
       <Text className="mt-2 text-base text-neutral-600 dark:text-neutral-400">
-        We'll filter every recipe to match. You can change this any time in Settings.
+        We&apos;ll filter every recipe to match. You can change this any time in Settings.
       </Text>
 
       <Text className="mb-3 mt-8 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
