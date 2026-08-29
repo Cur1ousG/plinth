@@ -75,18 +75,50 @@ const ICON_SVG = `
 </svg>
 `;
 
-// Splash icon: just the p glyph centred on transparent — Expo composes with splash bg
-const SPLASH_ICON_SVG = `
-<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">
+// Splash lockup: mark + wordmark + tagline, the way Kitchen Stories and
+// Epicurious open. A bare icon reads as "app is loading"; a lockup reads as a
+// brand, and it's the first thing anyone sees.
+//
+// Transparent background — Expo composes it over the splash colour from app.json,
+// so the same asset works on both the cream and dark backgrounds.
+//
+// `fill` is passed in because the light and dark variants need different ink.
+function splashLockup({ ink, ringFill }) {
+  // Canvas is cropped tight to the lockup so Expo's `contain` scaling doesn't
+  // shrink the artwork to fit empty margin.
+  return `
+<svg width="1200" height="900" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="stem" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="${BRAND_LIGHT}"/>
       <stop offset="100%" stop-color="${BRAND_DEEP}"/>
     </linearGradient>
   </defs>
-  ${pGlyph({ fill: 'url(#stem)', ringFill: '#ffffff' })}
+
+  <!-- mark, scaled and pulled up so it sits directly above the type -->
+  <g transform="translate(100 -105) scale(0.72)">
+    ${pGlyph({ fill: 'url(#stem)', ringFill })}
+  </g>
+
+  <!-- wordmark -->
+  <text x="600" y="735"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="170" fill="${ink}" text-anchor="middle"
+        letter-spacing="-4">plinth</text>
+
+  <!-- tagline -->
+  <text x="600" y="815"
+        font-family="Helvetica, Arial, sans-serif"
+        font-size="42" fill="${ink}" fill-opacity="0.6"
+        text-anchor="middle" letter-spacing="6">COOK SMART. EAT WELL.</text>
 </svg>
 `;
+}
+
+// Light splash sits on cream, so the type is deep brown.
+const SPLASH_LIGHT_SVG = splashLockup({ ink: BRAND_DARKEST, ringFill: CREAM });
+// Dark splash sits on deep brown, so the type is cream and the counter matches.
+const SPLASH_DARK_SVG = splashLockup({ ink: CREAM, ringFill: BRAND_DARKEST });
 
 // Adaptive icon foreground (Android): glyph centred on transparent
 // Android crops the foreground inside a circle/squircle, so keep glyph well inside safe area.
@@ -138,11 +170,16 @@ async function build() {
       svg: ICON_SVG,
       pipe: (img) => img.resize(1024, 1024).flatten({ background: BRAND }),
     },
-    // Splash icon — transparent, Expo composes onto splash bg color from app.json
+    // Splash lockups — transparent, Expo composes onto the bg colour from app.json
     {
-      name: 'splash-icon.png',
-      svg: SPLASH_ICON_SVG,
-      pipe: (img) => img.resize(1024, 1024),
+      name: 'splash-light.png',
+      svg: SPLASH_LIGHT_SVG,
+      pipe: (img) => img.resize(1200, 900),
+    },
+    {
+      name: 'splash-dark.png',
+      svg: SPLASH_DARK_SVG,
+      pipe: (img) => img.resize(1200, 900),
     },
     // Android adaptive icon
     {
