@@ -67,20 +67,20 @@ export default function DiscoverScreen() {
   const showResults = status !== 'idle' || results.length > 0;
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
+    <SafeAreaView className="flex-1 bg-cream dark:bg-charcoal">
       <View className="px-5 pb-3 pt-2">
-        <Text className="mb-4 text-3xl font-bold text-neutral-900 dark:text-neutral-50">
+        <Text className="mb-4 text-3xl font-bold text-stone-900 dark:text-stone-50">
           Discover
         </Text>
 
-        <View className="flex-row items-center rounded-2xl bg-neutral-100 px-4 py-3 dark:bg-neutral-900">
-          <Ionicons name="search" size={20} color="#737373" />
+        <View className="flex-row items-center rounded-2xl bg-stone-100 px-4 py-3 dark:bg-stone-900">
+          <Ionicons name="search" size={20} color="#78716c" />
           <TextInput
             value={query}
             onChangeText={setQuery}
             placeholder="Search any recipe…"
-            placeholderTextColor="#737373"
-            className="ml-3 flex-1 text-base text-neutral-900 dark:text-neutral-50"
+            placeholderTextColor="#78716c"
+            className="ml-3 flex-1 text-base text-stone-900 dark:text-stone-50"
             returnKeyType="search"
             onSubmitEditing={() => runSearch(query)}
             autoCorrect={false}
@@ -93,7 +93,7 @@ export default function DiscoverScreen() {
                 setStatus('idle');
               }}
               hitSlop={8}>
-              <Ionicons name="close-circle" size={18} color="#737373" />
+              <Ionicons name="close-circle" size={18} color="#78716c" />
             </Pressable>
           )}
         </View>
@@ -106,8 +106,8 @@ export default function DiscoverScreen() {
             <Pressable
               key={p}
               onPress={() => runSearch(p)}
-              className="mr-2 rounded-full border border-neutral-200 bg-white px-4 py-2 active:opacity-70 dark:border-neutral-800 dark:bg-neutral-900">
-              <Text className="text-sm text-neutral-700 dark:text-neutral-300">{p}</Text>
+              className="mr-2 rounded-full border border-stone-200 bg-white px-4 py-2 active:opacity-70 dark:border-stone-800 dark:bg-stone-900">
+              <Text className="text-sm text-stone-700 dark:text-stone-300">{p}</Text>
             </Pressable>
           ))}
         </ScrollView>
@@ -132,7 +132,7 @@ function SuggestionsView() {
   const { trending } = useHomeFeed();
   return (
     <ScrollView contentContainerClassName="px-5 pb-10">
-      <Text className="mb-3 mt-2 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+      <Text className="mb-3 mt-2 text-lg font-semibold text-stone-900 dark:text-stone-50">
         Popular this week
       </Text>
       <ScrollView
@@ -144,11 +144,11 @@ function SuggestionsView() {
         ))}
       </ScrollView>
 
-      <Text className="mb-3 mt-6 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+      <Text className="mb-3 mt-6 text-lg font-semibold text-stone-900 dark:text-stone-50">
         Tip
       </Text>
-      <View className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900">
-        <Text className="text-sm text-neutral-600 dark:text-neutral-400">
+      <View className="rounded-2xl border border-stone-200 bg-stone-50 p-4 dark:border-stone-800 dark:bg-stone-900">
+        <Text className="text-sm text-stone-600 dark:text-stone-400">
           Search hundreds of thousands of recipes. Tap any result to see ingredients, nutrition,
           and cook it from the original site without leaving the app.
         </Text>
@@ -184,10 +184,10 @@ function ResultsView({
     return (
       <View className="flex-1 items-center justify-center px-8">
         <Ionicons name="warning-outline" size={36} color="#ef4444" />
-        <Text className="mt-3 text-center text-base font-semibold text-neutral-900 dark:text-neutral-50">
+        <Text className="mt-3 text-center text-base font-semibold text-stone-900 dark:text-stone-50">
           Search failed
         </Text>
-        <Text className="mt-1 text-center text-sm text-neutral-500 dark:text-neutral-400">
+        <Text className="mt-1 text-center text-sm text-stone-500 dark:text-stone-400">
           {errorMessage || 'Something went wrong. Try again in a moment.'}
         </Text>
         <Pressable
@@ -202,11 +202,11 @@ function ResultsView({
   if (status === 'success' && results.length === 0) {
     return (
       <View className="flex-1 items-center justify-center px-8">
-        <Ionicons name="search-outline" size={36} color="#a3a3a3" />
-        <Text className="mt-3 text-center text-base font-semibold text-neutral-900 dark:text-neutral-50">
+        <Ionicons name="search-outline" size={36} color="#a8a29e" />
+        <Text className="mt-3 text-center text-base font-semibold text-stone-900 dark:text-stone-50">
           No results
         </Text>
-        <Text className="mt-1 text-center text-sm text-neutral-500 dark:text-neutral-400">
+        <Text className="mt-1 text-center text-sm text-stone-500 dark:text-stone-400">
           Try a simpler term or different cuisine.
         </Text>
       </View>
@@ -222,8 +222,8 @@ function ResultsView({
       renderItem={({ item }) => (
         <Pressable
           onPress={() => onPick(item)}
-          className="flex-row overflow-hidden rounded-2xl border border-neutral-200 bg-white active:opacity-80 dark:border-neutral-800 dark:bg-neutral-900">
-          <View className="h-24 w-24 bg-neutral-200 dark:bg-neutral-800">
+          className="flex-row overflow-hidden rounded-2xl border border-stone-200 bg-white active:opacity-80 dark:border-stone-800 dark:bg-stone-900">
+          <View className="h-24 w-24 bg-stone-200 dark:bg-stone-800">
             {item.thumbnail ? (
               <Image
                 source={{ uri: item.thumbnail }}
@@ -235,12 +235,12 @@ function ResultsView({
           <View className="flex-1 justify-center p-3">
             <Text
               numberOfLines={2}
-              className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              className="text-sm font-semibold text-stone-900 dark:text-stone-50">
               {item.title}
             </Text>
             <Text
               numberOfLines={1}
-              className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+              className="mt-1 text-xs text-stone-500 dark:text-stone-400">
               {item.siteName}
             </Text>
           </View>

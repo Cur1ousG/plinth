@@ -48,7 +48,7 @@ function OnboardingInner() {
   // for months ends up being greeted as brand new.
   if (!ready) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white dark:bg-neutral-950">
+      <SafeAreaView className="flex-1 items-center justify-center bg-cream dark:bg-charcoal">
         <Stack.Screen options={{ headerShown: false }} />
         <ActivityIndicator color="#f97316" />
       </SafeAreaView>
@@ -101,7 +101,7 @@ function OnboardingInner() {
   const restrictionCount = dietary.length + intolerances.length;
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
+    <SafeAreaView className="flex-1 bg-cream dark:bg-charcoal">
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Segmented progress — tells people how much is left, which keeps them going. */}
@@ -110,7 +110,7 @@ function OnboardingInner() {
           <View
             key={i}
             className={`h-1 flex-1 rounded-full ${
-              i <= step ? 'bg-brand-500' : 'bg-neutral-200 dark:bg-neutral-800'
+              i <= step ? 'bg-brand-500' : 'bg-stone-200 dark:bg-stone-800'
             }`}
           />
         ))}
@@ -119,13 +119,13 @@ function OnboardingInner() {
       <View className="flex-row items-center justify-between px-6 pt-3">
         {step > 0 ? (
           <Pressable onPress={() => setStep(step - 1)} hitSlop={12}>
-            <Ionicons name="chevron-back" size={24} color="#737373" />
+            <Ionicons name="chevron-back" size={24} color="#78716c" />
           </Pressable>
         ) : (
           <View style={{ width: 24 }} />
         )}
         <Pressable onPress={finish} hitSlop={12}>
-          <Text className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Skip</Text>
+          <Text className="text-sm font-medium text-stone-500 dark:text-stone-400">Skip</Text>
         </Pressable>
       </View>
 
@@ -171,10 +171,10 @@ function WelcomeStep() {
         <Ionicons name="restaurant" size={48} color="#ffffff" />
       </View>
 
-      <Text className="text-4xl font-bold text-neutral-900 dark:text-neutral-50">
+      <Text className="text-4xl font-bold text-stone-900 dark:text-stone-50">
         Welcome to Plinth
       </Text>
-      <Text className="mt-3 text-lg leading-7 text-neutral-600 dark:text-neutral-400">
+      <Text className="mt-3 text-lg leading-7 text-stone-600 dark:text-stone-400">
         Find recipes you&apos;ll actually make, plan them across the week, and walk into the shop
         knowing exactly what to buy.
       </Text>
@@ -210,10 +210,10 @@ function Highlight({
         <Ionicons name={icon} size={20} color="#ea580c" />
       </View>
       <View className="flex-1">
-        <Text className="text-base font-semibold text-neutral-900 dark:text-neutral-50">
+        <Text className="text-base font-semibold text-stone-900 dark:text-stone-50">
           {title}
         </Text>
-        <Text className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">{body}</Text>
+        <Text className="mt-0.5 text-sm text-stone-500 dark:text-stone-400">{body}</Text>
       </View>
     </View>
   );
@@ -240,14 +240,14 @@ function FoodStep({
 }) {
   return (
     <View className="pt-8">
-      <Text className="text-3xl font-bold text-neutral-900 dark:text-neutral-50">
+      <Text className="text-3xl font-bold text-stone-900 dark:text-stone-50">
         How do you eat?
       </Text>
-      <Text className="mt-2 text-base text-neutral-600 dark:text-neutral-400">
+      <Text className="mt-2 text-base text-stone-600 dark:text-stone-400">
         We&apos;ll filter every recipe to match. You can change this any time in Settings.
       </Text>
 
-      <Text className="mb-3 mt-8 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+      <Text className="mb-3 mt-8 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
         Diet
       </Text>
       <View className="flex-row flex-wrap gap-2">
@@ -261,10 +261,10 @@ function FoodStep({
         ))}
       </View>
 
-      <Text className="mb-1 mt-8 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+      <Text className="mb-1 mt-8 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
         Allergies &amp; intolerances
       </Text>
-      <Text className="mb-3 text-xs text-neutral-500 dark:text-neutral-400">
+      <Text className="mb-3 text-xs text-stone-500 dark:text-stone-400">
         Recipes containing these are hidden completely, not just ranked lower.
       </Text>
       <View className="flex-row flex-wrap gap-2">
@@ -278,7 +278,7 @@ function FoodStep({
         ))}
       </View>
 
-      <Text className="mt-6 text-xs text-neutral-400 dark:text-neutral-600">
+      <Text className="mt-6 text-xs text-stone-400 dark:text-stone-600">
         Recipe data comes from third parties, so always check ingredients yourself before cooking.
       </Text>
     </View>
@@ -300,7 +300,7 @@ function Chip({
       className={`flex-row items-center rounded-full border px-4 py-2.5 ${
         active
           ? 'border-brand-500 bg-brand-50 dark:bg-brand-900'
-          : 'border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900'
+          : 'border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900'
       }`}>
       {active && (
         <Ionicons name="checkmark" size={15} color="#ea580c" style={{ marginRight: 4 }} />
@@ -309,7 +309,7 @@ function Chip({
         className={`text-sm ${
           active
             ? 'font-semibold text-brand-700 dark:text-brand-100'
-            : 'text-neutral-700 dark:text-neutral-300'
+            : 'text-stone-700 dark:text-stone-300'
         }`}>
         {label}
       </Text>
@@ -346,17 +346,17 @@ function PhotoStep({
         </View>
       </Pressable>
 
-      <Text className="mt-8 text-center text-3xl font-bold text-neutral-900 dark:text-neutral-50">
+      <Text className="mt-8 text-center text-3xl font-bold text-stone-900 dark:text-stone-50">
         Add a photo
       </Text>
-      <Text className="mt-2 text-center text-base text-neutral-600 dark:text-neutral-400">
+      <Text className="mt-2 text-center text-base text-stone-600 dark:text-stone-400">
         Optional — it just makes the app feel like yours.
       </Text>
 
       <Pressable
         onPress={onUpload}
         disabled={busy}
-        className="mt-6 rounded-2xl border border-neutral-200 px-6 py-3 active:bg-neutral-100 disabled:opacity-60 dark:border-neutral-800 dark:active:bg-neutral-900">
+        className="mt-6 rounded-2xl border border-stone-200 px-6 py-3 active:bg-stone-100 disabled:opacity-60 dark:border-stone-800 dark:active:bg-stone-900">
         {busy ? (
           <ActivityIndicator color="#f97316" />
         ) : (

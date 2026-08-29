@@ -8,7 +8,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   if (!isLoaded) {
     return (
-      <View className="flex-1 items-center justify-center bg-white dark:bg-neutral-950">
+      <View className="flex-1 items-center justify-center bg-cream dark:bg-charcoal">
         <ActivityIndicator color="#f97316" />
       </View>
     );

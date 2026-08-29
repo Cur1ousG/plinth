@@ -64,13 +64,13 @@ function CuisineInner() {
 
   if (!hasPremium) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white px-8 dark:bg-neutral-950">
+      <SafeAreaView className="flex-1 items-center justify-center bg-cream px-8 dark:bg-charcoal">
         <Stack.Screen options={{ title: cuisine }} />
-        <Ionicons name="lock-closed" size={36} color="#a3a3a3" />
-        <Text className="mt-3 text-base font-semibold text-neutral-900 dark:text-neutral-50">
+        <Ionicons name="lock-closed" size={36} color="#a8a29e" />
+        <Text className="mt-3 text-base font-semibold text-stone-900 dark:text-stone-50">
           Premium required
         </Text>
-        <Text className="mt-2 text-center text-sm text-neutral-500 dark:text-neutral-400">
+        <Text className="mt-2 text-center text-sm text-stone-500 dark:text-stone-400">
           Browsing by cuisine is part of Plinth Premium.
         </Text>
       </SafeAreaView>
@@ -79,7 +79,7 @@ function CuisineInner() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white dark:bg-neutral-950">
+      <SafeAreaView className="flex-1 items-center justify-center bg-cream dark:bg-charcoal">
         <Stack.Screen options={{ title: cuisine }} />
         <ActivityIndicator color="#f97316" />
       </SafeAreaView>
@@ -88,15 +88,15 @@ function CuisineInner() {
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white px-8 dark:bg-neutral-950">
+      <SafeAreaView className="flex-1 items-center justify-center bg-cream px-8 dark:bg-charcoal">
         <Stack.Screen options={{ title: cuisine }} />
-        <Text className="text-center text-sm text-neutral-500">{error}</Text>
+        <Text className="text-center text-sm text-stone-500">{error}</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <View className="flex-1 bg-white dark:bg-neutral-950">
+    <View className="flex-1 bg-cream dark:bg-charcoal">
       <Stack.Screen options={{ title: cuisine }} />
       <FlatList
         data={recipes}
@@ -107,8 +107,8 @@ function CuisineInner() {
         renderItem={({ item }) => (
           <Pressable
             onPress={() => router.push({ pathname: '/recipe', params: { id: item.id } })}
-            className="flex-1 overflow-hidden rounded-2xl border border-neutral-200 bg-white active:opacity-80 dark:border-neutral-800 dark:bg-neutral-900">
-            <View className="relative h-32 w-full bg-neutral-200 dark:bg-neutral-800">
+            className="flex-1 overflow-hidden rounded-2xl border border-stone-200 bg-white active:opacity-80 dark:border-stone-800 dark:bg-stone-900">
+            <View className="relative h-32 w-full bg-stone-200 dark:bg-stone-800">
               {item.thumbnail ? (
                 <Image
                   source={{ uri: item.thumbnail }}
@@ -133,13 +133,13 @@ function CuisineInner() {
             <View className="p-3">
               <Text
                 numberOfLines={2}
-                className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                className="text-sm font-semibold text-stone-900 dark:text-stone-50">
                 {item.title}
               </Text>
               {item.minutes != null && (
                 <View className="mt-1 flex-row items-center">
-                  <Ionicons name="time-outline" size={12} color="#737373" />
-                  <Text className="ml-1 text-xs text-neutral-500 dark:text-neutral-400">
+                  <Ionicons name="time-outline" size={12} color="#78716c" />
+                  <Text className="ml-1 text-xs text-stone-500 dark:text-stone-400">
                     {item.minutes} min
                   </Text>
                 </View>

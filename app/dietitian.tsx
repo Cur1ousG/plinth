@@ -95,13 +95,13 @@ function DietitianInner() {
 
   if (!hasPremium) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white px-8 dark:bg-neutral-950">
+      <SafeAreaView className="flex-1 items-center justify-center bg-cream px-8 dark:bg-charcoal">
         <Stack.Screen options={{ title: 'Dietitian plan' }} />
-        <Ionicons name="lock-closed" size={36} color="#a3a3a3" />
-        <Text className="mt-3 text-base font-semibold text-neutral-900 dark:text-neutral-50">
+        <Ionicons name="lock-closed" size={36} color="#a8a29e" />
+        <Text className="mt-3 text-base font-semibold text-stone-900 dark:text-stone-50">
           Premium required
         </Text>
-        <Text className="mt-2 text-center text-sm text-neutral-500 dark:text-neutral-400">
+        <Text className="mt-2 text-center text-sm text-stone-500 dark:text-stone-400">
           The dietitian plan is part of Plinth Premium.
         </Text>
       </SafeAreaView>
@@ -155,14 +155,14 @@ function DietitianInner() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-white dark:bg-neutral-950">
+    <ScrollView className="flex-1 bg-cream dark:bg-charcoal">
       <Stack.Screen options={{ title: 'Dietitian plan' }} />
 
       <View className="px-5 py-6">
-        <Text className="text-2xl font-bold text-neutral-900 dark:text-neutral-50">
+        <Text className="text-2xl font-bold text-stone-900 dark:text-stone-50">
           Tell us your goal
         </Text>
-        <Text className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+        <Text className="mt-1 text-sm text-stone-500 dark:text-stone-400">
           We&apos;ll calculate daily calorie and protein targets, then suggest recipes that fit.
         </Text>
 
@@ -171,9 +171,9 @@ function DietitianInner() {
           value={weightKg}
           onChangeText={setWeightKg}
           placeholder="e.g. 75"
-          placeholderTextColor="#737373"
+          placeholderTextColor="#78716c"
           keyboardType="numeric"
-          className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-base text-neutral-900 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-50"
+          className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-base text-stone-900 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-50"
         />
 
         <SectionHeader>Goal</SectionHeader>
@@ -187,13 +187,13 @@ function DietitianInner() {
                 className={`flex-row items-center rounded-2xl border p-4 ${
                   active
                     ? 'border-brand-500 bg-brand-50 dark:bg-brand-900'
-                    : 'border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900'
+                    : 'border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900'
                 }`}>
-                <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-neutral-800">
+                <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-stone-800">
                   <Ionicons
                     name={g.icon}
                     size={20}
-                    color={active ? '#ea580c' : '#737373'}
+                    color={active ? '#ea580c' : '#78716c'}
                   />
                 </View>
                 <View className="flex-1">
@@ -201,11 +201,11 @@ function DietitianInner() {
                     className={`text-base font-semibold ${
                       active
                         ? 'text-brand-700 dark:text-brand-100'
-                        : 'text-neutral-900 dark:text-neutral-50'
+                        : 'text-stone-900 dark:text-stone-50'
                     }`}>
                     {g.label}
                   </Text>
-                  <Text className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                  <Text className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
                     {g.desc}
                   </Text>
                 </View>
@@ -216,18 +216,18 @@ function DietitianInner() {
         </View>
 
         {valid && (
-          <View className="mt-6 rounded-2xl bg-neutral-100 p-4 dark:bg-neutral-900">
-            <Text className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+          <View className="mt-6 rounded-2xl bg-stone-100 p-4 dark:bg-stone-900">
+            <Text className="mb-3 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
               Your daily targets
             </Text>
             <View className="flex-row gap-3">
               <Stat label="Calories" value={`${dailyCalories}`} unit="kcal" />
               <Stat label="Protein" value={`${dailyProtein}`} unit="g" />
             </View>
-            <Text className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+            <Text className="mt-3 text-xs text-stone-500 dark:text-stone-400">
               Per meal (3 meals): ~{perMealCalories} kcal · ~{perMealProtein}g protein
             </Text>
-            <Text className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            <Text className="mt-1 text-xs text-stone-500 dark:text-stone-400">
               Searching {minCalories}–{maxCalories} kcal with at least{' '}
               {Math.round(perMealProtein * 0.8)}g protein per serving.
             </Text>
@@ -240,14 +240,14 @@ function DietitianInner() {
           className={`mt-6 items-center rounded-2xl px-5 py-4 ${
             valid && !loading
               ? 'bg-brand-500 active:opacity-80'
-              : 'bg-neutral-200 dark:bg-neutral-800'
+              : 'bg-stone-200 dark:bg-stone-800'
           }`}>
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <Text
               className={`text-base font-semibold ${
-                valid ? 'text-white' : 'text-neutral-500'
+                valid ? 'text-white' : 'text-stone-500'
               }`}>
               Find matching recipes
             </Text>
@@ -256,7 +256,7 @@ function DietitianInner() {
 
         {recipes.length > 0 && (
           <>
-            <Text className="mb-3 mt-8 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+            <Text className="mb-3 mt-8 text-lg font-semibold text-stone-900 dark:text-stone-50">
               Recipes that fit
             </Text>
             <View className="gap-3">
@@ -264,8 +264,8 @@ function DietitianInner() {
                 <Pressable
                   key={r.id}
                   onPress={() => router.push({ pathname: '/recipe', params: { id: r.id } })}
-                  className="flex-row overflow-hidden rounded-2xl border border-neutral-200 bg-white active:opacity-80 dark:border-neutral-800 dark:bg-neutral-900">
-                  <View className="h-20 w-20 bg-neutral-200 dark:bg-neutral-800">
+                  className="flex-row overflow-hidden rounded-2xl border border-stone-200 bg-white active:opacity-80 dark:border-stone-800 dark:bg-stone-900">
+                  <View className="h-20 w-20 bg-stone-200 dark:bg-stone-800">
                     {r.thumbnail ? (
                       <Image
                         source={{ uri: r.thumbnail }}
@@ -277,11 +277,11 @@ function DietitianInner() {
                   <View className="flex-1 justify-center p-3">
                     <Text
                       numberOfLines={2}
-                      className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                      className="text-sm font-semibold text-stone-900 dark:text-stone-50">
                       {r.title}
                     </Text>
                     {r.minutes != null && (
-                      <Text className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                      <Text className="mt-1 text-xs text-stone-500 dark:text-stone-400">
                         {r.minutes} min
                         {r.cuisine ? ` · ${r.cuisine}` : ''}
                       </Text>
@@ -299,7 +299,7 @@ function DietitianInner() {
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <Text className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+    <Text className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
       {children}
     </Text>
   );
@@ -307,11 +307,11 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
 
 function Stat({ label, value, unit }: { label: string; value: string; unit: string }) {
   return (
-    <View className="flex-1 rounded-xl bg-white p-3 dark:bg-neutral-800">
-      <Text className="text-xs text-neutral-500 dark:text-neutral-400">{label}</Text>
+    <View className="flex-1 rounded-xl bg-white p-3 dark:bg-stone-800">
+      <Text className="text-xs text-stone-500 dark:text-stone-400">{label}</Text>
       <View className="mt-1 flex-row items-baseline">
-        <Text className="text-2xl font-bold text-neutral-900 dark:text-neutral-50">{value}</Text>
-        <Text className="ml-1 text-xs text-neutral-500 dark:text-neutral-400">{unit}</Text>
+        <Text className="text-2xl font-bold text-stone-900 dark:text-stone-50">{value}</Text>
+        <Text className="ml-1 text-xs text-stone-500 dark:text-stone-400">{unit}</Text>
       </View>
     </View>
   );

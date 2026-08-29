@@ -96,7 +96,7 @@ function RecipeScreenInner() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white dark:bg-neutral-950">
+      <SafeAreaView className="flex-1 items-center justify-center bg-cream dark:bg-charcoal">
         <Stack.Screen options={{ headerShown: false }} />
         <ActivityIndicator color="#f97316" />
       </SafeAreaView>
@@ -105,13 +105,13 @@ function RecipeScreenInner() {
 
   if (error || !recipe) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white px-8 dark:bg-neutral-950">
+      <SafeAreaView className="flex-1 items-center justify-center bg-cream px-8 dark:bg-charcoal">
         <Stack.Screen options={{ title: 'Recipe' }} />
         <Ionicons name="warning-outline" size={36} color="#ef4444" />
-        <Text className="mt-3 text-center text-base font-semibold text-neutral-900 dark:text-neutral-50">
+        <Text className="mt-3 text-center text-base font-semibold text-stone-900 dark:text-stone-50">
           Couldn&apos;t load recipe
         </Text>
-        <Text className="mt-1 text-center text-sm text-neutral-500 dark:text-neutral-400">
+        <Text className="mt-1 text-center text-sm text-stone-500 dark:text-stone-400">
           {error || 'Try again from Discover.'}
         </Text>
         <Pressable
@@ -126,21 +126,21 @@ function RecipeScreenInner() {
   const saved = isSaved(recipe.id);
 
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-white dark:bg-neutral-950">
+    <SafeAreaView edges={['top']} className="flex-1 bg-cream dark:bg-charcoal">
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View className="flex-row items-center border-b border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950">
+      <View className="flex-row items-center border-b border-stone-200 bg-cream px-3 py-2 dark:border-stone-800 dark:bg-charcoal">
         <Pressable onPress={() => router.back()} hitSlop={8} className="p-2">
-          <Ionicons name="chevron-back" size={24} color="#737373" />
+          <Ionicons name="chevron-back" size={24} color="#78716c" />
         </Pressable>
         <View className="ml-1 flex-1">
           <Text
             numberOfLines={1}
-            className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+            className="text-sm font-semibold text-stone-900 dark:text-stone-50">
             {recipe.title}
           </Text>
           {recipe.siteName ? (
-            <Text numberOfLines={1} className="text-xs text-neutral-500 dark:text-neutral-400">
+            <Text numberOfLines={1} className="text-xs text-stone-500 dark:text-stone-400">
               {recipe.siteName}
             </Text>
           ) : null}
@@ -153,7 +153,7 @@ function RecipeScreenInner() {
           <Ionicons
             name={saved ? 'heart' : 'heart-outline'}
             size={22}
-            color={saved ? '#f97316' : '#737373'}
+            color={saved ? '#f97316' : '#78716c'}
           />
         </Pressable>
         {recipe.url ? (
@@ -162,12 +162,12 @@ function RecipeScreenInner() {
             hitSlop={8}
             className="p-2"
             accessibilityLabel="Open in external browser">
-            <Ionicons name="open-outline" size={22} color="#737373" />
+            <Ionicons name="open-outline" size={22} color="#78716c" />
           </Pressable>
         ) : null}
       </View>
 
-      <View className="flex-row border-b border-neutral-200 dark:border-neutral-800">
+      <View className="flex-row border-b border-stone-200 dark:border-stone-800">
         <TabButton label="Ingredients" active={tab === 'ingredients'} onPress={() => setTab('ingredients')} />
         <TabButton label="Instructions" active={tab === 'instructions'} onPress={() => setTab('instructions')} />
       </View>
@@ -207,7 +207,7 @@ function TabButton({
         className={`text-sm font-semibold ${
           active
             ? 'text-brand-600 dark:text-brand-400'
-            : 'text-neutral-500 dark:text-neutral-400'
+            : 'text-stone-500 dark:text-stone-400'
         }`}>
         {label}
       </Text>
@@ -255,10 +255,10 @@ function IngredientsTab({
                 />
               ) : null}
             </View>
-            <Text className="mt-5 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+            <Text className="mt-5 text-lg font-semibold text-stone-900 dark:text-stone-50">
               Ingredients
             </Text>
-            <Text className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            <Text className="mt-1 text-xs text-stone-500 dark:text-stone-400">
               Tap to check off, then add to your shopping cart.
             </Text>
           </View>
@@ -266,20 +266,20 @@ function IngredientsTab({
         renderItem={({ item, index }) => (
           <Pressable
             onPress={() => onToggleCheck(index)}
-            className="mx-5 my-1 flex-row items-center rounded-xl px-3 py-3 active:bg-neutral-100 dark:active:bg-neutral-900">
+            className="mx-5 my-1 flex-row items-center rounded-xl px-3 py-3 active:bg-stone-100 dark:active:bg-stone-900">
             <View
               className={`mr-3 h-5 w-5 items-center justify-center rounded border-2 ${
                 checked[index]
                   ? 'border-brand-500 bg-brand-500'
-                  : 'border-neutral-300 dark:border-neutral-700'
+                  : 'border-stone-300 dark:border-stone-700'
               }`}>
               {checked[index] && <Ionicons name="checkmark" size={14} color="#ffffff" />}
             </View>
             <Text
               className={`flex-1 text-sm ${
                 checked[index]
-                  ? 'text-neutral-400 line-through dark:text-neutral-600'
-                  : 'text-neutral-900 dark:text-neutral-50'
+                  ? 'text-stone-400 line-through dark:text-stone-600'
+                  : 'text-stone-900 dark:text-stone-50'
               }`}>
               {item.original}
             </Text>
@@ -287,7 +287,7 @@ function IngredientsTab({
         )}
         ListEmptyComponent={
           <View className="items-center px-8 py-12">
-            <Text className="text-center text-sm text-neutral-500 dark:text-neutral-400">
+            <Text className="text-center text-sm text-stone-500 dark:text-stone-400">
               No structured ingredients available for this recipe.
             </Text>
           </View>
@@ -297,7 +297,7 @@ function IngredientsTab({
       />
 
       {recipe.ingredients.length > 0 && (
-        <View className="absolute bottom-0 left-0 right-0 border-t border-neutral-200 bg-white px-5 py-3 dark:border-neutral-800 dark:bg-neutral-950">
+        <View className="absolute bottom-0 left-0 right-0 border-t border-stone-200 bg-cream px-5 py-3 dark:border-stone-800 dark:bg-charcoal">
           <Pressable
             onPress={onAddToCart}
             className="items-center rounded-2xl bg-brand-500 px-5 py-3 active:opacity-80">
@@ -333,7 +333,7 @@ function InstructionsTab({ recipe }: { recipe: ParsedRecipe }) {
   if (!recipe.url || !isSafeWebViewUrl(recipe.url)) {
     return (
       <ScrollView className="flex-1" contentContainerClassName="p-5">
-        <Text className="text-base text-neutral-700 dark:text-neutral-300">
+        <Text className="text-base text-stone-700 dark:text-stone-300">
           {recipe.instructions ?? 'No instructions available.'}
         </Text>
       </ScrollView>
@@ -344,7 +344,7 @@ function InstructionsTab({ recipe }: { recipe: ParsedRecipe }) {
       source={{ uri: recipe.url }}
       startInLoadingState
       renderLoading={() => (
-        <View className="absolute inset-0 items-center justify-center bg-white dark:bg-neutral-950">
+        <View className="absolute inset-0 items-center justify-center bg-cream dark:bg-charcoal">
           <ActivityIndicator color="#f97316" />
         </View>
       )}
@@ -372,9 +372,9 @@ function Pill({
   label: string;
 }) {
   return (
-    <View className="mr-2 mt-2 flex-row items-center rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 dark:border-neutral-800 dark:bg-neutral-900">
-      <Ionicons name={icon} size={14} color="#737373" />
-      <Text className="ml-1 text-xs text-neutral-600 dark:text-neutral-400">{label}</Text>
+    <View className="mr-2 mt-2 flex-row items-center rounded-full border border-stone-200 bg-stone-50 px-3 py-1 dark:border-stone-800 dark:bg-stone-900">
+      <Ionicons name={icon} size={14} color="#78716c" />
+      <Text className="ml-1 text-xs text-stone-600 dark:text-stone-400">{label}</Text>
     </View>
   );
 }

@@ -19,32 +19,32 @@ function LanguageInner() {
 
   return (
     <ScrollView
-      className="flex-1 bg-white dark:bg-neutral-950"
+      className="flex-1 bg-cream dark:bg-charcoal"
       contentContainerClassName="px-5 py-6">
       <Stack.Screen options={{ title: 'Language', headerBackTitle: from || 'Back' }} />
 
-      <Text className="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
+      <Text className="mb-4 text-sm text-stone-500 dark:text-stone-400">
         Choose your preferred language. Full localization is rolling out — for now, your selection
         is saved and will apply when language packs ship.
       </Text>
 
-      <View className="overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800">
+      <View className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-800">
         {LANGUAGE_OPTIONS.map((opt, i) => {
           const active = language === opt.code;
           return (
             <Pressable
               key={opt.code}
               onPress={() => setLanguage(opt.code)}
-              className={`flex-row items-center px-4 py-4 active:bg-neutral-100 dark:active:bg-neutral-900 ${
+              className={`flex-row items-center px-4 py-4 active:bg-stone-100 dark:active:bg-stone-900 ${
                 i < LANGUAGE_OPTIONS.length - 1
-                  ? 'border-b border-neutral-200 dark:border-neutral-800'
+                  ? 'border-b border-stone-200 dark:border-stone-800'
                   : ''
               }`}>
               <View className="flex-1">
-                <Text className="text-base font-medium text-neutral-900 dark:text-neutral-50">
+                <Text className="text-base font-medium text-stone-900 dark:text-stone-50">
                   {opt.label}
                 </Text>
-                <Text className="text-xs text-neutral-500 dark:text-neutral-400">
+                <Text className="text-xs text-stone-500 dark:text-stone-400">
                   {opt.native}
                 </Text>
               </View>

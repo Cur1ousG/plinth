@@ -39,9 +39,9 @@ export function CuisinesRail() {
           key={c.id}
           href={{ pathname: '/cuisine/[name]', params: { name: c.id } }}
           asChild>
-          <Pressable className="mr-2 flex-row items-center rounded-full border border-neutral-200 bg-white px-4 py-2 active:opacity-70 dark:border-neutral-800 dark:bg-neutral-900">
+          <Pressable className="mr-2 flex-row items-center rounded-full border border-stone-200 bg-white px-4 py-2 active:opacity-70 dark:border-stone-800 dark:bg-stone-900">
             <Text className="mr-1 text-base">{c.emoji}</Text>
-            <Text className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            <Text className="text-sm font-medium text-stone-700 dark:text-stone-300">
               {c.label}
             </Text>
           </Pressable>
@@ -54,19 +54,19 @@ export function CuisinesRail() {
 function PremiumLock() {
   return (
     <Link href="/premium" asChild>
-      <Pressable className="flex-row items-center rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-4 active:opacity-70 dark:border-neutral-800 dark:bg-neutral-900">
+      <Pressable className="flex-row items-center rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4 active:opacity-70 dark:border-stone-800 dark:bg-stone-900">
         <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900">
           <Ionicons name="lock-closed" size={18} color="#ea580c" />
         </View>
         <View className="flex-1">
-          <Text className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+          <Text className="text-sm font-semibold text-stone-900 dark:text-stone-50">
             Browse by cuisine
           </Text>
-          <Text className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+          <Text className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
             Unlock with Plinth Premium
           </Text>
         </View>
-        <Ionicons name="chevron-forward" size={18} color="#a3a3a3" />
+        <Ionicons name="chevron-forward" size={18} color="#a8a29e" />
       </Pressable>
     </Link>
   );

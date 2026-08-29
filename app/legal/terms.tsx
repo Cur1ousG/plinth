@@ -4,14 +4,14 @@ import { ScrollView, Text, View } from 'react-native';
 export default function TermsScreen() {
   return (
     <ScrollView
-      className="flex-1 bg-white dark:bg-neutral-950"
+      className="flex-1 bg-cream dark:bg-charcoal"
       contentContainerClassName="px-5 py-6">
       <Stack.Screen options={{ title: 'Terms of service' }} />
 
-      <Text className="mb-2 text-2xl font-bold text-neutral-900 dark:text-neutral-50">
+      <Text className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-50">
         Terms of service
       </Text>
-      <Text className="mb-6 text-xs text-neutral-500 dark:text-neutral-400">
+      <Text className="mb-6 text-xs text-stone-500 dark:text-stone-400">
         Last updated: 5 May 2026
       </Text>
 
@@ -136,10 +136,10 @@ export default function TermsScreen() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <View className="mb-6">
-      <Text className="mb-2 text-base font-semibold text-neutral-900 dark:text-neutral-50">
+      <Text className="mb-2 text-base font-semibold text-stone-900 dark:text-stone-50">
         {title}
       </Text>
-      <Text className="text-sm leading-6 text-neutral-700 dark:text-neutral-300">
+      <Text className="text-sm leading-6 text-stone-700 dark:text-stone-300">
         {children}
       </Text>
     </View>
@@ -148,7 +148,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Bullet({ children }: { children: React.ReactNode }) {
   return (
-    <Text className="text-sm leading-6 text-neutral-700 dark:text-neutral-300">
+    <Text className="text-sm leading-6 text-stone-700 dark:text-stone-300">
       {'• '}
       {children}
       {'\n'}

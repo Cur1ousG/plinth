@@ -114,12 +114,12 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
+    <SafeAreaView className="flex-1 bg-cream dark:bg-charcoal">
       <View className="flex-1 justify-center px-6">
-        <Text className="text-3xl font-bold text-neutral-900 dark:text-neutral-50">
+        <Text className="text-3xl font-bold text-stone-900 dark:text-stone-50">
           {stage === 'request' ? 'Reset your password' : 'Check your email'}
         </Text>
-        <Text className="mb-8 mt-1 text-base text-neutral-500 dark:text-neutral-400">
+        <Text className="mb-8 mt-1 text-base text-stone-500 dark:text-stone-400">
           {stage === 'request'
             ? "Enter the email on your account and we'll send you a code to set a new password."
             : `We've sent a code to ${email.trim()}. Enter it below along with your new password.`}
@@ -157,7 +157,7 @@ export default function ForgotPasswordScreen() {
               secureTextEntry
               autoComplete="password-new"
             />
-            <Text className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            <Text className="mt-1 text-xs text-stone-500 dark:text-stone-400">
               At least {MIN_PASSWORD_LENGTH} characters.
             </Text>
           </>
@@ -184,7 +184,7 @@ export default function ForgotPasswordScreen() {
 
         <View className="mt-8 flex-row justify-center">
           <Link href="/sign-in">
-            <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+            <Text className="text-sm text-stone-500 dark:text-stone-400">
               ← Back to sign in
             </Text>
           </Link>
@@ -200,13 +200,13 @@ function Field({
 }: { label: string } & React.ComponentProps<typeof TextInput>) {
   return (
     <View className="mb-3">
-      <Text className="mb-1 text-sm font-medium text-neutral-700 dark:text-neutral-300">
+      <Text className="mb-1 text-sm font-medium text-stone-700 dark:text-stone-300">
         {label}
       </Text>
       <TextInput
         {...input}
-        placeholderTextColor="#737373"
-        className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-base text-neutral-900 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-50"
+        placeholderTextColor="#78716c"
+        className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-base text-stone-900 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-50"
       />
     </View>
   );

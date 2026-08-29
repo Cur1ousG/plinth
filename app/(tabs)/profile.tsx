@@ -38,13 +38,13 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
+    <SafeAreaView className="flex-1 bg-cream dark:bg-charcoal">
       <ScrollView contentContainerClassName="px-5 pt-2 pb-10">
-        <Text className="mb-6 text-3xl font-bold text-neutral-900 dark:text-neutral-50">
+        <Text className="mb-6 text-3xl font-bold text-stone-900 dark:text-stone-50">
           Profile
         </Text>
 
-        <View className="mb-8 flex-row items-center rounded-2xl bg-neutral-100 px-4 py-4 dark:bg-neutral-900">
+        <View className="mb-8 flex-row items-center rounded-2xl bg-stone-100 px-4 py-4 dark:bg-stone-900">
           <View className="h-14 w-14 overflow-hidden rounded-full bg-brand-500">
             {user?.hasImage && user.imageUrl ? (
               <Image
@@ -60,30 +60,30 @@ export default function ProfileScreen() {
             )}
           </View>
           <View className="ml-4 flex-1">
-            <Text className="text-base font-semibold text-neutral-900 dark:text-neutral-50">
+            <Text className="text-base font-semibold text-stone-900 dark:text-stone-50">
               {displayName}
             </Text>
-            <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+            <Text className="text-sm text-stone-500 dark:text-stone-400">
               {user?.primaryEmailAddress?.emailAddress ?? ''}
             </Text>
           </View>
         </View>
 
-        <View className="mb-6 overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800">
+        <View className="mb-6 overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-800">
           {rows.map((r, i) => (
             <Link key={r.href} href={{ pathname: r.href, params: { from: 'Profile' } }} asChild>
               <Pressable
-                className={`flex-row items-center px-4 py-4 active:bg-neutral-100 dark:active:bg-neutral-900 ${
-                  i < rows.length - 1 ? 'border-b border-neutral-200 dark:border-neutral-800' : ''
+                className={`flex-row items-center px-4 py-4 active:bg-stone-100 dark:active:bg-stone-900 ${
+                  i < rows.length - 1 ? 'border-b border-stone-200 dark:border-stone-800' : ''
                 }`}>
                 <Ionicons name={r.icon} size={22} color="#f97316" />
                 <View className="ml-4 flex-1">
-                  <Text className="text-base font-medium text-neutral-900 dark:text-neutral-50">
+                  <Text className="text-base font-medium text-stone-900 dark:text-stone-50">
                     {r.label}
                   </Text>
-                  <Text className="text-xs text-neutral-500 dark:text-neutral-400">{r.sub}</Text>
+                  <Text className="text-xs text-stone-500 dark:text-stone-400">{r.sub}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color="#a3a3a3" />
+                <Ionicons name="chevron-forward" size={18} color="#a8a29e" />
               </Pressable>
             </Link>
           ))}
@@ -91,7 +91,7 @@ export default function ProfileScreen() {
 
         <Pressable
           onPress={onSignOut}
-          className="items-center rounded-2xl border border-neutral-200 px-5 py-4 active:bg-neutral-100 dark:border-neutral-800 dark:active:bg-neutral-900">
+          className="items-center rounded-2xl border border-stone-200 px-5 py-4 active:bg-stone-100 dark:border-stone-800 dark:active:bg-stone-900">
           <Text className="text-base font-medium text-red-600">Sign out</Text>
         </Pressable>
       </ScrollView>

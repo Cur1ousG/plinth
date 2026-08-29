@@ -132,12 +132,12 @@ export default function SignInScreen() {
 
   if (needsSecondFactor) {
     return (
-      <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
+      <SafeAreaView className="flex-1 bg-cream dark:bg-charcoal">
         <View className="flex-1 justify-center px-6">
-          <Text className="text-3xl font-bold text-neutral-900 dark:text-neutral-50">
+          <Text className="text-3xl font-bold text-stone-900 dark:text-stone-50">
             {strategyTitle(mfaStrategy)}
           </Text>
-          <Text className="mb-8 mt-1 text-base text-neutral-500 dark:text-neutral-400">
+          <Text className="mb-8 mt-1 text-base text-stone-500 dark:text-stone-400">
             {strategyHelpText(mfaStrategy)}
           </Text>
 
@@ -162,7 +162,7 @@ export default function SignInScreen() {
 
           {supportedStrategies.length > 1 && (
             <View className="mt-6">
-              <Text className="mb-2 text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+              <Text className="mb-2 text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400">
                 Try another method
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -172,8 +172,8 @@ export default function SignInScreen() {
                     <Pressable
                       key={s}
                       onPress={() => onSwitchStrategy(s)}
-                      className="rounded-full border border-neutral-200 px-4 py-2 active:bg-neutral-100 dark:border-neutral-800 dark:active:bg-neutral-900">
-                      <Text className="text-sm text-neutral-700 dark:text-neutral-300">
+                      className="rounded-full border border-stone-200 px-4 py-2 active:bg-stone-100 dark:border-stone-800 dark:active:bg-stone-900">
+                      <Text className="text-sm text-stone-700 dark:text-stone-300">
                         {strategyLabel(s)}
                       </Text>
                     </Pressable>
@@ -188,7 +188,7 @@ export default function SignInScreen() {
               setMfaCode('');
             }}
             className="mt-6 items-center">
-            <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+            <Text className="text-sm text-stone-500 dark:text-stone-400">
               ← Back to email + password
             </Text>
           </Pressable>
@@ -198,12 +198,12 @@ export default function SignInScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
+    <SafeAreaView className="flex-1 bg-cream dark:bg-charcoal">
       <View className="flex-1 justify-center px-6">
-        <Text className="text-3xl font-bold text-neutral-900 dark:text-neutral-50">
+        <Text className="text-3xl font-bold text-stone-900 dark:text-stone-50">
           Welcome back
         </Text>
-        <Text className="mb-8 mt-1 text-base text-neutral-500 dark:text-neutral-400">
+        <Text className="mb-8 mt-1 text-base text-stone-500 dark:text-stone-400">
           Sign in to sync your recipes and meal plans.
         </Text>
 
@@ -241,7 +241,7 @@ export default function SignInScreen() {
         </Pressable>
 
         <View className="mt-6 flex-row justify-center">
-          <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+          <Text className="text-sm text-stone-500 dark:text-stone-400">
             Don&apos;t have an account?{' '}
           </Text>
           <Link href="/sign-up">
@@ -282,13 +282,13 @@ function Field({
 }: { label: string } & React.ComponentProps<typeof TextInput>) {
   return (
     <View className="mb-3">
-      <Text className="mb-1 text-sm font-medium text-neutral-700 dark:text-neutral-300">
+      <Text className="mb-1 text-sm font-medium text-stone-700 dark:text-stone-300">
         {label}
       </Text>
       <TextInput
         {...input}
-        placeholderTextColor="#737373"
-        className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-base text-neutral-900 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-50"
+        placeholderTextColor="#78716c"
+        className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-base text-stone-900 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-50"
       />
     </View>
   );

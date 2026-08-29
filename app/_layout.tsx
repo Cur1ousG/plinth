@@ -11,6 +11,7 @@ import { useColorScheme as useSystemColorScheme } from 'react-native';
 import 'react-native-reanimated';
 
 import { OfflineBanner } from '@/components/offline-banner';
+import { Colors } from '@/constants/theme';
 import { convex } from '@/lib/convex';
 import { initSentry, setSentryUser, wrapRoot } from '@/lib/sentry';
 import { tokenCache } from '@/lib/tokenCache';
@@ -65,6 +66,37 @@ function SentryUserTag() {
   return null;
 }
 
+/**
+ * React Navigation paints the screen behind our views — stack headers, the card
+ * underneath a push transition, the gap during a gesture. Its stock themes are
+ * cool greys, so leaving them alone would show a slice of #f2f2f2 or #121212
+ * around every warm screen. These extend the stock themes rather than replacing
+ * them so we inherit fonts and any future keys.
+ */
+const navThemeLight = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: Colors.light.tint,
+    background: Colors.light.background,
+    card: Colors.light.background,
+    text: Colors.light.text,
+    border: Colors.light.border,
+  },
+};
+
+const navThemeDark = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: Colors.dark.tint,
+    background: Colors.dark.background,
+    card: Colors.dark.background,
+    text: Colors.dark.text,
+    border: Colors.dark.border,
+  },
+};
+
 function ThemedShell() {
   const { appearance } = useSettings();
   const systemScheme = useSystemColorScheme();
@@ -78,8 +110,13 @@ function ThemedShell() {
   }, [appearance, setColorScheme]);
 
   return (
-    <ThemeProvider value={effective === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerBackTitle: 'Back' }}>
+    <ThemeProvider value={effective === 'dark' ? navThemeDark : navThemeLight}>
+      <Stack
+        screenOptions={{
+          headerBackTitle: 'Back',
+          headerShadowVisible: false,
+          headerTitleStyle: { fontWeight: '700' },
+        }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="your-recipes" options={{ title: 'Your Recipes' }} />

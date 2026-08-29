@@ -124,7 +124,7 @@ function AccountSettingsInner() {
 
   if (!isLoaded || !user) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white dark:bg-neutral-950">
+      <SafeAreaView className="flex-1 items-center justify-center bg-cream dark:bg-charcoal">
         <Stack.Screen options={{ title: 'Account', headerBackTitle: from || 'Back' }} />
         <ActivityIndicator color="#f97316" />
       </SafeAreaView>
@@ -133,7 +133,7 @@ function AccountSettingsInner() {
 
   return (
     <ScrollView
-      className="flex-1 bg-white dark:bg-neutral-950"
+      className="flex-1 bg-cream dark:bg-charcoal"
       contentContainerClassName="px-5 py-6">
       <Stack.Screen options={{ title: 'Account', headerBackTitle: from || 'Back' }} />
 
@@ -175,8 +175,8 @@ function AccountSettingsInner() {
             <Pressable
               onPress={onRemovePhoto}
               disabled={photoBusy}
-              className="rounded-xl border border-neutral-200 px-4 py-2 active:bg-neutral-100 disabled:opacity-60 dark:border-neutral-800 dark:active:bg-neutral-900">
-              <Text className="text-center text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              className="rounded-xl border border-stone-200 px-4 py-2 active:bg-stone-100 disabled:opacity-60 dark:border-stone-800 dark:active:bg-stone-900">
+              <Text className="text-center text-sm font-medium text-stone-700 dark:text-stone-300">
                 Remove photo
               </Text>
             </Pressable>
@@ -207,14 +207,14 @@ function AccountSettingsInner() {
         onPress={onSaveName}
         disabled={!nameChanged || savingName}
         className={`mb-8 items-center rounded-2xl px-5 py-3 ${
-          nameChanged ? 'bg-brand-500 active:opacity-80' : 'bg-neutral-200 dark:bg-neutral-800'
+          nameChanged ? 'bg-brand-500 active:opacity-80' : 'bg-stone-200 dark:bg-stone-800'
         } ${savingName ? 'opacity-60' : ''}`}>
         {savingName ? (
           <ActivityIndicator color="#fff" />
         ) : (
           <Text
             className={`text-base font-semibold ${
-              nameChanged ? 'text-white' : 'text-neutral-500'
+              nameChanged ? 'text-white' : 'text-stone-500'
             }`}>
             Save name
           </Text>
@@ -222,35 +222,35 @@ function AccountSettingsInner() {
       </Pressable>
 
       <SectionHeader>Email</SectionHeader>
-      <View className="mb-8 overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800">
+      <View className="mb-8 overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-800">
         <View className="px-4 py-4">
-          <Text className="text-xs uppercase text-neutral-500 dark:text-neutral-400">Current</Text>
-          <Text className="mt-0.5 text-base text-neutral-900 dark:text-neutral-50">
+          <Text className="text-xs uppercase text-stone-500 dark:text-stone-400">Current</Text>
+          <Text className="mt-0.5 text-base text-stone-900 dark:text-stone-50">
             {user.primaryEmailAddress?.emailAddress ?? '—'}
           </Text>
         </View>
         <Divider />
         <Pressable
           onPress={() => setEmailModalOpen(true)}
-          className="flex-row items-center px-4 py-4 active:bg-neutral-100 dark:active:bg-neutral-900">
+          className="flex-row items-center px-4 py-4 active:bg-stone-100 dark:active:bg-stone-900">
           <Ionicons name="mail-outline" size={20} color="#f97316" />
-          <Text className="ml-3 flex-1 text-base font-medium text-neutral-900 dark:text-neutral-50">
+          <Text className="ml-3 flex-1 text-base font-medium text-stone-900 dark:text-stone-50">
             Change email
           </Text>
-          <Ionicons name="chevron-forward" size={18} color="#a3a3a3" />
+          <Ionicons name="chevron-forward" size={18} color="#a8a29e" />
         </Pressable>
       </View>
 
       <SectionHeader>Password</SectionHeader>
-      <View className="overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800">
+      <View className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-800">
         <Pressable
           onPress={() => setPasswordModalOpen(true)}
-          className="flex-row items-center px-4 py-4 active:bg-neutral-100 dark:active:bg-neutral-900">
+          className="flex-row items-center px-4 py-4 active:bg-stone-100 dark:active:bg-stone-900">
           <Ionicons name="lock-closed-outline" size={20} color="#f97316" />
-          <Text className="ml-3 flex-1 text-base font-medium text-neutral-900 dark:text-neutral-50">
+          <Text className="ml-3 flex-1 text-base font-medium text-stone-900 dark:text-stone-50">
             Change password
           </Text>
-          <Ionicons name="chevron-forward" size={18} color="#a3a3a3" />
+          <Ionicons name="chevron-forward" size={18} color="#a8a29e" />
         </Pressable>
       </View>
 
@@ -262,11 +262,11 @@ function AccountSettingsInner() {
           <Ionicons name="trash-outline" size={20} color="#ef4444" />
           <View className="ml-3 flex-1">
             <Text className="text-base font-medium text-red-600">Delete account</Text>
-            <Text className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+            <Text className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
               Removes your account and all your data permanently
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={18} color="#a3a3a3" />
+          <Ionicons name="chevron-forward" size={18} color="#a8a29e" />
         </Pressable>
       </View>
 
@@ -330,13 +330,13 @@ function DeleteAccountModal({
 
   return (
     <Modal animationType="slide" presentationStyle="pageSheet" visible={visible} onRequestClose={close}>
-      <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
-        <View className="flex-row items-center justify-between border-b border-neutral-200 px-5 py-4 dark:border-neutral-800">
-          <Text className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+      <SafeAreaView className="flex-1 bg-cream dark:bg-charcoal">
+        <View className="flex-row items-center justify-between border-b border-stone-200 px-5 py-4 dark:border-stone-800">
+          <Text className="text-lg font-semibold text-stone-900 dark:text-stone-50">
             Delete account
           </Text>
           <Pressable onPress={close} hitSlop={12}>
-            <Ionicons name="close" size={24} color="#737373" />
+            <Ionicons name="close" size={24} color="#78716c" />
           </Pressable>
         </View>
 
@@ -361,17 +361,17 @@ function DeleteAccountModal({
             </Text>
           </View>
 
-          <Text className="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          <Text className="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">
             Type <Text className="font-bold">DELETE</Text> in capitals to confirm
           </Text>
           <TextInput
             value={confirmText}
             onChangeText={setConfirmText}
             placeholder="DELETE"
-            placeholderTextColor="#737373"
+            placeholderTextColor="#78716c"
             autoCapitalize="characters"
             autoCorrect={false}
-            className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-base text-neutral-900 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-50"
+            className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-base text-stone-900 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-50"
           />
 
           <Pressable
@@ -380,14 +380,14 @@ function DeleteAccountModal({
             className={`mt-4 items-center rounded-2xl px-5 py-3 ${
               confirmText === 'DELETE' && !busy
                 ? 'bg-red-600 active:opacity-80'
-                : 'bg-neutral-200 dark:bg-neutral-800'
+                : 'bg-stone-200 dark:bg-stone-800'
             }`}>
             {busy ? (
               <ActivityIndicator color="#fff" />
             ) : (
               <Text
                 className={`text-base font-semibold ${
-                  confirmText === 'DELETE' ? 'text-white' : 'text-neutral-500'
+                  confirmText === 'DELETE' ? 'text-white' : 'text-stone-500'
                 }`}>
                 Permanently delete my account
               </Text>
@@ -478,20 +478,20 @@ function ChangeEmailModal({
 
   return (
     <Modal animationType="slide" presentationStyle="pageSheet" visible={visible} onRequestClose={close}>
-      <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
-        <View className="flex-row items-center justify-between border-b border-neutral-200 px-5 py-4 dark:border-neutral-800">
-          <Text className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+      <SafeAreaView className="flex-1 bg-cream dark:bg-charcoal">
+        <View className="flex-row items-center justify-between border-b border-stone-200 px-5 py-4 dark:border-stone-800">
+          <Text className="text-lg font-semibold text-stone-900 dark:text-stone-50">
             Change email
           </Text>
           <Pressable onPress={close} hitSlop={12}>
-            <Ionicons name="close" size={24} color="#737373" />
+            <Ionicons name="close" size={24} color="#78716c" />
           </Pressable>
         </View>
 
         <View className="flex-1 px-5 py-6">
           {pendingId ? (
             <>
-              <Text className="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
+              <Text className="mb-4 text-sm text-stone-500 dark:text-stone-400">
                 We sent a 6-digit code to {email}. Enter it to confirm.
               </Text>
               <Field
@@ -504,7 +504,7 @@ function ChangeEmailModal({
             </>
           ) : (
             <>
-              <Text className="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
+              <Text className="mb-4 text-sm text-stone-500 dark:text-stone-400">
                 Enter the new email address. We&apos;ll send a verification code there before
                 making the change.
               </Text>
@@ -591,13 +591,13 @@ function ChangePasswordModal({
 
   return (
     <Modal animationType="slide" presentationStyle="pageSheet" visible={visible} onRequestClose={close}>
-      <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
-        <View className="flex-row items-center justify-between border-b border-neutral-200 px-5 py-4 dark:border-neutral-800">
-          <Text className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+      <SafeAreaView className="flex-1 bg-cream dark:bg-charcoal">
+        <View className="flex-row items-center justify-between border-b border-stone-200 px-5 py-4 dark:border-stone-800">
+          <Text className="text-lg font-semibold text-stone-900 dark:text-stone-50">
             Change password
           </Text>
           <Pressable onPress={close} hitSlop={12}>
-            <Ionicons name="close" size={24} color="#737373" />
+            <Ionicons name="close" size={24} color="#78716c" />
           </Pressable>
         </View>
 
@@ -624,7 +624,7 @@ function ChangePasswordModal({
             autoComplete="password-new"
           />
 
-          <Text className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+          <Text className="mt-2 text-xs text-stone-500 dark:text-stone-400">
             We&apos;ll sign you out of other devices when your password changes.
           </Text>
 
@@ -657,7 +657,7 @@ function guessMimeFromUri(uri: string): string | null {
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+    <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
       {children}
     </Text>
   );
@@ -669,18 +669,18 @@ function Field({
 }: { label: string } & React.ComponentProps<typeof TextInput>) {
   return (
     <View className="mb-3">
-      <Text className="mb-1 text-sm font-medium text-neutral-700 dark:text-neutral-300">
+      <Text className="mb-1 text-sm font-medium text-stone-700 dark:text-stone-300">
         {label}
       </Text>
       <TextInput
         {...input}
-        placeholderTextColor="#737373"
-        className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-base text-neutral-900 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-50"
+        placeholderTextColor="#78716c"
+        className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-base text-stone-900 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-50"
       />
     </View>
   );
 }
 
 function Divider() {
-  return <View className="h-px bg-neutral-200 dark:bg-neutral-800" />;
+  return <View className="h-px bg-stone-200 dark:bg-stone-800" />;
 }

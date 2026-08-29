@@ -22,12 +22,24 @@ export default function TabLayout() {
     return <Redirect href="/onboarding" />;
   }
 
+  const palette = Colors[colorScheme ?? 'light'];
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
         tabBarButton: HapticTab,
+        // Was inheriting the Expo scaffold's teal (#0a7ea4) — the one place the
+        // app contradicted its own brand on every single screen.
+        tabBarActiveTintColor: palette.tint,
+        tabBarInactiveTintColor: palette.tabIconDefault,
+        // Sit flush with the canvas. A contrasting bar cuts the screen in two and
+        // is what made full-bleed imagery stop short of the bottom edge.
+        tabBarStyle: {
+          backgroundColor: palette.background,
+          borderTopColor: palette.border,
+        },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
       }}>
       <Tabs.Screen
         name="index"

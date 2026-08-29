@@ -29,7 +29,7 @@ export function SpoonacularCredit({
 
   return (
     <View className={`flex-row flex-wrap items-center ${align === 'center' ? 'justify-center' : ''} ${className}`}>
-      <Text className="text-xs text-neutral-400 dark:text-neutral-600">
+      <Text className="text-xs text-stone-400 dark:text-stone-600">
         Recipe data powered by{' '}
       </Text>
       <Pressable onPress={open} hitSlop={8}>

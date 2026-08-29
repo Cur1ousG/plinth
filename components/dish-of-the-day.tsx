@@ -57,7 +57,7 @@ export function DishOfTheDay() {
 
   if (loading) {
     return (
-      <View className="mb-6 h-44 items-center justify-center rounded-2xl border border-neutral-200 dark:border-neutral-800">
+      <View className="mb-6 h-44 items-center justify-center rounded-2xl border border-stone-200 dark:border-stone-800">
         <ActivityIndicator color="#f97316" />
       </View>
     );
@@ -70,8 +70,8 @@ export function DishOfTheDay() {
   return (
     <Pressable
       onPress={() => router.push({ pathname: '/recipe', params: { id: recipe.id } })}
-      className="mb-6 overflow-hidden rounded-2xl border border-neutral-200 bg-white active:opacity-80 dark:border-neutral-800 dark:bg-neutral-900">
-      <View className="h-44 w-full bg-neutral-200 dark:bg-neutral-800">
+      className="mb-6 overflow-hidden rounded-2xl border border-stone-200 bg-white active:opacity-80 dark:border-stone-800 dark:bg-stone-900">
+      <View className="h-44 w-full bg-stone-200 dark:bg-stone-800">
         {recipe.thumbnail ? (
           <Image
             source={{ uri: recipe.thumbnail }}
@@ -89,13 +89,13 @@ export function DishOfTheDay() {
         </View>
         <Text
           numberOfLines={2}
-          className="mt-1 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+          className="mt-1 text-lg font-semibold text-stone-900 dark:text-stone-50">
           {recipe.title}
         </Text>
         {recipe.minutes != null && (
           <View className="mt-1 flex-row items-center">
-            <Ionicons name="time-outline" size={12} color="#737373" />
-            <Text className="ml-1 text-xs text-neutral-500 dark:text-neutral-400">
+            <Ionicons name="time-outline" size={12} color="#78716c" />
+            <Text className="ml-1 text-xs text-stone-500 dark:text-stone-400">
               {recipe.minutes} min
               {recipe.cuisine ? ` · ${recipe.cuisine}` : ''}
             </Text>

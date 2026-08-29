@@ -79,28 +79,28 @@ function SettingsInner() {
 
   return (
     <ScrollView
-      className="flex-1 bg-white dark:bg-neutral-950"
+      className="flex-1 bg-cream dark:bg-charcoal"
       contentContainerClassName="px-5 py-6">
       <Stack.Screen options={{ headerBackTitle: from || 'Back' }} />
 
-      <View className="mb-6 overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800">
+      <View className="mb-6 overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-800">
         {rows.map((r, i) => (
           <Link
             key={r.href}
             href={{ pathname: r.href, params: { from: 'Settings' } }}
             asChild>
             <Pressable
-              className={`flex-row items-center px-4 py-4 active:bg-neutral-100 dark:active:bg-neutral-900 ${
-                i < rows.length - 1 ? 'border-b border-neutral-200 dark:border-neutral-800' : ''
+              className={`flex-row items-center px-4 py-4 active:bg-stone-100 dark:active:bg-stone-900 ${
+                i < rows.length - 1 ? 'border-b border-stone-200 dark:border-stone-800' : ''
               }`}>
               <Ionicons name={r.icon} size={22} color="#f97316" />
               <View className="ml-4 flex-1">
-                <Text className="text-base font-medium text-neutral-900 dark:text-neutral-50">
+                <Text className="text-base font-medium text-stone-900 dark:text-stone-50">
                   {r.label}
                 </Text>
-                <Text className="text-xs text-neutral-500 dark:text-neutral-400">{r.sub}</Text>
+                <Text className="text-xs text-stone-500 dark:text-stone-400">{r.sub}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#a3a3a3" />
+              <Ionicons name="chevron-forward" size={18} color="#a8a29e" />
             </Pressable>
           </Link>
         ))}
@@ -108,49 +108,49 @@ function SettingsInner() {
 
       <Pressable
         onPress={onSignOut}
-        className="mb-6 items-center rounded-2xl border border-neutral-200 px-5 py-4 active:bg-neutral-100 dark:border-neutral-800 dark:active:bg-neutral-900">
+        className="mb-6 items-center rounded-2xl border border-stone-200 px-5 py-4 active:bg-stone-100 dark:border-stone-800 dark:active:bg-stone-900">
         <Text className="text-base font-medium text-red-600">Sign out</Text>
       </Pressable>
 
-      <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+      <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
         About
       </Text>
-      <View className="overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800">
+      <View className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-800">
         <Row icon="information-circle-outline" label="Version" sub={version} />
         <Divider />
         <Link href="/legal/privacy" asChild>
-          <Pressable className="flex-row items-center px-4 py-4 active:bg-neutral-100 dark:active:bg-neutral-900">
-            <Ionicons name="document-text-outline" size={22} color="#737373" />
-            <Text className="ml-4 flex-1 text-base font-medium text-neutral-900 dark:text-neutral-50">
+          <Pressable className="flex-row items-center px-4 py-4 active:bg-stone-100 dark:active:bg-stone-900">
+            <Ionicons name="document-text-outline" size={22} color="#78716c" />
+            <Text className="ml-4 flex-1 text-base font-medium text-stone-900 dark:text-stone-50">
               Privacy policy
             </Text>
-            <Ionicons name="chevron-forward" size={18} color="#a3a3a3" />
+            <Ionicons name="chevron-forward" size={18} color="#a8a29e" />
           </Pressable>
         </Link>
         <Divider />
         <Link href="/legal/terms" asChild>
-          <Pressable className="flex-row items-center px-4 py-4 active:bg-neutral-100 dark:active:bg-neutral-900">
-            <Ionicons name="shield-checkmark-outline" size={22} color="#737373" />
-            <Text className="ml-4 flex-1 text-base font-medium text-neutral-900 dark:text-neutral-50">
+          <Pressable className="flex-row items-center px-4 py-4 active:bg-stone-100 dark:active:bg-stone-900">
+            <Ionicons name="shield-checkmark-outline" size={22} color="#78716c" />
+            <Text className="ml-4 flex-1 text-base font-medium text-stone-900 dark:text-stone-50">
               Terms of service
             </Text>
-            <Ionicons name="chevron-forward" size={18} color="#a3a3a3" />
+            <Ionicons name="chevron-forward" size={18} color="#a8a29e" />
           </Pressable>
         </Link>
         <Divider />
         <Pressable
           onPress={openSpoonacular}
-          className="flex-row items-center px-4 py-4 active:bg-neutral-100 dark:active:bg-neutral-900">
-          <Ionicons name="restaurant-outline" size={22} color="#737373" />
+          className="flex-row items-center px-4 py-4 active:bg-stone-100 dark:active:bg-stone-900">
+          <Ionicons name="restaurant-outline" size={22} color="#78716c" />
           <View className="ml-4 flex-1">
-            <Text className="text-base font-medium text-neutral-900 dark:text-neutral-50">
+            <Text className="text-base font-medium text-stone-900 dark:text-stone-50">
               Recipe data
             </Text>
-            <Text className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+            <Text className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
               Powered by Spoonacular
             </Text>
           </View>
-          <Ionicons name="open-outline" size={18} color="#a3a3a3" />
+          <Ionicons name="open-outline" size={18} color="#a8a29e" />
         </Pressable>
       </View>
     </ScrollView>
@@ -168,13 +168,13 @@ function Row({
 }) {
   return (
     <View className="flex-row items-center px-4 py-4">
-      <Ionicons name={icon} size={22} color="#737373" />
+      <Ionicons name={icon} size={22} color="#78716c" />
       <View className="ml-4 flex-1">
-        <Text className="text-base font-medium text-neutral-900 dark:text-neutral-50">
+        <Text className="text-base font-medium text-stone-900 dark:text-stone-50">
           {label}
         </Text>
         {sub ? (
-          <Text className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{sub}</Text>
+          <Text className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">{sub}</Text>
         ) : null}
       </View>
     </View>
@@ -182,5 +182,5 @@ function Row({
 }
 
 function Divider() {
-  return <View className="h-px bg-neutral-200 dark:bg-neutral-800" />;
+  return <View className="h-px bg-stone-200 dark:bg-stone-800" />;
 }

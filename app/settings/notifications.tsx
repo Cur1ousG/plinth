@@ -87,12 +87,12 @@ function NotificationsInner() {
 
   return (
     <ScrollView
-      className="flex-1 bg-white dark:bg-neutral-950"
+      className="flex-1 bg-cream dark:bg-charcoal"
       contentContainerClassName="px-5 py-6">
       <Stack.Screen options={{ title: 'Notifications', headerBackTitle: from || 'Back' }} />
 
       <SectionHeader>Push notifications</SectionHeader>
-      <View className="mb-4 overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800">
+      <View className="mb-4 overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-800">
         <ToggleRow
           icon="notifications-outline"
           label="Enable push"
@@ -125,13 +125,13 @@ function NotificationsInner() {
                   className={`rounded-full border px-4 py-2 ${
                     active
                       ? 'border-brand-500 bg-brand-50 dark:bg-brand-900'
-                      : 'border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900'
+                      : 'border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900'
                   }`}>
                   <Text
                     className={`text-sm ${
                       active
                         ? 'font-semibold text-brand-700 dark:text-brand-100'
-                        : 'text-neutral-700 dark:text-neutral-300'
+                        : 'text-stone-700 dark:text-stone-300'
                     }`}>
                     {formatHour(h)}
                   </Text>
@@ -143,7 +143,7 @@ function NotificationsInner() {
       )}
 
       <SectionHeader>Other channels</SectionHeader>
-      <View className="overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800">
+      <View className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-800">
         <ToggleRow
           icon="mail-outline"
           label="Email notifications"
@@ -161,7 +161,7 @@ function NotificationsInner() {
         />
       </View>
 
-      <Text className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+      <Text className="mt-3 text-xs text-stone-500 dark:text-stone-400">
         Email and SMS preferences are saved on this device. Actual delivery launches alongside
         Plinth&apos;s server-side notification service.
       </Text>
@@ -188,13 +188,13 @@ function ToggleRow({
     <View
       className={`flex-row items-center px-4 py-4 ${disabled ? 'opacity-50' : ''}`}
       pointerEvents={disabled ? 'none' : 'auto'}>
-      <Ionicons name={icon} size={22} color="#737373" />
+      <Ionicons name={icon} size={22} color="#78716c" />
       <View className="ml-4 flex-1">
-        <Text className="text-base font-medium text-neutral-900 dark:text-neutral-50">
+        <Text className="text-base font-medium text-stone-900 dark:text-stone-50">
           {label}
         </Text>
         {sub ? (
-          <Text className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{sub}</Text>
+          <Text className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">{sub}</Text>
         ) : null}
       </View>
       <Switch
@@ -210,14 +210,14 @@ function ToggleRow({
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+    <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
       {children}
     </Text>
   );
 }
 
 function Divider() {
-  return <View className="h-px bg-neutral-200 dark:bg-neutral-800" />;
+  return <View className="h-px bg-stone-200 dark:bg-stone-800" />;
 }
 
 function formatHour(hour: number): string {

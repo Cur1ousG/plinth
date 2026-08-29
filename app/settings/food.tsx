@@ -43,17 +43,17 @@ function FoodInner() {
 
   return (
     <ScrollView
-      className="flex-1 bg-white dark:bg-neutral-950"
+      className="flex-1 bg-cream dark:bg-charcoal"
       contentContainerClassName="px-5 py-6">
       <Stack.Screen options={{ title: 'Food preferences', headerBackTitle: from || 'Back' }} />
 
-      <Text className="mb-6 text-sm text-neutral-500 dark:text-neutral-400">
+      <Text className="mb-6 text-sm text-stone-500 dark:text-stone-400">
         These apply everywhere recipes appear — Discover, your home feed, cuisine browsing, and
         the dietitian plan.
       </Text>
 
       <SectionHeader>Diet</SectionHeader>
-      <Text className="mb-3 -mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+      <Text className="mb-3 -mt-1 text-xs text-stone-500 dark:text-stone-400">
         Pick the eating pattern you follow. If you select more than one, we use the strictest.
       </Text>
       <View className="mb-8 flex-row flex-wrap gap-2">
@@ -68,7 +68,7 @@ function FoodInner() {
       </View>
 
       <SectionHeader>Allergies &amp; intolerances</SectionHeader>
-      <Text className="mb-3 -mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+      <Text className="mb-3 -mt-1 text-xs text-stone-500 dark:text-stone-400">
         Recipes containing anything you select here are excluded entirely, not just ranked lower.
       </Text>
       <View className="mb-8 flex-row flex-wrap gap-2">
@@ -84,9 +84,9 @@ function FoodInner() {
       </View>
 
       <SectionHeader>Ingredients to avoid</SectionHeader>
-      <Text className="mb-3 -mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-        Anything else you'd rather not see — a disliked ingredient, something you're out of, or a
-        restriction we don't list above.
+      <Text className="mb-3 -mt-1 text-xs text-stone-500 dark:text-stone-400">
+        Anything else you&apos;d rather not see — a disliked ingredient, something you&apos;re out
+        of, or a restriction we don&apos;t list above.
       </Text>
 
       <View className="mb-3 flex-row gap-2">
@@ -95,21 +95,21 @@ function FoodInner() {
           onChangeText={setDraft}
           onSubmitEditing={onAdd}
           placeholder="e.g. cilantro"
-          placeholderTextColor="#737373"
+          placeholderTextColor="#78716c"
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="done"
-          className="flex-1 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-base text-neutral-900 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-50"
+          className="flex-1 rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-base text-stone-900 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-50"
         />
         <Pressable
           onPress={onAdd}
           disabled={!draft.trim()}
           className={`items-center justify-center rounded-xl px-5 ${
-            draft.trim() ? 'bg-brand-500 active:opacity-80' : 'bg-neutral-200 dark:bg-neutral-800'
+            draft.trim() ? 'bg-brand-500 active:opacity-80' : 'bg-stone-200 dark:bg-stone-800'
           }`}>
           <Text
             className={`text-sm font-semibold ${
-              draft.trim() ? 'text-white' : 'text-neutral-500'
+              draft.trim() ? 'text-white' : 'text-stone-500'
             }`}>
             Add
           </Text>
@@ -117,7 +117,7 @@ function FoodInner() {
       </View>
 
       {excludedIngredients.length === 0 ? (
-        <Text className="text-xs text-neutral-400 dark:text-neutral-600">
+        <Text className="text-xs text-stone-400 dark:text-stone-600">
           Nothing excluded yet.
         </Text>
       ) : (
@@ -141,7 +141,7 @@ function FoodInner() {
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+    <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
       {children}
     </Text>
   );
@@ -164,7 +164,7 @@ function Chip({
       className={`flex-row items-center rounded-full border px-4 py-2 ${
         active
           ? 'border-brand-500 bg-brand-50 dark:bg-brand-900'
-          : 'border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900'
+          : 'border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900'
       }`}>
       {active && <Ionicons name="checkmark" size={14} color="#ea580c" />}
       <View className={active ? 'ml-1' : undefined}>
@@ -172,12 +172,12 @@ function Chip({
           className={`text-sm ${
             active
               ? 'font-semibold text-brand-700 dark:text-brand-100'
-              : 'text-neutral-700 dark:text-neutral-300'
+              : 'text-stone-700 dark:text-stone-300'
           }`}>
           {label}
         </Text>
         {note ? (
-          <Text className="text-[10px] text-neutral-500 dark:text-neutral-400">{note}</Text>
+          <Text className="text-[10px] text-stone-500 dark:text-stone-400">{note}</Text>
         ) : null}
       </View>
     </Pressable>

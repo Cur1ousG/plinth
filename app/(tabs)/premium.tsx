@@ -123,7 +123,7 @@ export default function PremiumScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
+    <SafeAreaView className="flex-1 bg-cream dark:bg-charcoal">
       <ScrollView contentContainerClassName="px-5 pt-2 pb-10">
         <Hero entitlement={entitlement} />
 
@@ -221,15 +221,15 @@ function Perk({
   desc: string;
 }) {
   return (
-    <View className="flex-row rounded-2xl border border-neutral-200 p-4 dark:border-neutral-800">
+    <View className="flex-row rounded-2xl border border-stone-200 p-4 dark:border-stone-800">
       <View className="mr-4 h-10 w-10 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900">
         <Ionicons name={icon} size={20} color="#ea580c" />
       </View>
       <View className="flex-1">
-        <Text className="text-base font-semibold text-neutral-900 dark:text-neutral-50">
+        <Text className="text-base font-semibold text-stone-900 dark:text-stone-50">
           {title}
         </Text>
-        <Text className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{desc}</Text>
+        <Text className="mt-1 text-sm text-stone-500 dark:text-stone-400">{desc}</Text>
       </View>
     </View>
   );
@@ -248,8 +248,8 @@ function SubscribeCTA({
 }) {
   if (!ready && tier === 'free') {
     return (
-      <View className="rounded-2xl border border-neutral-200 px-5 py-4 dark:border-neutral-800">
-        <Text className="text-center text-sm text-neutral-500">Loading…</Text>
+      <View className="rounded-2xl border border-stone-200 px-5 py-4 dark:border-stone-800">
+        <Text className="text-center text-sm text-stone-500">Loading…</Text>
       </View>
     );
   }
@@ -315,16 +315,16 @@ function ManageSection({
 
       <Pressable
         onPress={onOpenBillingPortal}
-        className="flex-row items-center justify-between rounded-2xl border border-neutral-200 px-5 py-4 active:bg-neutral-100 dark:border-neutral-800 dark:active:bg-neutral-900">
+        className="flex-row items-center justify-between rounded-2xl border border-stone-200 px-5 py-4 active:bg-stone-100 dark:border-stone-800 dark:active:bg-stone-900">
         <View>
-          <Text className="text-base font-medium text-neutral-900 dark:text-neutral-50">
+          <Text className="text-base font-medium text-stone-900 dark:text-stone-50">
             Billing & invoices
           </Text>
-          <Text className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+          <Text className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
             Update card, download receipts
           </Text>
         </View>
-        <Ionicons name="open-outline" size={18} color="#737373" />
+        <Ionicons name="open-outline" size={18} color="#78716c" />
       </Pressable>
     </View>
   );

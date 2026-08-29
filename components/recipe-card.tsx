@@ -8,6 +8,15 @@ import type { Recipe } from '@/services/types';
 
 type Variant = 'wide' | 'compact';
 
+/**
+ * The photograph is the card.
+ *
+ * This used to be a bordered box with the image sitting inside it, which made
+ * every rail read as a list of form controls. Dropping the border and the card
+ * fill lets the food meet the canvas directly, and moves the metadata onto the
+ * image as pills — the pattern every recipe app worth copying uses, because it
+ * buys back the vertical space that a metadata row underneath would cost.
+ */
 export function RecipeCard({
   recipe,
   variant = 'wide',
@@ -27,10 +36,9 @@ export function RecipeCard({
   const imageHeight = variant === 'compact' ? 'h-32' : 'h-40';
 
   return (
-    <Pressable
-      onPress={handlePress}
-      className={`mr-3 ${containerWidth} overflow-hidden rounded-2xl border border-neutral-200 bg-white active:opacity-80 dark:border-neutral-800 dark:bg-neutral-900`}>
-      <View className={`relative ${imageHeight} w-full bg-neutral-200 dark:bg-neutral-800`}>
+    <Pressable onPress={handlePress} className={`mr-3 ${containerWidth} active:opacity-80`}>
+      <View
+        className={`relative ${imageHeight} w-full overflow-hidden rounded-2xl bg-stone-200 dark:bg-stone-800`}>
         {recipe.thumbnail ? (
           <Image
             source={{ uri: recipe.thumbnail }}
@@ -39,6 +47,16 @@ export function RecipeCard({
             transition={200}
           />
         ) : null}
+
+        {/* Cream rather than a dark scrim: it reads at a glance against the
+            browns and reds that dominate food photography, where a translucent
+            black pill tends to disappear. */}
+        {recipe.minutes != null && (
+          <View className="absolute left-2 top-2 rounded-full bg-cream/95 px-2.5 py-1">
+            <Text className="text-[11px] font-semibold text-stone-900">{recipe.minutes} min</Text>
+          </View>
+        )}
+
         <Pressable
           onPress={(e) => {
             e.stopPropagation();
@@ -49,30 +67,21 @@ export function RecipeCard({
           <Ionicons
             name={saved ? 'heart' : 'heart-outline'}
             size={18}
-            color={saved ? '#f97316' : '#ffffff'}
+            color={saved ? '#fb923c' : '#ffffff'}
           />
         </Pressable>
       </View>
-      <View className="p-3">
-        <Text
-          numberOfLines={2}
-          className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
-          {recipe.title}
+
+      <Text
+        numberOfLines={2}
+        className="mt-2 text-[15px] font-semibold leading-5 text-stone-900 dark:text-stone-50">
+        {recipe.title}
+      </Text>
+      {recipe.cuisine ? (
+        <Text className="mt-0.5 text-xs font-medium text-brand-600 dark:text-brand-400">
+          {recipe.cuisine}
         </Text>
-        <View className="mt-1 flex-row items-center">
-          {recipe.minutes != null && (
-            <View className="mr-2 flex-row items-center">
-              <Ionicons name="time-outline" size={12} color="#737373" />
-              <Text className="ml-1 text-xs text-neutral-500 dark:text-neutral-400">
-                {recipe.minutes} min
-              </Text>
-            </View>
-          )}
-          {recipe.cuisine && (
-            <Text className="text-xs text-neutral-500 dark:text-neutral-400">{recipe.cuisine}</Text>
-          )}
-        </View>
-      </View>
+      ) : null}
     </Pressable>
   );
 }

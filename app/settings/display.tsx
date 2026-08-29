@@ -25,7 +25,7 @@ function DisplayInner() {
 
   return (
     <ScrollView
-      className="flex-1 bg-white dark:bg-neutral-950"
+      className="flex-1 bg-cream dark:bg-charcoal"
       contentContainerClassName="px-5 py-6">
       <Stack.Screen options={{ title: 'Display', headerBackTitle: from || 'Back' }} />
 
@@ -41,14 +41,14 @@ function DisplayInner() {
               className={`flex-1 items-center rounded-2xl border px-3 py-4 ${
                 active
                   ? 'border-brand-500 bg-brand-50 dark:bg-brand-900'
-                  : 'border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900'
+                  : 'border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900'
               }`}>
-              <Ionicons name={opt.icon} size={22} color={active ? '#ea580c' : '#737373'} />
+              <Ionicons name={opt.icon} size={22} color={active ? '#ea580c' : '#78716c'} />
               <Text
                 className={`mt-2 text-sm font-medium ${
                   active
                     ? 'text-brand-700 dark:text-brand-100'
-                    : 'text-neutral-700 dark:text-neutral-300'
+                    : 'text-stone-700 dark:text-stone-300'
                 }`}>
                 {opt.label}
               </Text>
@@ -57,7 +57,7 @@ function DisplayInner() {
         })}
       </View>
 
-      <Text className="mt-4 text-xs text-neutral-500 dark:text-neutral-400">
+      <Text className="mt-4 text-xs text-stone-500 dark:text-stone-400">
         Looking for dietary settings? They moved to Settings → Food preferences.
       </Text>
     </ScrollView>
@@ -66,7 +66,7 @@ function DisplayInner() {
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+    <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
       {children}
     </Text>
   );

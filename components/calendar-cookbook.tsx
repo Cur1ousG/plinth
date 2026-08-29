@@ -97,13 +97,13 @@ export function CalendarCookbook() {
               className={`mr-2 w-16 items-center rounded-2xl border px-2 py-3 ${
                 isSelected
                   ? 'border-brand-500 bg-brand-50 dark:bg-brand-900'
-                  : 'border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900'
+                  : 'border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900'
               }`}>
               <Text
                 className={`text-xs ${
                   d.isToday
                     ? 'font-bold text-brand-600'
-                    : 'text-neutral-500 dark:text-neutral-400'
+                    : 'text-stone-500 dark:text-stone-400'
                 }`}>
                 {d.label.toUpperCase()}
               </Text>
@@ -111,7 +111,7 @@ export function CalendarCookbook() {
                 className={`mt-1 text-lg font-semibold ${
                   isSelected
                     ? 'text-brand-700 dark:text-brand-100'
-                    : 'text-neutral-900 dark:text-neutral-50'
+                    : 'text-stone-900 dark:text-stone-50'
                 }`}>
                 {d.dayNum}
               </Text>
@@ -169,8 +169,8 @@ function SlotRow({
     return (
       <Pressable
         onPress={() => onOpen(entry)}
-        className="flex-row items-center rounded-2xl border border-neutral-200 bg-white p-3 active:opacity-70 dark:border-neutral-800 dark:bg-neutral-900">
-        <View className="h-12 w-12 overflow-hidden rounded-xl bg-neutral-200 dark:bg-neutral-800">
+        className="flex-row items-center rounded-2xl border border-stone-200 bg-white p-3 active:opacity-70 dark:border-stone-800 dark:bg-stone-900">
+        <View className="h-12 w-12 overflow-hidden rounded-xl bg-stone-200 dark:bg-stone-800">
           {entry.recipeThumbnail ? (
             <Image
               source={{ uri: entry.recipeThumbnail }}
@@ -181,14 +181,14 @@ function SlotRow({
         </View>
         <View className="ml-3 flex-1">
           <View className="flex-row items-center">
-            <Ionicons name={SLOT_ICON[slot]} size={12} color="#737373" />
-            <Text className="ml-1 text-xs uppercase text-neutral-500 dark:text-neutral-400">
+            <Ionicons name={SLOT_ICON[slot]} size={12} color="#78716c" />
+            <Text className="ml-1 text-xs uppercase text-stone-500 dark:text-stone-400">
               {SLOT_LABEL[slot]}
             </Text>
           </View>
           <Text
             numberOfLines={1}
-            className="mt-0.5 text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+            className="mt-0.5 text-sm font-semibold text-stone-900 dark:text-stone-50">
             {entry.recipeTitle}
           </Text>
         </View>
@@ -199,7 +199,7 @@ function SlotRow({
           }}
           hitSlop={8}
           className="p-2">
-          <Ionicons name="close-circle" size={20} color="#a3a3a3" />
+          <Ionicons name="close-circle" size={20} color="#a8a29e" />
         </Pressable>
       </Pressable>
     );
@@ -208,12 +208,12 @@ function SlotRow({
   return (
     <Pressable
       onPress={onPlan}
-      className="flex-row items-center rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-3 active:opacity-70 dark:border-neutral-700 dark:bg-neutral-900">
-      <View className="h-12 w-12 items-center justify-center rounded-xl bg-white dark:bg-neutral-800">
-        <Ionicons name={SLOT_ICON[slot]} size={20} color="#737373" />
+      className="flex-row items-center rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-3 active:opacity-70 dark:border-stone-700 dark:bg-stone-900">
+      <View className="h-12 w-12 items-center justify-center rounded-xl bg-white dark:bg-stone-800">
+        <Ionicons name={SLOT_ICON[slot]} size={20} color="#78716c" />
       </View>
       <View className="ml-3 flex-1">
-        <Text className="text-xs uppercase text-neutral-500 dark:text-neutral-400">
+        <Text className="text-xs uppercase text-stone-500 dark:text-stone-400">
           {SLOT_LABEL[slot]}
         </Text>
         <Text className="mt-0.5 text-sm font-medium text-brand-600">+ Plan a meal</Text>

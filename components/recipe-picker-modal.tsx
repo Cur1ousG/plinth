@@ -29,25 +29,25 @@ export function RecipePickerModal({
 
   return (
     <Modal animationType="slide" presentationStyle="pageSheet" visible={visible} onRequestClose={onClose}>
-      <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
-        <View className="flex-row items-center justify-between border-b border-neutral-200 px-5 py-4 dark:border-neutral-800">
-          <Text className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+      <SafeAreaView className="flex-1 bg-cream dark:bg-charcoal">
+        <View className="flex-row items-center justify-between border-b border-stone-200 px-5 py-4 dark:border-stone-800">
+          <Text className="text-lg font-semibold text-stone-900 dark:text-stone-50">
             {title}
           </Text>
           <Pressable onPress={onClose} hitSlop={12}>
-            <Ionicons name="close" size={24} color="#737373" />
+            <Ionicons name="close" size={24} color="#78716c" />
           </Pressable>
         </View>
 
         <View className="px-5 py-3">
-          <View className="flex-row items-center rounded-xl bg-neutral-100 px-3 py-2 dark:bg-neutral-900">
-            <Ionicons name="search" size={18} color="#737373" />
+          <View className="flex-row items-center rounded-xl bg-stone-100 px-3 py-2 dark:bg-stone-900">
+            <Ionicons name="search" size={18} color="#78716c" />
             <TextInput
               value={query}
               onChangeText={setQuery}
               placeholder="Search recipes…"
-              placeholderTextColor="#737373"
-              className="ml-2 flex-1 text-base text-neutral-900 dark:text-neutral-50"
+              placeholderTextColor="#78716c"
+              className="ml-2 flex-1 text-base text-stone-900 dark:text-stone-50"
             />
           </View>
         </View>
@@ -63,8 +63,8 @@ export function RecipePickerModal({
                 onPick(item);
                 onClose();
               }}
-              className="flex-row overflow-hidden rounded-2xl border border-neutral-200 bg-white active:opacity-80 dark:border-neutral-800 dark:bg-neutral-900">
-              <View className="h-20 w-20 bg-neutral-200 dark:bg-neutral-800">
+              className="flex-row overflow-hidden rounded-2xl border border-stone-200 bg-white active:opacity-80 dark:border-stone-800 dark:bg-stone-900">
+              <View className="h-20 w-20 bg-stone-200 dark:bg-stone-800">
                 {item.thumbnail ? (
                   <Image
                     source={{ uri: item.thumbnail }}
@@ -76,10 +76,10 @@ export function RecipePickerModal({
               <View className="flex-1 justify-center p-3">
                 <Text
                   numberOfLines={2}
-                  className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                  className="text-sm font-semibold text-stone-900 dark:text-stone-50">
                   {item.title}
                 </Text>
-                <Text className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                <Text className="mt-1 text-xs text-stone-500 dark:text-stone-400">
                   {item.cuisine}
                   {item.minutes != null ? ` · ${item.minutes} min` : ''}
                 </Text>
@@ -88,7 +88,7 @@ export function RecipePickerModal({
           )}
           ListEmptyComponent={
             <View className="items-center py-10">
-              <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+              <Text className="text-sm text-stone-500 dark:text-stone-400">
                 No recipes match your search.
               </Text>
             </View>
