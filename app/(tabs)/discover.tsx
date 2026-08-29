@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RecipeCard } from '@/components/recipe-card';
+import { SpoonacularCredit } from '@/components/spoonacular-credit';
 import { useHomeFeed } from '@/hooks/useHomeFeed';
 import { dietaryFiltersToParams } from '@/lib/dietaryFilters';
 import { useSettings } from '@/providers/settings-provider';
@@ -152,6 +153,8 @@ function SuggestionsView() {
           and cook it from the original site without leaving the app.
         </Text>
       </View>
+
+      <SpoonacularCredit align="center" className="mt-6" />
     </ScrollView>
   );
 }

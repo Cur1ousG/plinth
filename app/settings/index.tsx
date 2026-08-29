@@ -2,6 +2,7 @@ import { useAuth } from '@clerk/clerk-expo';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Constants from 'expo-constants';
 import { Link, Stack, useLocalSearchParams } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { AuthGate } from '@/components/auth-gate';
@@ -62,6 +63,10 @@ export default function SettingsScreen() {
 function SettingsInner() {
   const { from } = useLocalSearchParams<{ from?: string }>();
   const { signOut } = useAuth();
+
+  const openSpoonacular = () => {
+    void WebBrowser.openBrowserAsync('https://spoonacular.com/food-api').catch(() => {});
+  };
 
   const onSignOut = () => {
     Alert.alert('Sign out', 'Are you sure you want to sign out?', [
@@ -132,6 +137,21 @@ function SettingsInner() {
             <Ionicons name="chevron-forward" size={18} color="#a3a3a3" />
           </Pressable>
         </Link>
+        <Divider />
+        <Pressable
+          onPress={openSpoonacular}
+          className="flex-row items-center px-4 py-4 active:bg-neutral-100 dark:active:bg-neutral-900">
+          <Ionicons name="restaurant-outline" size={22} color="#737373" />
+          <View className="ml-4 flex-1">
+            <Text className="text-base font-medium text-neutral-900 dark:text-neutral-50">
+              Recipe data
+            </Text>
+            <Text className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+              Powered by Spoonacular
+            </Text>
+          </View>
+          <Ionicons name="open-outline" size={18} color="#a3a3a3" />
+        </Pressable>
       </View>
     </ScrollView>
   );
