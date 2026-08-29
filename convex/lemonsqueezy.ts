@@ -120,8 +120,12 @@ export const createCheckoutSession = action({
     if (!identity) throw new Error('Not authenticated');
     const userId = identity.subject;
 
-    // Blocks brute-force fraud testing against the checkout endpoint.
-    await enforceLimit(ctx, userId, 'checkout');
+    // Deliberately unthrottled. Abandoning a checkout and coming back is normal
+    // buyer behaviour — comparing the price against something, fetching a card,
+    // second-guessing and returning a minute later. Any limit here punishes the
+    // people most likely to pay us. Creating a checkout session costs nothing
+    // and grants nothing; the money and the entitlement both hinge on the
+    // signed webhook, which is where fraud has to be stopped.
 
     const apiKey = process.env.LEMONSQUEEZY_API_KEY;
     const storeId = process.env.LEMONSQUEEZY_STORE_ID;

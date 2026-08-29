@@ -24,12 +24,7 @@ import { internalMutation } from './_generated/server';
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 
-export type RateLimitBucket =
-  | 'search'
-  | 'recipeDetail'
-  | 'feed'
-  | 'checkout'
-  | 'subscriptionChange';
+export type RateLimitBucket = 'search' | 'recipeDetail' | 'feed' | 'subscriptionChange';
 
 /**
  * Per-user limits. Set generously — these should never bite a real person, only
@@ -44,10 +39,9 @@ export const USER_LIMITS: Record<RateLimitBucket, { limit: number; windowMs: num
   recipeDetail: { limit: 80, windowMs: HOUR },
   // Rails, cuisine grids, macro lookups, dish of the day.
   feed: { limit: 60, windowMs: HOUR },
-  // Starting a Lemon Squeezy checkout.
-  checkout: { limit: 1, windowMs: HOUR },
   // Cancelling / resuming a subscription.
   subscriptionChange: { limit: 5, windowMs: HOUR },
+  // Starting a checkout is intentionally absent — see createCheckoutSession.
 };
 
 /**
