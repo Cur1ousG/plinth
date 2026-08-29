@@ -5,7 +5,7 @@ import { v } from 'convex/values';
 import { internal } from './_generated/api';
 import { action, internalAction, type ActionCtx } from './_generated/server';
 import {
-  GLOBAL_DAILY_UPSTREAM_LIMIT,
+  GLOBAL_DAILY_POINT_LIMIT,
   USER_LIMITS,
   globalKey,
   userKey,
@@ -26,6 +26,27 @@ async function requireAuth(ctx: ActionCtx): Promise<string> {
   if (!id) throw new Error('Not authenticated');
   return id.subject;
 }
+
+/**
+ * What a request costs, in Spoonacular points.
+ *
+ * Published rates (spoonacular.com/food-api/docs) as of August 2026:
+ *   complexSearch          1 + 0.01/result
+ *     addRecipeInformation   + 0.025/result
+ *     nutrient filters       + 1 flat
+ *   recipes/random         1 + 0.01/result
+ *   recipes/{id}/information  1, + 0.1 with includeNutrition
+ *
+ * Keep these in step with the params actually sent below. Overestimating is
+ * safe; underestimating spends budget we think we still have.
+ */
+const POINTS = {
+  search: (n: number, withInfo = false, nutrientFilter = false) =>
+    1 + n * 0.01 + (withInfo ? n * 0.025 : 0) + (nutrientFilter ? 1 : 0),
+  random: (n: number) => 1 + n * 0.01,
+  /** /information with includeNutrition=true. */
+  detail: 1.1,
+};
 
 function formatRetry(ms: number): string {
   const minutes = Math.ceil(ms / 60_000);
@@ -51,6 +72,7 @@ async function checkUpstreamAllowance(
   ctx: ActionCtx,
   userId: string,
   bucket: RateLimitBucket,
+  points: number,
 ): Promise<string | null> {
   const perUser = USER_LIMITS[bucket];
   const user = await ctx.runMutation(internal.rateLimit.consume, {
@@ -62,10 +84,14 @@ async function checkUpstreamAllowance(
     return `You've made a lot of requests. Try again in ${formatRetry(user.retryAfterMs)}.`;
   }
 
+  // Charged in points, not requests, because that's the unit Spoonacular
+  // bills. A macro lookup costs twice a plain search and has to be accounted
+  // for as such or the ceiling drifts above the real quota.
   const global = await ctx.runMutation(internal.rateLimit.consume, {
     key: globalKey(),
-    limit: GLOBAL_DAILY_UPSTREAM_LIMIT,
+    limit: GLOBAL_DAILY_POINT_LIMIT,
     windowMs: DAY_MS,
+    cost: points,
   });
   if (!global.allowed) {
     return 'Recipe search is temporarily at capacity. Please try again later.';
@@ -197,6 +223,8 @@ async function cachedFeed(
   bucket: RateLimitBucket,
   cacheKey: string,
   ttlMs: number,
+  /** Spoonacular points this fetcher will spend if the cache misses. */
+  points: number,
   fetcher: () => Promise<RecipeCard[]>,
 ): Promise<RecipeCard[]> {
   const hit = await ctx.runQuery(internal.cache.getFeed, { key: cacheKey });
@@ -205,7 +233,7 @@ async function cachedFeed(
   }
 
   // Only cache misses cost money, so that's the only thing we throttle.
-  const blocked = await checkUpstreamAllowance(ctx, userId, bucket);
+  const blocked = await checkUpstreamAllowance(ctx, userId, bucket, points);
   if (blocked) {
     // Prefer stale content over an error message — expired data is still useful.
     if (hit) return hit.recipes;
@@ -273,7 +301,16 @@ export const trending = action({
   args: {},
   handler: async (ctx) => {
     const userId = await requireAuth(ctx);
-    return cachedFeed(ctx, userId, 'feed', 'rail:trending', FEED_TTL_MS, fetchTrending);
+    // random, number=6
+    return cachedFeed(
+      ctx,
+      userId,
+      'feed',
+      'rail:trending',
+      FEED_TTL_MS,
+      POINTS.random(6),
+      fetchTrending,
+    );
   },
 });
 
@@ -287,6 +324,7 @@ export const quickWeeknight = action({
       'feed',
       `rail:quick:${filterSig(filters)}`,
       FEED_TTL_MS,
+      POINTS.search(10, true),
       () => fetchQuickWeeknight(filters),
     );
   },
@@ -302,6 +340,7 @@ export const weekendProjects = action({
       'feed',
       `rail:weekend:${filterSig(filters)}`,
       FEED_TTL_MS,
+      POINTS.search(8, true),
       () => fetchWeekendProjects(filters),
     );
   },
@@ -322,6 +361,7 @@ export const byCuisine = action({
       'feed',
       `cuisine:${cuisine.toLowerCase()}:${count}:${filterSig(filters)}`,
       FEED_TTL_MS,
+      POINTS.search(count, true),
       () => {
         const params = applyFilters(
           {
@@ -356,7 +396,8 @@ export const byMacros = action({
     const bucket = (n?: number) => (n == null ? '' : String(Math.round(n / 25) * 25));
     const cacheKey = `macros:${bucket(minProtein)}:${bucket(maxCalories)}:${bucket(minCalories)}:${count}:${filterSig(filters)}`;
 
-    return cachedFeed(ctx, userId, 'feed', cacheKey, FEED_TTL_MS, () => {
+    // Nutrient filters cost a flat extra point on top of the per-result rate.
+    return cachedFeed(ctx, userId, 'feed', cacheKey, FEED_TTL_MS, POINTS.search(count, true, true), () => {
       const params = applyFilters(
         {
           number: String(count),
@@ -387,6 +428,7 @@ export const dishOfTheDay = action({
       'feed',
       `dish-of-day:${todayKey()}`,
       DAY_MS,
+      POINTS.random(1),
       () =>
         fetchJson<RandomResponse>('/recipes/random', { number: '1' }).then((d) =>
           d.recipes.map(toRecipeCard),
@@ -416,7 +458,7 @@ export const search = action({
 
     // Unique queries are the main way a caller can run up a bill, since each one
     // is a guaranteed cache miss.
-    const blocked = await checkUpstreamAllowance(ctx, userId, 'search');
+    const blocked = await checkUpstreamAllowance(ctx, userId, 'search', POINTS.search(count));
     if (blocked) {
       if (hit) return hit.results;
       throw new Error(blocked);
@@ -472,7 +514,7 @@ export const getRecipe = action({
       return asDetail();
     }
 
-    const blocked = await checkUpstreamAllowance(ctx, userId, 'recipeDetail');
+    const blocked = await checkUpstreamAllowance(ctx, userId, 'recipeDetail', POINTS.detail);
     if (blocked) {
       // A stale recipe is fine — ingredients don't change.
       if (hit) return asDetail();
@@ -555,12 +597,21 @@ export const getRecipe = action({
 export const warmCaches = internalAction({
   args: {},
   handler: async (ctx) => {
-    const jobs: { key: string; run: () => Promise<RecipeCard[]> }[] = [
-      { key: 'rail:trending', run: fetchTrending },
-      { key: `rail:quick:${filterSig()}`, run: () => fetchQuickWeeknight() },
-      { key: `rail:weekend:${filterSig()}`, run: () => fetchWeekendProjects() },
+    const jobs: { key: string; points: number; run: () => Promise<RecipeCard[]> }[] = [
+      { key: 'rail:trending', points: POINTS.random(6), run: fetchTrending },
+      {
+        key: `rail:quick:${filterSig()}`,
+        points: POINTS.search(10, true),
+        run: () => fetchQuickWeeknight(),
+      },
+      {
+        key: `rail:weekend:${filterSig()}`,
+        points: POINTS.search(8, true),
+        run: () => fetchWeekendProjects(),
+      },
       {
         key: `dish-of-day:${todayKey()}`,
+        points: POINTS.random(1),
         run: () =>
           fetchJson<RandomResponse>('/recipes/random', { number: '1' }).then((d) =>
             d.recipes.map(toRecipeCard),
@@ -572,6 +623,16 @@ export const warmCaches = internalAction({
       try {
         const recipes = await job.run();
         await ctx.runMutation(internal.cache.setFeed, { key: job.key, recipes });
+        // Recorded but never refused: the cron has a reserve set aside and must
+        // not be starved by user traffic. Booking it keeps the daily counter an
+        // honest measure of what we actually spent with Spoonacular.
+        await ctx.runMutation(internal.rateLimit.consume, {
+          key: globalKey(),
+          limit: GLOBAL_DAILY_POINT_LIMIT,
+          windowMs: DAY_MS,
+          cost: job.points,
+          force: true,
+        });
       } catch (err) {
         // Keep warming the rest even if one rail fails; stale data stays served.
         console.error(`[warmCaches] ${job.key} failed`, err);
