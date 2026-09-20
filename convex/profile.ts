@@ -1,4 +1,6 @@
-import { requireUserId } from './_helpers';
+import { v } from 'convex/values';
+
+import { hasPremiumAccess, requireUserId } from './_helpers';
 import { mutation, query } from './_generated/server';
 
 /**
@@ -35,5 +37,45 @@ export const markOnboarded = mutation({
     // this account actually joined.
     if (existing) return existing._id;
     return ctx.db.insert('userProfiles', { userId, onboardedAt: Date.now() });
+  },
+});
+
+/**
+ * Records when this account's trial began, the first time we see it.
+ *
+ * `accountCreatedAt` comes from Clerk via the client so an existing user's
+ * trial dates from when they actually signed up rather than from whenever this
+ * table first noticed them. It's clamped to the present: a caller can only ever
+ * move their trial start *earlier*, which shortens their own trial, so lying
+ * about it gains nothing.
+ */
+export const ensureProfile = mutation({
+  args: { accountCreatedAt: v.optional(v.number()) },
+  handler: async (ctx, { accountCreatedAt }) => {
+    const userId = await requireUserId(ctx);
+    const existing = await ctx.db
+      .query('userProfiles')
+      .withIndex('by_user', (q) => q.eq('userId', userId))
+      .unique();
+
+    const now = Date.now();
+    const started = Math.min(accountCreatedAt ?? now, now);
+
+    if (!existing) {
+      return ctx.db.insert('userProfiles', { userId, trialStartedAt: started });
+    }
+    if (existing.trialStartedAt == null) {
+      await ctx.db.patch(existing._id, { trialStartedAt: started });
+    }
+    return existing._id;
+  },
+});
+
+/** Server's own verdict on premium access, for the client to display honestly. */
+export const myAccess = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await requireUserId(ctx);
+    return { hasPremium: await hasPremiumAccess(ctx, userId) };
   },
 });

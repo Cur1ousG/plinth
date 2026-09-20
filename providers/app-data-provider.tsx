@@ -9,6 +9,7 @@ import {
 
 import { api } from '@/convex/_generated/api';
 import type { Id } from '@/convex/_generated/dataModel';
+import { recipeService } from '@/services/recipeService';
 import type {
   CartItem,
   Ingredient,
@@ -85,21 +86,44 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const savedValue = useMemo<SavedRecipesContextValue>(() => {
     const isSaved = (id: string) => savedItems.some((r) => r.id === id);
-    const save = async (r: Recipe | ParsedRecipe) => {
-      const ingredients =
-        'ingredients' in r && Array.isArray(r.ingredients) ? r.ingredients : [];
-      await saveRecipe({
+    const writeSaved = (r: Recipe | ParsedRecipe) =>
+      saveRecipe({
         recipeId: r.id,
         title: r.title,
         url: r.url,
         thumbnail: r.thumbnail,
         siteName: r.siteName,
-        ingredients,
+        ingredients: 'ingredients' in r && Array.isArray(r.ingredients) ? r.ingredients : [],
         instructions: 'instructions' in r ? r.instructions : undefined,
         totalTime: 'totalTime' in r ? r.totalTime : undefined,
         yields: 'yields' in r ? r.yields : undefined,
         nutrients: 'nutrients' in r ? r.nutrients : undefined,
       });
+
+    /**
+     * Hearting a recipe from a rail or a search result only has the card to go
+     * on — title, image, url, no ingredients. Left like that, the recipe isn't
+     * readable until someone opens it, which needs Spoonacular to be reachable
+     * and under quota at that moment. Saving it properly now means everything
+     * in Your Recipes stays readable offline and forever.
+     *
+     * The thin record is written first so the heart fills instantly; the detail
+     * lands a moment later. If the fetch fails — offline, over quota — the
+     * recipe is still saved, just thin, and opening it will complete it later.
+     */
+    const save = async (r: Recipe | ParsedRecipe) => {
+      const hasIngredients =
+        'ingredients' in r && Array.isArray(r.ingredients) && r.ingredients.length > 0;
+
+      await writeSaved(r);
+      if (hasIngredients || r.id.startsWith('import:')) return;
+
+      try {
+        const full = await recipeService.getById(r.id);
+        if (full.ingredients.length > 0) await writeSaved(full);
+      } catch {
+        // Keep the thin record. app/recipe.tsx completes it on first open.
+      }
     };
     const remove = async (recipeId: string) => {
       await removeRecipe({ recipeId });

@@ -209,6 +209,19 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   // finished onboarding months ago.
   const profile = useQuery(api.profile.getMine, userId ? {} : 'skip');
   const markOnboardedOnAccount = useMutation(api.profile.markOnboarded);
+  const ensureProfile = useMutation(api.profile.ensureProfile);
+
+  // Start the trial clock on the server the first time we see this account,
+  // dated from the Clerk signup so an existing user isn't handed a fresh 21
+  // days. Until this row exists the server errs on the side of access, so it
+  // has to run early rather than at some later milestone.
+  const accountCreatedAt = user?.createdAt ? new Date(user.createdAt).getTime() : undefined;
+  useEffect(() => {
+    if (!userId) return;
+    void ensureProfile({ accountCreatedAt }).catch(() => {
+      // Offline. Retries next launch; access is unaffected meanwhile.
+    });
+  }, [userId, accountCreatedAt, ensureProfile]);
 
   const localOnboardedAt = settings.onboardedAt;
   const onboardedAt = localOnboardedAt ?? profile?.onboardedAt ?? null;

@@ -49,7 +49,11 @@ export default defineSchema({
   // welcome flow on — including after a password reset.
   userProfiles: defineTable({
     userId: v.string(),
-    onboardedAt: v.number(),
+    onboardedAt: v.optional(v.number()),
+    // When this account's free trial started. Held server-side so the 21 days
+    // are actually enforced — the client's own copy is a display convenience,
+    // and anything that trusts it can be edited by the person it limits.
+    trialStartedAt: v.optional(v.number()),
   }).index('by_user', ['userId']),
 
   calendarEntries: defineTable({

@@ -98,21 +98,13 @@ export const fromText = action({
 // Guards
 // ---------------------------------------------------------------------------
 
-/**
- * Import is a paid feature, so it is checked here rather than only in the UI.
- *
- * Note this mirrors what the app currently does: a user with no subscription
- * row is treated as being in their 21-day trial. The trial start really lives
- * in Clerk's createdAt, which the server can't see today — worth moving server
- * side before launch, because right now the trial is effectively unbounded from
- * the backend's point of view.
- */
+/** Import is a paid feature, checked here rather than only in the UI. */
 async function requirePremium(ctx: ActionCtx): Promise<string> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) throw new Error('Not authenticated');
 
-  const sub = await ctx.runQuery(api.subscriptions.getMyStatus, {});
-  if (sub && !['active', 'on_trial', 'cancelled'].includes(sub.status)) {
+  const { hasPremium } = await ctx.runQuery(api.profile.myAccess, {});
+  if (!hasPremium) {
     throw new Error('Importing recipes is part of Plinth Premium.');
   }
   return identity.subject;
