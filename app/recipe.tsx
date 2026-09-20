@@ -37,7 +37,7 @@ function RecipeScreenInner() {
   const params = useLocalSearchParams<{ id?: string }>();
   const id = typeof params.id === 'string' ? params.id : '';
 
-  const { isSaved, toggle, items: savedItems, ready: savedReady } = useSavedRecipes();
+  const { isSaved, toggle, save, items: savedItems, ready: savedReady } = useSavedRecipes();
   const { addIngredients } = useCart();
 
   const [recipe, setRecipe] = useState<ParsedRecipe | null>(null);
@@ -46,12 +46,21 @@ function RecipeScreenInner() {
   const [tab, setTab] = useState<Tab>('ingredients');
   const [checkedIngredients, setCheckedIngredients] = useState<Record<number, boolean>>({});
 
-  // A saved recipe is already a complete recipe — we stored the ingredients,
-  // method, times and nutrition when it was saved. Reading that copy rather
-  // than refetching means saved recipes open instantly, work offline, and cost
-  // no Spoonacular points. It's also the only way imported recipes can open at
-  // all: their ids aren't Spoonacular ids, so there is nothing to fetch.
+  // Prefer the saved copy when it's genuinely complete: it opens instantly,
+  // works offline, and costs no Spoonacular points.
+  //
+  // But "saved" doesn't always mean complete. Hearting from a card stores only
+  // what the card had — title, image, url — with an empty ingredient list,
+  // because that's all a rail or a search result carries. Trusting that record
+  // is how a recipe opens to "No structured ingredients available".
+  //
+  // Imported recipes are the exception that must use the local copy regardless:
+  // their ids aren't Spoonacular ids, so there is nothing upstream to fetch.
   const savedCopy = savedItems.find((r) => r.id === id);
+  const isImported = id.startsWith('import:');
+  const localCopy = savedCopy && (savedCopy.ingredients.length > 0 || isImported)
+    ? savedCopy
+    : undefined;
 
   useEffect(() => {
     let active = true;
@@ -60,8 +69,8 @@ function RecipeScreenInner() {
       setLoading(false);
       return;
     }
-    if (savedCopy) {
-      setRecipe(savedCopy);
+    if (localCopy) {
+      setRecipe(localCopy);
       setError('');
       setLoading(false);
       return;
@@ -76,6 +85,11 @@ function RecipeScreenInner() {
         if (!active) return;
         setRecipe(r);
         setError('');
+        // Fill in a record that was saved from a card. Next time this opens
+        // it's instant and offline, and never costs another point.
+        if (savedCopy && savedCopy.ingredients.length === 0 && r.ingredients.length > 0) {
+          void save(r).catch(() => {});
+        }
       })
       .catch((err) => {
         if (!active) return;
@@ -87,7 +101,7 @@ function RecipeScreenInner() {
     return () => {
       active = false;
     };
-  }, [id, savedCopy, savedReady]);
+  }, [id, localCopy, savedCopy, savedReady, save]);
 
   const onAddToCart = async () => {
     if (!recipe) return;
