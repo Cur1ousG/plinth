@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -97,6 +97,28 @@ export default function DiscoverScreen() {
             </Pressable>
           )}
         </View>
+
+        {/* Sits directly under the search field because the intent is the same:
+            someone here wants a specific recipe, and sometimes they already
+            have the link. Free users see it too — the badge is the pitch. */}
+        <Link href="/import" asChild>
+          <Pressable className="mt-3 flex-row items-center rounded-2xl border-2 border-brand-500 px-4 py-3 active:opacity-80">
+            <Ionicons name="link" size={20} color="#ea580c" />
+            <View className="ml-3 flex-1">
+              <Text className="text-sm font-semibold text-stone-900 dark:text-stone-50">
+                Import a recipe
+              </Text>
+              <Text className="text-xs text-stone-500 dark:text-stone-400">
+                Paste any link, or a caption
+              </Text>
+            </View>
+            <View className="rounded-full bg-brand-100 px-2 py-0.5 dark:bg-brand-900">
+              <Text className="text-[10px] font-semibold text-brand-700 dark:text-brand-100">
+                Premium
+              </Text>
+            </View>
+          </Pressable>
+        </Link>
 
         <ScrollView
           horizontal

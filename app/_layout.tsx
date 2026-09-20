@@ -127,6 +127,7 @@ function ThemedShell() {
         <Stack.Screen name="settings/notifications" options={{ title: 'Notifications' }} />
         <Stack.Screen name="settings/language" options={{ title: 'Language' }} />
         <Stack.Screen name="settings/display" options={{ title: 'Display' }} />
+        <Stack.Screen name="import" options={{ title: 'Import a recipe' }} />
         <Stack.Screen name="recipe" options={{ headerShown: false }} />
         <Stack.Screen name="cuisine/[name]" />
         <Stack.Screen name="dietitian" />
