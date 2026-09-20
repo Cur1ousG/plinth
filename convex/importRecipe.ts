@@ -28,10 +28,19 @@ const MAX_BYTES = 2_000_000;
 const FETCH_TIMEOUT_MS = 10_000;
 const MAX_REDIRECTS = 3;
 
-// Enough that sites serve us the real page rather than a bot wall, and honest
-// about who we are so anyone reading logs can see what hit them.
+/**
+ * The conventional polite-bot format. We identify ourselves rather than
+ * impersonating a browser: the fetch is user-initiated and permitted by these
+ * sites' robots.txt, so there's no reason to hide.
+ *
+ * It does mean some sites refuse us. Cloudflare and similar scores datacenter
+ * IPs harshly, and Convex runs in one, so allrecipes, simplyrecipes and
+ * seriouseats all return 403 to our servers while serving the same page fine
+ * from a home connection. There's no fix for that short of pretending to be
+ * Chrome; the paste-text path is the answer instead.
+ */
 const USER_AGENT =
-  'PlinthBot/1.0 (+https://plinth.app; recipe import on behalf of a user)';
+  'Mozilla/5.0 (compatible; PlinthBot/1.0; +https://plinth.app) recipe import on behalf of a user';
 
 /** Sites that will never yield to a fetch, with advice instead of a failure. */
 const PASTE_INSTEAD = [
@@ -224,9 +233,13 @@ async function fetchHtml(startUrl: URL): Promise<string> {
     }
 
     if (!res.ok) {
+      // A 403 here usually isn't the site objecting to us — it's a bot filter
+      // scoring our datacenter IP, and the same page loads fine in a browser.
+      // Saying "this site blocks us" would be both wrong and unhelpful, so the
+      // message points at the way round it instead.
       throw new Error(
         res.status === 403 || res.status === 401
-          ? `${hostLabel(url.toString()) ?? 'That site'} blocks automated readers. Copy the recipe and paste it instead.`
+          ? `We couldn't read ${hostLabel(url.toString()) ?? 'that page'} from our end. Open it, copy the ingredients and method, and use Paste text instead.`
           : "We couldn't load that page.",
       );
     }
