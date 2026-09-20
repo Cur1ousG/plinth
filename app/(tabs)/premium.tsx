@@ -19,7 +19,15 @@ import { useEntitlement, type Entitlement } from '@/hooks/useEntitlement';
 import { convex } from '@/lib/convex';
 import { PLANS, getVariantId, type BillingPeriod } from '@/lib/lemonsqueezy';
 
+// Import leads deliberately. The other three are all discovery, which free
+// users already get plenty of; import is the one that makes Plinth the place
+// someone's cooking lives, and it's what this category actually charges for.
 const perks: { icon: keyof typeof Ionicons.glyphMap; title: string; desc: string }[] = [
+  {
+    icon: 'link',
+    title: 'Import any recipe',
+    desc: 'Paste a link from any recipe site, or the caption from an Instagram reel, and Plinth pulls out the ingredients and steps.',
+  },
   {
     icon: 'globe',
     title: 'Dishes by region',
