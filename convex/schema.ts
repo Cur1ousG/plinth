@@ -93,6 +93,9 @@ export default defineSchema({
     status: v.string(), // 'active' | 'on_trial' | 'paused' | 'past_due' | 'cancelled' | 'expired'
     plan: v.string(),
     currentPeriodEnd: v.number(), // ms epoch
+    // Which store took the money. Absent on rows written before Play Billing,
+    // which were all Lemon Squeezy.
+    provider: v.optional(v.string()), // 'lemonsqueezy' | 'play' | 'appstore'
     lemonSqueezySubscriptionId: v.optional(v.string()),
     lemonSqueezyCustomerId: v.optional(v.string()),
     customerPortalUrl: v.optional(v.string()),

@@ -2,7 +2,7 @@
 
 import { v } from 'convex/values';
 
-import { internal } from './_generated/api';
+import { api, internal } from './_generated/api';
 import { action, internalAction, type ActionCtx } from './_generated/server';
 import {
   GLOBAL_DAILY_POINT_LIMIT,
@@ -47,6 +47,21 @@ const POINTS = {
   /** /information with includeNutrition=true. */
   detail: 1.1,
 };
+
+/**
+ * Auth, plus the paid check for the three Premium-only feeds.
+ *
+ * These were gated in the UI alone — the button was hidden, the action wasn't.
+ * Anyone able to call a Convex function directly had cuisine browsing, the
+ * dietitian and the daily pick for free, and they're the three things Premium
+ * is sold on. hasPremiumAccess is the single source of truth (see _helpers).
+ */
+async function requirePaidAuth(ctx: ActionCtx): Promise<string> {
+  const userId = await requireAuth(ctx);
+  const { hasPremium } = await ctx.runQuery(api.profile.myAccess, {});
+  if (!hasPremium) throw new Error('That feature is part of Plinth Premium.');
+  return userId;
+}
 
 function formatRetry(ms: number): string {
   const minutes = Math.ceil(ms / 60_000);
@@ -353,7 +368,7 @@ export const byCuisine = action({
     ...filterArgs,
   },
   handler: async (ctx, { cuisine, number, ...filters }) => {
-    const userId = await requireAuth(ctx);
+    const userId = await requirePaidAuth(ctx);
     const count = number ?? 12;
     return cachedFeed(
       ctx,
@@ -389,7 +404,7 @@ export const byMacros = action({
     ...filterArgs,
   },
   handler: async (ctx, { minProtein, maxCalories, minCalories, number, ...filters }) => {
-    const userId = await requireAuth(ctx);
+    const userId = await requirePaidAuth(ctx);
     const count = number ?? 10;
     // Round macro targets into buckets of 25 so near-identical requests from
     // different users share a cache entry instead of each hitting Spoonacular.
@@ -419,7 +434,7 @@ export const byMacros = action({
 export const dishOfTheDay = action({
   args: {},
   handler: async (ctx) => {
-    const userId = await requireAuth(ctx);
+    const userId = await requirePaidAuth(ctx);
     // Keyed by date: everyone sees the same dish today, and it costs one upstream
     // call for the entire userbase.
     const recipes = await cachedFeed(
