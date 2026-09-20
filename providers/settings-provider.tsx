@@ -1,5 +1,6 @@
 import { useUser } from '@clerk/clerk-expo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useMutation, useQuery } from 'convex/react';
 import {
   createContext,
   useCallback,
@@ -9,6 +10,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+
+import { api } from '@/convex/_generated/api';
 
 export type Appearance = 'light' | 'dark' | 'system';
 
@@ -197,8 +200,35 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   // signed-out guest's) empty settings and send a returning user through the
   // welcome flow. That is exactly what happened after a password reset, where
   // setActive() swaps guest → real user and navigates in the same tick.
-  const ready = loaded.forUser === userId;
-  const settings = ready ? loaded.settings : defaults;
+  const localReady = loaded.forUser === userId;
+  const settings = localReady ? loaded.settings : defaults;
+
+  // The account's own answer to "has this person been onboarded". Device
+  // storage can't answer it: a reinstall, a second phone, or a password reset
+  // on a fresh device all produce an empty local record for an account that
+  // finished onboarding months ago.
+  const profile = useQuery(api.profile.getMine, userId ? {} : 'skip');
+  const markOnboardedOnAccount = useMutation(api.profile.markOnboarded);
+
+  const localOnboardedAt = settings.onboardedAt;
+  const onboardedAt = localOnboardedAt ?? profile?.onboardedAt ?? null;
+
+  // Backfill for everyone who onboarded before this record existed. Without it
+  // they keep working on this phone and get the welcome flow again on the next
+  // one, which is the bug this whole change is about.
+  useEffect(() => {
+    if (!userId || localOnboardedAt == null) return;
+    if (profile === undefined || profile !== null) return; // loading, or already recorded
+    void markOnboardedOnAccount({}).catch(() => {
+      // Offline or a race with another device; it'll retry next launch.
+    });
+  }, [userId, localOnboardedAt, profile, markOnboardedOnAccount]);
+
+  // Waiting on the server would stall every launch, so we only do it when the
+  // device has nothing to say. A returning user on their usual phone is ready
+  // immediately; only a genuinely unknown device pays for the round trip, and
+  // that's the one case where being wrong means replaying onboarding.
+  const ready = localReady && (localOnboardedAt != null || profile !== undefined);
 
   // Reload settings whenever the signed-in user changes (incl. sign-out → null).
   useEffect(() => {
@@ -294,12 +324,22 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   );
 
   const markOnboarded = useCallback(async () => {
-    await persist({ ...settings, onboardedAt: Date.now() });
-  }, [persist, settings]);
+    const now = Date.now();
+    await persist({ ...settings, onboardedAt: now });
+    // Recorded on the account too, so the next device this person signs in on
+    // doesn't start them over. A failure here is survivable — the local record
+    // still works on this phone — so it must not block finishing onboarding.
+    try {
+      await markOnboardedOnAccount({});
+    } catch {
+      // ignore
+    }
+  }, [markOnboardedOnAccount, persist, settings]);
 
   const value = useMemo<Ctx>(
     () => ({
       ...settings,
+      onboardedAt,
       ready,
       setAppearance,
       toggleDietary,
@@ -312,6 +352,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }),
     [
       settings,
+      onboardedAt,
       ready,
       setAppearance,
       toggleDietary,

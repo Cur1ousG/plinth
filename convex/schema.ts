@@ -43,6 +43,15 @@ export default defineSchema({
     .index('by_user', ['userId'])
     .index('by_user_and_recipe', ['userId', 'recipeId']),
 
+  // Per-account facts that must survive reinstalling the app or signing in on
+  // a second phone. Onboarding lived only in AsyncStorage, so an existing
+  // account was greeted as brand new on any device it hadn't been through the
+  // welcome flow on — including after a password reset.
+  userProfiles: defineTable({
+    userId: v.string(),
+    onboardedAt: v.number(),
+  }).index('by_user', ['userId']),
+
   calendarEntries: defineTable({
     userId: v.string(),
     entryKey: v.string(),
