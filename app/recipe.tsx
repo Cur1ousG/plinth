@@ -37,7 +37,7 @@ function RecipeScreenInner() {
   const params = useLocalSearchParams<{ id?: string }>();
   const id = typeof params.id === 'string' ? params.id : '';
 
-  const { isSaved, toggle } = useSavedRecipes();
+  const { isSaved, toggle, items: savedItems, ready: savedReady } = useSavedRecipes();
   const { addIngredients } = useCart();
 
   const [recipe, setRecipe] = useState<ParsedRecipe | null>(null);
@@ -46,6 +46,13 @@ function RecipeScreenInner() {
   const [tab, setTab] = useState<Tab>('ingredients');
   const [checkedIngredients, setCheckedIngredients] = useState<Record<number, boolean>>({});
 
+  // A saved recipe is already a complete recipe — we stored the ingredients,
+  // method, times and nutrition when it was saved. Reading that copy rather
+  // than refetching means saved recipes open instantly, work offline, and cost
+  // no Spoonacular points. It's also the only way imported recipes can open at
+  // all: their ids aren't Spoonacular ids, so there is nothing to fetch.
+  const savedCopy = savedItems.find((r) => r.id === id);
+
   useEffect(() => {
     let active = true;
     if (!id) {
@@ -53,6 +60,15 @@ function RecipeScreenInner() {
       setLoading(false);
       return;
     }
+    if (savedCopy) {
+      setRecipe(savedCopy);
+      setError('');
+      setLoading(false);
+      return;
+    }
+    // Wait for the saved list before going upstream, or a saved recipe would
+    // still cost a fetch on every cold start.
+    if (!savedReady) return;
     setLoading(true);
     recipeService
       .getById(id)
@@ -71,7 +87,7 @@ function RecipeScreenInner() {
     return () => {
       active = false;
     };
-  }, [id]);
+  }, [id, savedCopy, savedReady]);
 
   const onAddToCart = async () => {
     if (!recipe) return;

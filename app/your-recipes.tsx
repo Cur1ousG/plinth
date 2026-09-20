@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, FlatList, Pressable, Text, View } from 'react-native';
 
 import { AuthGate } from '@/components/auth-gate';
@@ -16,6 +16,7 @@ export default function YourRecipesScreen() {
 
 function YourRecipesInner() {
   const { from } = useLocalSearchParams<{ from?: string }>();
+  const router = useRouter();
   const { items, ready, remove } = useSavedRecipes();
 
   const onRemove = (id: string, title: string) => {
@@ -61,7 +62,9 @@ function YourRecipesInner() {
       ItemSeparatorComponent={() => <View className="h-3" />}
       className="flex-1 bg-cream dark:bg-charcoal"
       renderItem={({ item }) => (
-        <View className="flex-row overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900">
+        <Pressable
+          onPress={() => router.push({ pathname: '/recipe', params: { id: item.id } })}
+          className="flex-row overflow-hidden rounded-2xl border border-stone-200 bg-white active:opacity-80 dark:border-stone-800 dark:bg-stone-900">
           <View className="h-24 w-24 bg-stone-200 dark:bg-stone-800">
             {item.thumbnail ? (
               <Image
@@ -83,12 +86,15 @@ function YourRecipesInner() {
             </Text>
           </View>
           <Pressable
-            onPress={() => onRemove(item.id, item.title)}
+            onPress={(e) => {
+              e.stopPropagation();
+              onRemove(item.id, item.title);
+            }}
             hitSlop={8}
             className="items-center justify-center px-3">
             <Ionicons name="trash-outline" size={20} color="#ef4444" />
           </Pressable>
-        </View>
+        </Pressable>
       )}
     />
     </View>
