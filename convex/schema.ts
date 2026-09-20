@@ -69,13 +69,50 @@ export default defineSchema({
     .index('by_user_and_key', ['userId', 'entryKey'])
     .index('by_user_and_date', ['userId', 'date']),
 
-  cartItems: defineTable({
+  // A shopping list, which one or more people share. Everyone gets a personal
+  // one on first use; household sharing is the same object with more members.
+  shoppingLists: defineTable({
+    name: v.string(),
+    ownerId: v.string(),
+    createdAt: v.number(),
+  }).index('by_owner', ['ownerId']),
+
+  // Who may read and write a list. Membership — not ownership of each row — is
+  // what every cart function checks, which is the whole point of the change.
+  listMembers: defineTable({
+    listId: v.id('shoppingLists'),
     userId: v.string(),
+    role: v.string(), // 'owner' | 'member'
+    joinedAt: v.number(),
+  })
+    .index('by_list', ['listId'])
+    .index('by_user', ['userId'])
+    .index('by_list_and_user', ['listId', 'userId']),
+
+  // Short codes someone types to join a household list. They expire, because a
+  // join code that works forever is a permanent key to someone's shopping.
+  listInvites: defineTable({
+    code: v.string(),
+    listId: v.id('shoppingLists'),
+    createdBy: v.string(),
+    expiresAt: v.number(),
+  })
+    .index('by_code', ['code'])
+    .index('by_list', ['listId']),
+
+  cartItems: defineTable({
+    // Who added it. Kept so a shared list can show who put the milk on it —
+    // it is no longer what decides who may see or change the row.
+    userId: v.string(),
+    // Optional only until every existing row has been migrated onto a list.
+    listId: v.optional(v.id('shoppingLists')),
     name: v.string(),
     quantity: v.optional(v.string()),
     checked: v.boolean(),
     fromRecipeId: v.optional(v.string()),
-  }).index('by_user', ['userId']),
+  })
+    .index('by_user', ['userId'])
+    .index('by_list', ['listId']),
 
   // Fixed-window counters backing the rate limiter. `key` is either
   // "<userId>:<bucket>" for per-user limits or "global:<bucket>:<date>" for the
