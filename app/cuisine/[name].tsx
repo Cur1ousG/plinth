@@ -104,6 +104,17 @@ function CuisineInner() {
         numColumns={2}
         contentContainerClassName="p-3"
         columnWrapperStyle={{ gap: 12, marginBottom: 12 }}
+        ListEmptyComponent={
+          <View className="items-center px-8 pt-24">
+            <Ionicons name="restaurant-outline" size={36} color="#a8a29e" />
+            <Text className="mt-3 text-center text-base font-semibold text-stone-900 dark:text-stone-50">
+              Nothing here right now
+            </Text>
+            <Text className="mt-2 text-center text-sm leading-5 text-stone-500 dark:text-stone-400">
+              No {cuisine} recipes matched your food preferences. Try loosening them in Settings.
+            </Text>
+          </View>
+        }
         renderItem={({ item }) => (
           <Pressable
             onPress={() => router.push({ pathname: '/recipe', params: { id: item.id } })}

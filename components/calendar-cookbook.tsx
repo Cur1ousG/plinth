@@ -37,7 +37,7 @@ export function CalendarCookbook() {
   const router = useRouter();
   const days = useMemo(() => buildWeek(), []);
   const range = useMemo(() => ({ from: days[0].iso, to: days[days.length - 1].iso }), [days]);
-  const { entries, setEntry, removeEntry, entriesForDate, entryForDateAndSlot } = useCalendar(
+  const { setEntry, removeEntry, entriesForDate, entryForDateAndSlot } = useCalendar(
     range.from,
     range.to,
   );
