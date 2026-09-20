@@ -24,6 +24,13 @@ export function getVariantId(period: BillingPeriod): string | null {
  *
  * These are display copy only. Lemon Squeezy charges whatever the variant is
  * set to; if you change a price there, change it here in the same sitting.
+ *
+ * Prices are in rand because that's the store's currency — every buyer is
+ * charged in ZAR wherever they are. Showing dollars here while the checkout
+ * page asked for rand would be the kind of surprise that ends in a chargeback.
+ *
+ * Yearly is 1299.90 against 129.99 x 12 = 1559.88, so the discount is exactly
+ * two months.
  */
 export const PLANS: Record<
   BillingPeriod,
@@ -31,13 +38,13 @@ export const PLANS: Record<
 > = {
   monthly: {
     label: 'Monthly',
-    price: '$8',
+    price: 'R129.99',
     caption: 'per month',
   },
   annual: {
     label: 'Yearly',
-    price: '$79.99',
-    caption: 'per year — $6.67/mo',
+    price: 'R1,299.90',
+    caption: 'per year — R108.33/mo',
     badge: '2 months free',
   },
 };
