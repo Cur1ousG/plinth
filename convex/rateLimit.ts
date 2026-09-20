@@ -24,7 +24,12 @@ import { internalMutation } from './_generated/server';
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 
-export type RateLimitBucket = 'search' | 'recipeDetail' | 'feed' | 'subscriptionChange';
+export type RateLimitBucket =
+  | 'search'
+  | 'recipeDetail'
+  | 'feed'
+  | 'recipeImport'
+  | 'subscriptionChange';
 
 /**
  * Per-user limits, counted in *cache misses* — browsing cached content is
@@ -44,6 +49,9 @@ export const USER_LIMITS: Record<RateLimitBucket, { limit: number; windowMs: num
   recipeDetail: { limit: 15, windowMs: HOUR },
   // Rails, cuisine grids, macro lookups. Mostly shared, so misses are rare.
   feed: { limit: 10, windowMs: HOUR },
+  // Importing from a link or pasted text. Costs no Spoonacular points, but it
+  // makes our server fetch a URL the user chose, so it needs its own ceiling.
+  recipeImport: { limit: 20, windowMs: HOUR },
   // Cancelling / resuming a subscription. Not a Spoonacular cost.
   subscriptionChange: { limit: 5, windowMs: HOUR },
   // Starting a checkout is intentionally absent — see createCheckoutSession.
