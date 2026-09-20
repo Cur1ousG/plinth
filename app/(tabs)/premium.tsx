@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '@/convex/_generated/api';
 import { useEntitlement, type Entitlement } from '@/hooks/useEntitlement';
 import { convex } from '@/lib/convex';
-import { getVariantId } from '@/lib/lemonsqueezy';
+import { PLANS, getVariantId, type BillingPeriod } from '@/lib/lemonsqueezy';
 
 const perks: { icon: keyof typeof Ionicons.glyphMap; title: string; desc: string }[] = [
   {
@@ -44,15 +44,18 @@ export default function PremiumScreen() {
   const sub = useQuery(api.subscriptions.getMyStatus, isSignedIn ? {} : 'skip');
 
   const [checkoutBusy, setCheckoutBusy] = useState(false);
+  // Annual is preselected: it's better value for the user and better cash flow
+  // for us, and people rarely switch off a sensible default.
+  const [period, setPeriod] = useState<BillingPeriod>('annual');
   const [manageBusy, setManageBusy] = useState(false);
 
   const onSubscribe = async () => {
     if (!user || checkoutBusy) return;
-    const variantId = getVariantId();
+    const variantId = getVariantId(period);
     if (!variantId) {
       Alert.alert(
         'Checkout not configured',
-        'Set EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_ID in .env, then restart Metro with -c.',
+        'Set EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_MONTHLY and _ANNUAL in .env, then restart Metro with -c.',
       );
       return;
     }
@@ -156,7 +159,15 @@ export default function PremiumScreen() {
             onOpenBillingPortal={onOpenBillingPortal}
           />
         ) : (
-          <SubscribeCTA tier={tier} ready={entitlement.ready} busy={checkoutBusy} onPress={onSubscribe} />
+          <>
+            <PlanPicker selected={period} onSelect={setPeriod} />
+            <SubscribeCTA
+              tier={tier}
+              ready={entitlement.ready}
+              busy={checkoutBusy}
+              onPress={onSubscribe}
+            />
+          </>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -231,6 +242,61 @@ function Perk({
         </Text>
         <Text className="mt-1 text-sm text-stone-500 dark:text-stone-400">{desc}</Text>
       </View>
+    </View>
+  );
+}
+
+/**
+ * Shows the price before anyone commits. Previously the first time a person saw
+ * what Plinth cost was the Lemon Squeezy page after tapping Subscribe, which
+ * loses people and is not what app stores expect of a paid feature.
+ */
+function PlanPicker({
+  selected,
+  onSelect,
+}: {
+  selected: BillingPeriod;
+  onSelect: (p: BillingPeriod) => void;
+}) {
+  return (
+    <View className="mb-3 flex-row gap-3">
+      {(['annual', 'monthly'] as BillingPeriod[]).map((p) => {
+        const plan = PLANS[p];
+        const active = selected === p;
+        return (
+          <Pressable
+            key={p}
+            onPress={() => onSelect(p)}
+            className={`flex-1 rounded-2xl border p-4 active:opacity-80 ${
+              active
+                ? 'border-brand-500 bg-brand-50 dark:bg-brand-900'
+                : 'border-stone-200 dark:border-stone-800'
+            }`}>
+            <View className="flex-row items-center justify-between">
+              <Text
+                className={`text-sm font-semibold ${
+                  active
+                    ? 'text-brand-700 dark:text-brand-100'
+                    : 'text-stone-700 dark:text-stone-300'
+                }`}>
+                {plan.label}
+              </Text>
+              {active ? <Ionicons name="checkmark-circle" size={18} color="#ea580c" /> : null}
+            </View>
+            <Text className="mt-2 text-2xl font-bold text-stone-900 dark:text-stone-50">
+              {plan.price}
+            </Text>
+            <Text className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+              {plan.caption}
+            </Text>
+            {plan.badge ? (
+              <View className="mt-2 self-start rounded-full bg-brand-500 px-2 py-0.5">
+                <Text className="text-[10px] font-semibold text-white">{plan.badge}</Text>
+              </View>
+            ) : null}
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
