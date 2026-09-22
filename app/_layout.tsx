@@ -134,6 +134,7 @@ function ThemedShell() {
         <Stack.Screen name="legal/privacy" options={{ title: 'Privacy policy' }} />
         <Stack.Screen name="legal/terms" options={{ title: 'Terms of service' }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+        <Stack.Screen name="sso-callback" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style={effective === 'dark' ? 'light' : 'dark'} />
       <OfflineBanner />

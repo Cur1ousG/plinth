@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { GoogleSignInButton, OrDivider } from '@/components/google-sign-in';
 import { clerkErrorMessage } from '@/lib/clerkErrors';
 
 export default function SignUpScreen() {
@@ -92,6 +93,9 @@ export default function SignUpScreen() {
           />
         ) : (
           <>
+            <GoogleSignInButton />
+            <OrDivider />
+
             <View className="flex-row gap-2">
               <View className="flex-1">
                 <Field

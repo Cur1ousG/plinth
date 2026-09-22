@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { GoogleSignInButton, OrDivider } from '@/components/google-sign-in';
 import { clerkErrorMessage } from '@/lib/clerkErrors';
 
 type SecondFactorStrategy = 'totp' | 'phone_code' | 'backup_code' | 'email_code';
@@ -206,6 +207,9 @@ export default function SignInScreen() {
         <Text className="mb-8 mt-1 text-base text-stone-500 dark:text-stone-400">
           Sign in to sync your recipes and meal plans.
         </Text>
+
+        <GoogleSignInButton />
+        <OrDivider />
 
         <Field
           label="Email"

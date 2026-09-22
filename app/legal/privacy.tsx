@@ -12,7 +12,7 @@ export default function PrivacyPolicyScreen() {
         Privacy policy
       </Text>
       <Text className="mb-6 text-xs text-stone-500 dark:text-stone-400">
-        Last updated: 27 July 2026
+        Last updated: 22 September 2026
       </Text>
 
       <Section title="Who we are">
@@ -26,7 +26,9 @@ export default function PrivacyPolicyScreen() {
       <Section title="What we collect">
         <Bullet>
           <B>Account info</B> — your email address, name, and (optional) profile picture, provided
-          via our authentication partner Clerk.
+          via our authentication partner Clerk. If you choose Continue with Google, Google shares
+          your name, email address and profile picture with Clerk to create or sign in to your
+          account; we never see your Google password.
         </Bullet>
         <Bullet>
           <B>Recipes & meal data</B> — recipes you save, meals you plan in the calendar, and items
