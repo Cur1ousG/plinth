@@ -43,11 +43,40 @@ if (!convexUrl) {
   );
 }
 
-if (problems.length > 0) {
-  console.error('\n[check-build-env] This production build is misconfigured:\n');
-  for (const p of problems) console.error('  • ' + p);
-  console.error('\nFix eas.json (production profile) and build again.\n');
-  process.exit(1);
+/**
+ * Does the backend URL actually answer? The production profile once pointed at
+ * `insightful-opossum-557.eu-west-1.convex.cloud` — a guess at the region that
+ * returned 404, because that deployment isn't in eu-west-1. Every check above
+ * passed and the build would have shipped an app that could load nothing.
+ *
+ * A network failure here is reported but not fatal, so a flaky connection on
+ * the build machine can't block a release; a definite 404 is.
+ */
+async function checkConvexReachable() {
+  if (!convexUrl) return;
+  try {
+    const res = await fetch(convexUrl.replace(/\/$/, '') + '/version', {
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (res.status === 404) {
+      problems.push(
+        `EXPO_PUBLIC_CONVEX_URL (${convexUrl}) returns 404 — no deployment lives there. ` +
+          'Check the region part of the URL against `npx convex deploy` output.',
+      );
+    }
+  } catch (err) {
+    console.warn(`[check-build-env] couldn't reach ${convexUrl} to confirm it exists: ${err.message}`);
+  }
 }
 
-console.log('[check-build-env] production credentials look right.');
+// No top-level await: this is CommonJS, and older Node on the build machine
+// would reject it outright.
+checkConvexReachable().then(() => {
+  if (problems.length > 0) {
+    console.error('\n[check-build-env] This production build is misconfigured:\n');
+    for (const p of problems) console.error('  • ' + p);
+    console.error('\nFix eas.json (production profile) and build again.\n');
+    process.exit(1);
+  }
+  console.log('[check-build-env] production credentials look right.');
+});
