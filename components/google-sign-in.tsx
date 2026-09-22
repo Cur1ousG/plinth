@@ -1,11 +1,21 @@
 import { useSSO } from '@clerk/clerk-expo';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import * as AuthSession from 'expo-auth-session';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, Pressable, Text, View } from 'react-native';
 
 import { clerkErrorMessage } from '@/lib/clerkErrors';
+
+/**
+ * Where Google sends people back to, pinned so it's identical on every kind of
+ * build. Left to default, a development build can generate it with the dev
+ * client's own scheme rather than `plinth://`, and Clerk rejects any address
+ * that isn't on its allowlist. This is the exact string to allowlist in Clerk,
+ * for both iOS and Android.
+ */
+const REDIRECT_URL = AuthSession.makeRedirectUri({ scheme: 'plinth', path: 'sso-callback' });
 
 // Lets the browser tab close itself and hand the result back when the flow
 // ends on web. A no-op on native, where openAuthSessionAsync already does it.
@@ -49,6 +59,7 @@ export function GoogleSignInButton() {
     try {
       const { createdSessionId, setActive, signUp, authSessionResult } = await startSSOFlow({
         strategy: 'oauth_google',
+        redirectUrl: REDIRECT_URL,
       });
 
       if (createdSessionId && setActive) {
