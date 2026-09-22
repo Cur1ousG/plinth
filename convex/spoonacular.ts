@@ -63,6 +63,17 @@ async function requirePaidAuth(ctx: ActionCtx): Promise<string> {
   return userId;
 }
 
+/**
+ * Spoonacular sends `null` for fields it doesn't have — a recipe with no
+ * written method has `instructions: null`, not a missing key. Convex validators
+ * treat those as different things: v.optional(v.string()) accepts a string or
+ * nothing, and rejects null. Passing one through crashed the recipe screen with
+ * "Value does not match validator" for the whole recipe, method or not.
+ */
+function opt<T>(value: T | null | undefined): T | undefined {
+  return value ?? undefined;
+}
+
 function formatRetry(ms: number): string {
   const minutes = Math.ceil(ms / 60_000);
   if (minutes <= 1) return 'a minute';
@@ -584,21 +595,25 @@ export const getRecipe = action({
 
       const parsed = {
         recipeId: String(data.id),
-        title: data.title,
-        url: data.sourceUrl,
-        thumbnail: data.image,
-        siteName: data.sourceName,
-        ingredients: (data.extendedIngredients ?? []).map((i) => ({
-          name: i.nameClean ?? i.name,
-          amount: i.amount,
-          unit: i.unit,
-          original: i.original,
-        })),
-        instructions: data.instructions,
+        title: opt(data.title) ?? 'Untitled recipe',
+        url: opt(data.sourceUrl),
+        thumbnail: opt(data.image),
+        siteName: opt(data.sourceName),
+        ingredients: (data.extendedIngredients ?? [])
+          .map((i) => ({
+            name: opt(i.nameClean) ?? opt(i.name),
+            amount: opt(i.amount),
+            unit: opt(i.unit),
+            original: opt(i.original) ?? opt(i.name) ?? '',
+          }))
+          .filter((i) => i.original !== ''),
+        instructions: opt(data.instructions),
         totalTime: data.readyInMinutes != null ? `${data.readyInMinutes} min` : undefined,
         yields: data.servings != null ? `${data.servings} servings` : undefined,
         nutrients: data.nutrition?.nutrients
-          ?.filter((n) => allowed.has(n.name))
+          ?.filter(
+            (n) => allowed.has(n.name) && typeof n.amount === 'number' && n.unit != null,
+          )
           .map((n) => ({ name: n.name, amount: n.amount, unit: n.unit })),
       };
 
