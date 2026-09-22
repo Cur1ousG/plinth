@@ -22,6 +22,9 @@
   // privacy-policy URL in a store listing, say — don't break; the canonical
   // tag still points search engines at plinthrecipes.com.
   "workers_dev": true,
+  // Per-version preview addresses. We deploy straight to live and never use
+  // them, so there's no reason to keep extra public URLs around.
+  "preview_urls": false,
   "routes": [
     { "pattern": "plinthrecipes.com", "custom_domain": true },
     { "pattern": "www.plinthrecipes.com", "custom_domain": true }
