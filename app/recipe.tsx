@@ -16,7 +16,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
 import { AuthGate } from '@/components/auth-gate';
-import { SpoonacularCredit } from '@/components/spoonacular-credit';
 import { useCart } from '@/hooks/useCart';
 import { useSavedRecipes } from '@/hooks/useSavedRecipes';
 import { recipeService } from '@/services/recipeService';
@@ -322,7 +321,6 @@ function IngredientsTab({
             </Text>
           </View>
         }
-        ListFooterComponent={<SpoonacularCredit align="center" className="mt-6 px-5" />}
         contentContainerClassName="pb-28"
       />
 
