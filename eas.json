@@ -60,7 +60,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_cHJlcGFyZWQta2F0eWRpZC0zMy5jbGVyay5hY2NvdW50cy5kZXYk",
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsucGxpbnRocmVjaXBlcy5jb20k",
         "EXPO_PUBLIC_CONVEX_URL": "https://insightful-opossum-557.eu-west-1.convex.cloud",
         "EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_MONTHLY": "2147738",
         "EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_ANNUAL": "2147745",
