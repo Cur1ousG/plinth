@@ -33,22 +33,22 @@ export type RateLimitBucket =
 
 /**
  * Per-user limits, counted in *cache misses* — browsing cached content is
- * unlimited and free. These stop one person monopolising the shared budget;
- * the global point ceiling is what protects the bill.
+ * unlimited and free. They stop one person, or one script, monopolising the
+ * shared budget; the global point ceiling below is what protects the bill.
  *
- * They used to be far larger than the budget they drew on: 40 searches/hour
- * for a single user is ~48 points, more than an entire day's allowance. On a
- * 50-point plan a per-user cap only means anything if it's a fraction of the
- * daily total, so these are sized against GLOBAL_DAILY_POINT_LIMIT rather than
- * against what one person might plausibly do.
+ * Sized for the Cook plan (1,500 points/day). On the free plan they had to be
+ * tiny — 10 searches an hour was already a quarter of the day — which would
+ * stop a real person mid-browse on a plan that can easily afford them. These
+ * are well beyond what someone planning dinner does, and one person hitting
+ * every ceiling for an hour still spends under a tenth of the day.
  */
 export const USER_LIMITS: Record<RateLimitBucket, { limit: number; windowMs: number }> = {
-  // ~12 points if every one misses — about a quarter of the daily budget.
-  search: { limit: 10, windowMs: HOUR },
+  // ~36 points if every one misses.
+  search: { limit: 30, windowMs: HOUR },
   // Cheapest call we make (1.1) and the most natural to repeat while browsing.
-  recipeDetail: { limit: 15, windowMs: HOUR },
+  recipeDetail: { limit: 40, windowMs: HOUR },
   // Rails, cuisine grids, macro lookups. Mostly shared, so misses are rare.
-  feed: { limit: 10, windowMs: HOUR },
+  feed: { limit: 30, windowMs: HOUR },
   // Importing from a link or pasted text. Costs no Spoonacular points, but it
   // makes our server fetch a URL the user chose, so it needs its own ceiling.
   recipeImport: { limit: 20, windowMs: HOUR },
@@ -58,19 +58,13 @@ export const USER_LIMITS: Record<RateLimitBucket, { limit: number; windowMs: num
 };
 
 /**
- * The Spoonacular budget, in points — the unit they actually bill in.
+ * The Spoonacular budget, in points — the unit they actually bill in. A call is
+ * never one point: complexSearch is 1 + 0.01/result, addRecipeInformation adds
+ * 0.025 per recipe, and a nutrient filter adds a whole point.
  *
- * This used to cap *calls* at 120/day against an assumed 150-point plan. Both
- * halves were wrong. The free plan is 50 points/day, and a call is never one
- * point: complexSearch is 1 + 0.01/result, addRecipeInformation adds 0.025 per
- * recipe, and a nutrient filter adds a whole point. 120 calls is really ~156
- * points, so the ceiling sat over three times above the real one and could
- * never fire before Spoonacular's own.
- *
- * Change DAILY_POINT_BUDGET and nothing else when the plan changes:
- *   Free $0 → 50   Cook $29 → 1500   Culinarian $79 → 4500   Chef $149 → 10000
+ * Plans:  Free 50   Cook ($29) 1500   Culinarian ($79) 4500   Chef ($149) 10000
  */
-export const DAILY_POINT_BUDGET = 50;
+const PLAN_DAILY_POINTS = 1500; // Cook, since 2026-09-22
 
 /**
  * Held back for the daily cron, which warms the shared rails before anyone
@@ -79,8 +73,24 @@ export const DAILY_POINT_BUDGET = 50;
  */
 const CRON_RESERVE_POINTS = 5;
 
-/** What's left for user-triggered cache misses. */
-export const GLOBAL_DAILY_POINT_LIMIT = DAILY_POINT_BUDGET - CRON_RESERVE_POINTS;
+/**
+ * What this deployment may spend on user-triggered cache misses today.
+ *
+ * Read per deployment because dev and prod share one Spoonacular key and so
+ * one daily quota, but each keeps its own counter. Left at the plan total on
+ * both, they could together spend twice what the plan allows. Set
+ * SPOONACULAR_DAILY_POINTS on each so the two add up to PLAN_DAILY_POINTS —
+ * e.g. dev 300, prod 1200 — once prod has real users. Unset, a deployment
+ * assumes it has the whole plan to itself, which is true until launch.
+ */
+export function globalDailyPointLimit(): number {
+  const configured = Number(process.env.SPOONACULAR_DAILY_POINTS);
+  const budget =
+    Number.isFinite(configured) && configured > 0
+      ? Math.min(configured, PLAN_DAILY_POINTS)
+      : PLAN_DAILY_POINTS;
+  return Math.max(0, budget - CRON_RESERVE_POINTS);
+}
 
 function utcDay(): string {
   return new Date().toISOString().slice(0, 10);

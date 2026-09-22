@@ -5,7 +5,7 @@ import { v } from 'convex/values';
 import { api, internal } from './_generated/api';
 import { action, internalAction, type ActionCtx } from './_generated/server';
 import {
-  GLOBAL_DAILY_POINT_LIMIT,
+  globalDailyPointLimit,
   USER_LIMITS,
   globalKey,
   userKey,
@@ -104,7 +104,7 @@ async function checkUpstreamAllowance(
   // for as such or the ceiling drifts above the real quota.
   const global = await ctx.runMutation(internal.rateLimit.consume, {
     key: globalKey(),
-    limit: GLOBAL_DAILY_POINT_LIMIT,
+    limit: globalDailyPointLimit(),
     windowMs: DAY_MS,
     cost: points,
   });
@@ -643,7 +643,7 @@ export const warmCaches = internalAction({
         // honest measure of what we actually spent with Spoonacular.
         await ctx.runMutation(internal.rateLimit.consume, {
           key: globalKey(),
-          limit: GLOBAL_DAILY_POINT_LIMIT,
+          limit: globalDailyPointLimit(),
           windowMs: DAY_MS,
           cost: job.points,
           force: true,
