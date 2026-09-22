@@ -12,5 +12,12 @@
     // Astro emits /privacy/index.html etc., so let Cloudflare resolve directory
     // URLs and fall back to our styled 404 for anything unmatched.
     "not_found_handling": "404-page"
-  }
+  },
+  // Serve the site on our own domain. Deploying with this attaches the domain
+  // and Cloudflare issues the certificate; the workers.dev address keeps
+  // working alongside it. www is included because people type it.
+  "routes": [
+    { "pattern": "plinthrecipes.com", "custom_domain": true },
+    { "pattern": "www.plinthrecipes.com", "custom_domain": true }
+  ]
 }

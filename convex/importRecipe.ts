@@ -40,7 +40,7 @@ const MAX_REDIRECTS = 3;
  * Chrome; the paste-text path is the answer instead.
  */
 const USER_AGENT =
-  'Mozilla/5.0 (compatible; PlinthBot/1.0; +https://plinth.app) recipe import on behalf of a user';
+  'Mozilla/5.0 (compatible; PlinthBot/1.0; +https://plinthrecipes.com) recipe import on behalf of a user';
 
 /** Sites that will never yield to a fetch, with advice instead of a failure. */
 const PASTE_INSTEAD = [

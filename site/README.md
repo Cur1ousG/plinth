@@ -53,12 +53,16 @@ npm run build
 npx wrangler deploy
 ```
 
-### Attaching a custom domain later
+### Custom domain
 
-1. Cloudflare dashboard → your Worker → **Settings → Domains & Routes**
-2. Add a custom domain and follow the DNS prompts
-3. Update `site` in [`astro.config.mjs`](./astro.config.mjs) to the new origin so
-   canonical URLs and Open Graph tags point at the right place
+The site is served at **plinthrecipes.com** (and `www.`). The domain is
+registered with Cloudflare and attached through the `routes` block in
+[`wrangler.jsonc`](./wrangler.jsonc), so `wrangler deploy` keeps it attached and
+Cloudflare manages the certificate. The workers.dev address still works too.
+
+If the domain ever changes, update `routes` there and `site` in
+[`astro.config.mjs`](./astro.config.mjs) together — the latter drives canonical
+URLs and Open Graph tags.
 
 ## Keeping legal pages in sync
 
