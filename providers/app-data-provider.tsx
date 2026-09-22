@@ -3,7 +3,9 @@ import { useMutation, useQuery } from 'convex/react';
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
+  useState,
   type ReactNode,
 } from 'react';
 
@@ -27,9 +29,25 @@ type SavedRecipesContextValue = {
   toggle: (recipe: Recipe | ParsedRecipe) => Promise<void>;
 };
 
+export type ShoppingList = {
+  id: Id<'shoppingLists'>;
+  name: string;
+  role: string;
+  memberCount: number;
+  isOwner: boolean;
+};
+
 type CartContextValue = {
   items: CartItem[];
   ready: boolean;
+  /** Every list this person belongs to: their own, plus any they've joined. */
+  lists: ShoppingList[];
+  activeList: ShoppingList | null;
+  setActiveList: (id: Id<'shoppingLists'>) => void;
+  createInvite: () => Promise<{ code: string; expiresAt: number } | null>;
+  joinByCode: (code: string) => Promise<void>;
+  leaveActiveList: () => Promise<void>;
+  renameActiveList: (name: string) => Promise<void>;
   addItem: (input: { name: string; quantity?: string; fromRecipeId?: string }) => Promise<void>;
   addIngredients: (ings: Ingredient[], fromRecipeId?: string) => Promise<void>;
   toggle: (id: string) => Promise<void>;
@@ -47,7 +65,34 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const saveRecipe = useMutation(api.savedRecipes.save);
   const removeRecipe = useMutation(api.savedRecipes.remove);
 
-  const cartDocs = useQuery(api.cart.list, isSignedIn ? {} : 'skip');
+  // Which list the cart screen shows. Everyone starts on the first list they
+  // belong to — their own — and switches deliberately. Joining a household list
+  // switches to it, because that's what someone who just typed a code wants.
+  const listDocs = useQuery(api.shoppingLists.myLists, isSignedIn ? {} : 'skip');
+  const ensureList = useMutation(api.shoppingLists.ensureList);
+  const createInviteMut = useMutation(api.shoppingLists.createInvite);
+  const joinByCodeMut = useMutation(api.shoppingLists.joinByCode);
+  const leaveMut = useMutation(api.shoppingLists.leave);
+  const renameMut = useMutation(api.shoppingLists.rename);
+  const [chosenListId, setChosenListId] = useState<Id<'shoppingLists'> | null>(null);
+
+  const lists: ShoppingList[] = useMemo(() => listDocs ?? [], [listDocs]);
+  const activeList =
+    lists.find((l) => l.id === chosenListId) ?? lists[0] ?? null;
+  const activeListId = activeList?.id;
+
+  // A query can't create rows, so the personal list (and the adoption of any
+  // cart items from before lists existed) happens here, once, on first sign-in.
+  useEffect(() => {
+    if (isSignedIn && listDocs !== undefined && listDocs.length === 0) {
+      void ensureList({}).catch(() => {});
+    }
+  }, [isSignedIn, listDocs, ensureList]);
+
+  const cartDocs = useQuery(
+    api.cart.list,
+    isSignedIn ? (activeListId ? { listId: activeListId } : {}) : 'skip',
+  );
   const addCartMany = useMutation(api.cart.addMany);
   const addCart = useMutation(api.cart.add);
   const toggleCart = useMutation(api.cart.toggle);
@@ -146,8 +191,28 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     () => ({
       items: cartItems,
       ready: cartDocs !== undefined,
+      lists,
+      activeList,
+      setActiveList: (id) => setChosenListId(id),
+      createInvite: async () => {
+        if (!activeListId) return null;
+        return createInviteMut({ listId: activeListId });
+      },
+      joinByCode: async (code) => {
+        const joined = await joinByCodeMut({ code });
+        setChosenListId(joined);
+      },
+      leaveActiveList: async () => {
+        if (!activeListId) return;
+        await leaveMut({ listId: activeListId });
+        setChosenListId(null);
+      },
+      renameActiveList: async (name) => {
+        if (!activeListId) return;
+        await renameMut({ listId: activeListId, name });
+      },
       addItem: async (input) => {
-        await addCart(input);
+        await addCart({ ...input, listId: activeListId });
       },
       addIngredients: async (ings, fromRecipeId) => {
         const items = ings.map((ing) => ({
@@ -156,7 +221,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
           fromRecipeId,
         }));
         if (items.length === 0) return;
-        await addCartMany({ items });
+        await addCartMany({ items, listId: activeListId });
       },
       toggle: async (id: string) => {
         await toggleCart({ id: id as Id<'cartItems'> });
@@ -165,10 +230,14 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         await removeCart({ id: id as Id<'cartItems'> });
       },
       clearChecked: async () => {
-        await clearCheckedCart({});
+        await clearCheckedCart({ listId: activeListId });
       },
     }),
-    [cartItems, cartDocs, addCart, addCartMany, toggleCart, removeCart, clearCheckedCart],
+    [
+      cartItems, cartDocs, lists, activeList, activeListId,
+      createInviteMut, joinByCodeMut, leaveMut, renameMut,
+      addCart, addCartMany, toggleCart, removeCart, clearCheckedCart,
+    ],
   );
 
   return (
