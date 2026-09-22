@@ -205,16 +205,63 @@ function InputArea({
   );
 }
 
+/**
+ * For pasted text this is genuinely instructional, not decoration. Captions
+ * vary wildly, and the one thing that reliably tells ingredients from steps is
+ * a line saying "Ingredients:" and another saying "Method:". Plinth guesses
+ * without them — a numbered line starts the method — but a caption that lists
+ * ingredients without numbers and steps without headings is ambiguous to a
+ * person too. Showing the shape that works costs a sentence and saves the
+ * tidying up afterwards.
+ */
 function Hint({ mode }: { mode: Mode }) {
+  if (mode === 'link') {
+    return (
+      <View className="mt-6 rounded-2xl border border-stone-200 bg-white p-4 dark:border-stone-800 dark:bg-stone-900">
+        <Text className="text-sm font-semibold text-stone-900 dark:text-stone-50">
+          Works with most recipe sites
+        </Text>
+        <Text className="mt-1 text-sm leading-5 text-stone-600 dark:text-stone-400">
+          Paste the link to any recipe page and Plinth will pull out the ingredients and steps.
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View className="mt-6 rounded-2xl border border-stone-200 bg-white p-4 dark:border-stone-800 dark:bg-stone-900">
       <Text className="text-sm font-semibold text-stone-900 dark:text-stone-50">
-        {mode === 'link' ? 'Works with most recipe sites' : 'For Instagram, TikTok and the rest'}
+        For Instagram, TikTok and the rest
       </Text>
       <Text className="mt-1 text-sm leading-5 text-stone-600 dark:text-stone-400">
-        {mode === 'link'
-          ? 'Paste the link to any recipe page and Plinth will pull out the ingredients and steps.'
-          : 'Social apps don’t publish recipes in a form we can read. Open the post, copy the caption, and paste it here instead.'}
+        Social apps don&apos;t publish recipes in a form we can read. Open the post, copy the
+        caption, and paste it here.
+      </Text>
+
+      <Text className="mt-3 text-sm font-semibold text-stone-900 dark:text-stone-50">
+        For the cleanest result
+      </Text>
+      <Text className="mt-1 text-sm leading-5 text-stone-600 dark:text-stone-400">
+        Add a line saying <Text className="font-semibold">Ingredients:</Text> above the
+        ingredients and <Text className="font-semibold">Method:</Text> above the steps. Captions
+        often leave these out, and they&apos;re what tells the two apart.
+      </Text>
+
+      <View className="mt-3 rounded-xl bg-stone-100 p-3 dark:bg-stone-800">
+        <Text className="text-xs leading-5 text-stone-600 dark:text-stone-400">
+          Hot honey chicken{'\n'}
+          <Text className="font-semibold">Ingredients:</Text>{'\n'}
+          2 chicken breasts{'\n'}
+          1 tsp paprika{'\n'}
+          <Text className="font-semibold">Method:</Text>{'\n'}
+          Slice the chicken into strips{'\n'}
+          Fry for 7 minutes a side
+        </Text>
+      </View>
+
+      <Text className="mt-3 text-xs leading-5 text-stone-500 dark:text-stone-400">
+        The first line becomes the recipe name, and you can change anything on the next screen
+        before saving.
       </Text>
     </View>
   );
@@ -272,14 +319,22 @@ function DraftPreview({
         </View>
       ) : null}
 
+      {/* Named rather than labelled "Title", because a caption's first line is
+          often a sentence rather than a dish name, and this is the field
+          someone will want to fix. */}
       <Text className="mb-1 mt-5 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-        Title
+        Recipe name
       </Text>
       <TextInput
         value={draft.title}
         onChangeText={(title) => onChange({ ...draft, title })}
+        placeholder="What do you want to call this?"
+        placeholderTextColor="#a8a29e"
         className="rounded-xl border border-stone-200 bg-white px-4 py-3 text-base font-semibold text-stone-900 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-50"
       />
+      <Text className="mt-1 text-xs text-stone-500 dark:text-stone-400">
+        This is what you&apos;ll see in Your Recipes.
+      </Text>
 
       {draft.siteName || draft.totalTime ? (
         <Text className="mt-2 text-xs text-stone-500 dark:text-stone-400">
