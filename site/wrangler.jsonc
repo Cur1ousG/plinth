@@ -14,8 +14,14 @@
     "not_found_handling": "404-page"
   },
   // Serve the site on our own domain. Deploying with this attaches the domain
-  // and Cloudflare issues the certificate; the workers.dev address keeps
-  // working alongside it. www is included because people type it.
+  // and Cloudflare issues the certificate. www is included because people
+  // type it.
+  //
+  // Adding routes makes Wrangler switch the workers.dev address off unless it's
+  // asked for explicitly. It's kept on so any links already handed out — a
+  // privacy-policy URL in a store listing, say — don't break; the canonical
+  // tag still points search engines at plinthrecipes.com.
+  "workers_dev": true,
   "routes": [
     { "pattern": "plinthrecipes.com", "custom_domain": true },
     { "pattern": "www.plinthrecipes.com", "custom_domain": true }
