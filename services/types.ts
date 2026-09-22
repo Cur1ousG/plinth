@@ -3,7 +3,9 @@ export type RecipeSource = {
   url?: string;
   title: string;
   thumbnail?: string;
+  /** The site it came from, e.g. "BBC Good Food". */
   siteName?: string;
+  minutes?: number;
 };
 
 export type Recipe = {

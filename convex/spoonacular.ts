@@ -143,6 +143,8 @@ type SpoonacularSearchResult = {
   readyInMinutes?: number;
   cuisines?: string[];
   sourceUrl?: string;
+  /** The site the recipe came from, e.g. "BBC Good Food". Needs addRecipeInformation. */
+  sourceName?: string;
 };
 
 type SearchResponse = { results: SpoonacularSearchResult[]; totalResults: number };
@@ -188,6 +190,7 @@ function toRecipeCard(r: SpoonacularSearchResult): RecipeCard {
     minutes: r.readyInMinutes,
     cuisine: r.cuisines?.[0],
     url: r.sourceUrl,
+    siteName: r.sourceName,
   };
 }
 
@@ -464,7 +467,9 @@ export const search = action({
 
     const normalized = query.trim().toLowerCase();
     const count = number ?? 20;
-    const cacheKey = `q:${normalized}:${count}:${filterSig(filters)}`;
+    // v2: results now carry the real source and cook time. The suffix retires
+    // the v1 entries, which have "Spoonacular" as every recipe's source.
+    const cacheKey = `q2:${normalized}:${count}:${filterSig(filters)}`;
 
     const hit = await ctx.runQuery(internal.cache.getSearch, { key: cacheKey });
     if (hit && Date.now() - hit.fetchedAt < SEARCH_TTL_MS) {
@@ -473,7 +478,12 @@ export const search = action({
 
     // Unique queries are the main way a caller can run up a bill, since each one
     // is a guaranteed cache miss.
-    const blocked = await checkUpstreamAllowance(ctx, userId, 'search', POINTS.search(count));
+    const blocked = await checkUpstreamAllowance(
+      ctx,
+      userId,
+      'search',
+      POINTS.search(count, true),
+    );
     if (blocked) {
       if (hit) return hit.results;
       throw new Error(blocked);
@@ -484,18 +494,17 @@ export const search = action({
         {
           query: normalized,
           number: String(count),
-          addRecipeInformation: 'false',
+          // Costs 0.025/result, so on the free plan search ran without it and
+          // every card said "Spoonacular" because that was all we knew. On Cook
+          // it takes a search from 1.2 to 1.7 points and buys the real source
+          // site, the cook time and the cuisine.
+          addRecipeInformation: 'true',
         },
         filters,
       );
 
       const data = await fetchJson<SearchResponse>('/recipes/complexSearch', params);
-      const results: RecipeCard[] = data.results.map((r) => ({
-        id: String(r.id),
-        title: r.title,
-        thumbnail: r.image,
-        siteName: 'Spoonacular',
-      }));
+      const results: RecipeCard[] = data.results.map(toRecipeCard);
 
       await ctx.runMutation(internal.cache.setSearch, { key: cacheKey, results });
       return results;

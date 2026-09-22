@@ -260,7 +260,9 @@ function ResultsView({
             <Text
               numberOfLines={1}
               className="mt-1 text-xs text-stone-500 dark:text-stone-400">
-              {item.siteName}
+              {[item.minutes ? `${item.minutes} min` : null, item.siteName]
+                .filter(Boolean)
+                .join(' · ')}
             </Text>
           </View>
         </Pressable>
