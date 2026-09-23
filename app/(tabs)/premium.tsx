@@ -2,8 +2,7 @@ import { useUser } from '@clerk/clerk-expo';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from 'convex/react';
 import { Link } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -16,8 +15,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { api } from '@/convex/_generated/api';
 import { useEntitlement, type Entitlement } from '@/hooks/useEntitlement';
-import { convex } from '@/lib/convex';
-import { PLANS, getVariantId, type BillingPeriod } from '@/lib/lemonsqueezy';
+import {
+  PurchaseCancelled,
+  getPlans,
+  openPlaySubscriptions,
+  purchasePlan,
+  purchasesEnabled,
+  restorePurchases,
+  type Plans,
+} from '@/lib/purchases';
+
+type BillingPeriod = 'monthly' | 'annual';
 
 // Import leads deliberately. The other three are all discovery, which free
 // users already get plenty of; import is the one that makes Plinth the place
@@ -56,80 +64,97 @@ export default function PremiumScreen() {
   // for us, and people rarely switch off a sensible default.
   const [period, setPeriod] = useState<BillingPeriod>('annual');
   const [manageBusy, setManageBusy] = useState(false);
+  const [plans, setPlans] = useState<Plans | null>(null);
+
+  // Prices come from Play rather than from a constant in the app. Play converts
+  // and localises them per country, so a hardcoded rand figure would be wrong
+  // for everyone outside South Africa — and a price that disagrees with the one
+  // on Google's sheet is how you earn a chargeback.
+  useEffect(() => {
+    let cancelled = false;
+    getPlans()
+      .then((p) => {
+        if (!cancelled) setPlans(p);
+      })
+      .catch(() => {
+        if (!cancelled) setPlans({ monthly: null, annual: null });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const onSubscribe = async () => {
     if (!user || checkoutBusy) return;
-    const variantId = getVariantId(period);
-    if (!variantId) {
+    if (!purchasesEnabled) {
       Alert.alert(
-        'Checkout not configured',
-        'Set EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_MONTHLY and _ANNUAL in .env, then restart Metro with -c.',
+        'Checkout unavailable',
+        'This build has no billing key. Set EXPO_PUBLIC_REVENUECAT_ANDROID_KEY and rebuild.',
+      );
+      return;
+    }
+    const pkg = period === 'annual' ? plans?.annual : plans?.monthly;
+    if (!pkg) {
+      Alert.alert(
+        'Plans unavailable',
+        "Couldn't reach the Play Store. Check your connection and try again.",
       );
       return;
     }
     setCheckoutBusy(true);
     try {
-      const { url } = await convex.action(api.lemonsqueezy.createCheckoutSession, {
-        variantId,
-        email: user.primaryEmailAddress?.emailAddress,
-        name: user.fullName ?? undefined,
-      });
-      await WebBrowser.openBrowserAsync(url);
+      await purchasePlan(pkg);
+      // The webhook is what actually grants access; this only tells the person
+      // the purchase landed. Their entitlement updates when Convex does, which
+      // is typically within a second or two of Google confirming.
+      Alert.alert(
+        'Welcome to Premium',
+        'Your subscription is active. It may take a moment to appear.',
+      );
     } catch (err) {
-      Alert.alert('Could not start checkout', err instanceof Error ? err.message : 'Unknown');
+      // Backing out of Google's sheet is a normal thing to do, not an error.
+      if (err instanceof PurchaseCancelled) return;
+      Alert.alert('Purchase failed', err instanceof Error ? err.message : 'Unknown');
     } finally {
       setCheckoutBusy(false);
     }
   };
 
-  const onCancel = () => {
-    Alert.alert(
-      'Cancel subscription?',
-      "You'll keep access until the end of your current billing period. After that, premium features will be locked.",
-      [
-        { text: 'Keep subscription', style: 'cancel' },
-        {
-          text: 'Cancel',
-          style: 'destructive',
-          onPress: async () => {
-            setManageBusy(true);
-            try {
-              await convex.action(api.lemonsqueezy.cancelSubscription, {});
-            } catch (err) {
-              Alert.alert('Could not cancel', err instanceof Error ? err.message : 'Unknown');
-            } finally {
-              setManageBusy(false);
-            }
-          },
-        },
-      ],
-    );
-  };
-
-  const onResume = async () => {
+  /**
+   * Reinstalls and new devices need this: Play remembers the purchase against
+   * the Google account, but our backend only knows what a webhook told it, and
+   * it may never have seen one for this account on this install.
+   */
+  const onRestore = useCallback(async () => {
     setManageBusy(true);
     try {
-      await convex.action(api.lemonsqueezy.resumeSubscription, {});
+      const restored = await restorePurchases();
+      Alert.alert(
+        restored ? 'Purchases restored' : 'Nothing to restore',
+        restored
+          ? 'Your subscription is active again.'
+          : 'No active subscription was found for this Google account.',
+      );
     } catch (err) {
-      Alert.alert('Could not resume', err instanceof Error ? err.message : 'Unknown');
+      Alert.alert('Could not restore', err instanceof Error ? err.message : 'Try again.');
     } finally {
       setManageBusy(false);
     }
-  };
+  }, []);
 
-  const onOpenBillingPortal = async () => {
-    const portalUrl = sub?.customerPortalUrl ?? sub?.updatePaymentMethodUrl;
-    if (!portalUrl) {
-      Alert.alert(
-        'Billing portal unavailable',
-        "Your billing portal link is provided by Lemon Squeezy after your first webhook event. Once your store is activated, this opens a page where you can update your card and download invoices.",
-      );
-      return;
-    }
+  /**
+   * Cancelling, resuming and changing a card all happen in Play, not here.
+   *
+   * There is no API to cancel a Play subscription on the user's behalf — Google
+   * owns that screen deliberately, so nobody can be talked out of leaving by an
+   * app's own retention flow. Deep-linking to the right subscription is the
+   * most we can do, and it is also what Google's policy expects us to do.
+   */
+  const onManageInPlay = async () => {
     try {
-      await WebBrowser.openBrowserAsync(portalUrl);
+      await openPlaySubscriptions(sub?.plan);
     } catch (err) {
-      Alert.alert('Could not open portal', err instanceof Error ? err.message : 'Unknown');
+      Alert.alert('Could not open Play', err instanceof Error ? err.message : 'Unknown');
     }
   };
 
@@ -160,21 +185,24 @@ export default function PremiumScreen() {
 
         {tier === 'premium' ? (
           <ManageSection
-            entitlement={entitlement}
             busy={manageBusy}
-            onCancel={onCancel}
-            onResume={onResume}
-            onOpenBillingPortal={onOpenBillingPortal}
+            onManageInPlay={onManageInPlay}
+            onRestore={onRestore}
           />
         ) : (
           <>
-            <PlanPicker selected={period} onSelect={setPeriod} />
+            <PlanPicker selected={period} onSelect={setPeriod} plans={plans} />
             <SubscribeCTA
               tier={tier}
               ready={entitlement.ready}
               busy={checkoutBusy}
               onPress={onSubscribe}
             />
+            <Pressable onPress={onRestore} disabled={manageBusy} className="mt-3 py-2">
+              <Text className="text-center text-sm text-stone-500 dark:text-stone-400">
+                Already subscribed? Restore purchase
+              </Text>
+            </Pressable>
           </>
         )}
       </ScrollView>
@@ -259,17 +287,29 @@ function Perk({
  * what Plinth cost was the Lemon Squeezy page after tapping Subscribe, which
  * loses people and is not what app stores expect of a paid feature.
  */
+/** Static copy only. Every price on this screen comes from the store. */
+const PLAN_COPY: Record<BillingPeriod, { label: string; caption: string; badge?: string }> = {
+  monthly: { label: 'Monthly', caption: 'Billed every month' },
+  annual: { label: 'Yearly', caption: 'Billed once a year', badge: '2 MONTHS FREE' },
+};
+
 function PlanPicker({
   selected,
   onSelect,
+  plans,
 }: {
   selected: BillingPeriod;
   onSelect: (p: BillingPeriod) => void;
+  plans: Plans | null;
 }) {
   return (
     <View className="mb-3 flex-row gap-3">
       {(['annual', 'monthly'] as BillingPeriod[]).map((p) => {
-        const plan = PLANS[p];
+        const plan = PLAN_COPY[p];
+        const pkg = p === 'annual' ? plans?.annual : plans?.monthly;
+        // Play's own localised string — "R129.99", "$6.99", "₹499" — rather
+        // than a figure we'd have to keep in step with the console by hand.
+        const price = pkg?.product.priceString ?? '—';
         const active = selected === p;
         return (
           <Pressable
@@ -292,7 +332,7 @@ function PlanPicker({
               {active ? <Ionicons name="checkmark-circle" size={18} color="#ea580c" /> : null}
             </View>
             <Text className="mt-2 text-2xl font-bold text-stone-900 dark:text-stone-50">
-              {plan.price}
+              {price}
             </Text>
             <Text className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
               {plan.caption}
@@ -344,61 +384,38 @@ function SubscribeCTA({
 }
 
 function ManageSection({
-  entitlement,
   busy,
-  onCancel,
-  onResume,
-  onOpenBillingPortal,
+  onManageInPlay,
+  onRestore,
 }: {
-  entitlement: Entitlement;
   busy: boolean;
-  onCancel: () => void;
-  onResume: () => void;
-  onOpenBillingPortal: () => void;
+  onManageInPlay: () => void;
+  onRestore: () => void;
 }) {
-  const { cancelled } = entitlement;
   return (
     <View className="gap-3">
-      {cancelled ? (
-        <Pressable
-          onPress={onResume}
-          disabled={busy}
-          className="rounded-2xl bg-brand-500 px-5 py-4 active:opacity-80 disabled:opacity-60">
-          {busy ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text className="text-center text-base font-semibold text-white">
-              Resume subscription
-            </Text>
-          )}
-        </Pressable>
-      ) : (
-        <Pressable
-          onPress={onCancel}
-          disabled={busy}
-          className="rounded-2xl border border-red-300 px-5 py-4 active:bg-red-50 disabled:opacity-60 dark:border-red-900 dark:active:bg-red-950">
-          {busy ? (
-            <ActivityIndicator color="#ef4444" />
-          ) : (
-            <Text className="text-center text-base font-medium text-red-600">
-              Cancel subscription
-            </Text>
-          )}
-        </Pressable>
-      )}
-
       <Pressable
-        onPress={onOpenBillingPortal}
+        onPress={onManageInPlay}
         className="flex-row items-center justify-between rounded-2xl border border-stone-200 px-5 py-4 active:bg-stone-100 dark:border-stone-800 dark:active:bg-stone-900">
-        <View>
+        <View className="flex-1 pr-3">
           <Text className="text-base font-medium text-stone-900 dark:text-stone-50">
-            Billing & invoices
+            Manage subscription
           </Text>
           <Text className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
-            Update card, download receipts
+            Cancel, change plan or update your card in Google Play
           </Text>
         </View>
         <Ionicons name="open-outline" size={18} color="#78716c" />
+      </Pressable>
+
+      <Pressable onPress={onRestore} disabled={busy} className="py-2">
+        {busy ? (
+          <ActivityIndicator color="#a8a29e" />
+        ) : (
+          <Text className="text-center text-sm text-stone-500 dark:text-stone-400">
+            Restore purchase
+          </Text>
+        )}
       </Pressable>
     </View>
   );

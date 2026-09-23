@@ -172,8 +172,17 @@ function statusForEvent(type: string): string | null {
       return 'cancelled';
     case 'EXPIRATION':
       return 'expired';
+    // A failed renewal the store is still retrying. Access continues to the end
+    // of the grace period configured on the Play base plan — see
+    // PREMIUM_STATUSES in _helpers.ts, which bounds it by currentPeriodEnd.
     case 'BILLING_ISSUE':
       return 'past_due';
+    // Play lets people pause a subscription. They are not paying and should not
+    // have access, but they have not cancelled either, so this is its own state
+    // rather than 'expired' — and it must be handled, since falling through to
+    // the default would leave the row 'active' and the account premium for free.
+    case 'SUBSCRIPTION_PAUSED':
+      return 'paused';
     default:
       return null; // TRANSFER, TEST, and anything new: acknowledge, ignore.
   }

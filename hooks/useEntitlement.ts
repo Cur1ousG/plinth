@@ -39,8 +39,11 @@ export function useEntitlement(): Entitlement {
   const trialEnd = createdAtMs + TRIAL_MS;
   const inTrial = Date.now() < trialEnd;
 
-  // Premium statuses: still paying ('active', 'on_trial') or cancelled-but-not-yet-expired.
-  const premiumStatuses = new Set(['active', 'on_trial', 'cancelled']);
+  // Premium statuses: still paying ('active', 'on_trial'), cancelled-but-not-yet
+  // -expired, or in the store's grace period after a failed renewal
+  // ('past_due'). Kept in step with PREMIUM_STATUSES in convex/_helpers.ts,
+  // which is what actually enforces this.
+  const premiumStatuses = new Set(['active', 'on_trial', 'cancelled', 'past_due']);
   const subStillPaid =
     !!sub && premiumStatuses.has(sub.status) && sub.currentPeriodEnd > Date.now();
 

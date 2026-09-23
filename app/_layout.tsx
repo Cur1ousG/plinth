@@ -13,6 +13,7 @@ import 'react-native-reanimated';
 import { OfflineBanner } from '@/components/offline-banner';
 import { Colors } from '@/constants/theme';
 import { convex } from '@/lib/convex';
+import { configurePurchases, forgetPurchaser, identifyPurchaser } from '@/lib/purchases';
 import { initSentry, setSentryUser, wrapRoot } from '@/lib/sentry';
 import { tokenCache } from '@/lib/tokenCache';
 import { AppDataProvider } from '@/providers/app-data-provider';
@@ -21,6 +22,7 @@ import { SettingsProvider, useSettings } from '@/providers/settings-provider';
 // Single init point. Reads the DSN from env and no-ops when it's unset.
 // See lib/sentry.ts for the privacy and sampling choices.
 initSentry();
+configurePurchases();
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -41,7 +43,7 @@ function RootLayout() {
         <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
           <SettingsProvider>
             <AppDataProvider>
-              <SentryUserTag />
+              <IdentityTag />
               <ThemedShell />
             </AppDataProvider>
           </SettingsProvider>
@@ -56,12 +58,21 @@ export default wrapRoot(RootLayout);
 /**
  * Keeps Sentry's user context in sync with Clerk so crash reports can be grouped
  * per account. Sends only the opaque user id — never email or name.
+ *
+ * RevenueCat is tied to the same id here, for a less cosmetic reason: purchases
+ * are keyed by whatever id the SDK holds, and the webhook rejects anonymous
+ * ones. Getting this wrong means someone pays and is granted nothing.
  */
-function SentryUserTag() {
+function IdentityTag() {
   const { user, isLoaded } = useUser();
   useEffect(() => {
     if (!isLoaded) return;
     setSentryUser(user?.id ?? null);
+    if (user?.id) {
+      void identifyPurchaser(user.id);
+    } else {
+      void forgetPurchaser();
+    }
   }, [isLoaded, user?.id]);
   return null;
 }
