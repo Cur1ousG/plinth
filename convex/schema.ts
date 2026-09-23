@@ -133,6 +133,10 @@ export default defineSchema({
     // Which store took the money. Absent on rows written before Play Billing,
     // which were all Lemon Squeezy.
     provider: v.optional(v.string()), // 'lemonsqueezy' | 'play' | 'appstore'
+    // Legacy, from before Play Billing. Nothing writes these any more, but a
+    // couple of old rows still carry them and removing the fields would make
+    // those documents fail schema validation on the next deploy. Drop them —
+    // and the by_subscription_id index — once no row has them.
     lemonSqueezySubscriptionId: v.optional(v.string()),
     lemonSqueezyCustomerId: v.optional(v.string()),
     customerPortalUrl: v.optional(v.string()),
