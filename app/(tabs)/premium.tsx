@@ -17,6 +17,7 @@ import { api } from "@/convex/_generated/api";
 import { useEntitlement, type Entitlement } from "@/hooks/useEntitlement";
 import {
   PurchaseCancelled,
+  describeError,
   getPlans,
   openPlaySubscriptions,
   purchasePlan,
@@ -85,11 +86,7 @@ export default function PremiumScreen() {
       .catch((err: unknown) => {
         if (cancelled) return;
         setPlans({ monthly: null, annual: null });
-        setPlansError(
-          err instanceof Error
-            ? err.message
-            : "Could not reach the Play Store.",
-        );
+        setPlansError(describeError(err));
       });
     return () => {
       cancelled = true;
@@ -129,10 +126,7 @@ export default function PremiumScreen() {
     } catch (err) {
       // Backing out of Google's sheet is a normal thing to do, not an error.
       if (err instanceof PurchaseCancelled) return;
-      Alert.alert(
-        "Purchase failed",
-        err instanceof Error ? err.message : "Unknown",
-      );
+      Alert.alert("Purchase failed", describeError(err));
     } finally {
       setCheckoutBusy(false);
     }

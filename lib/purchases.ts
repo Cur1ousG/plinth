@@ -200,6 +200,32 @@ export function hasEntitlement(info: CustomerInfo): boolean {
   return info.entitlements.active[ENTITLEMENT_ID] !== undefined;
 }
 
+/**
+ * The whole of a RevenueCat error, not just its headline.
+ *
+ * Its `message` for a configuration problem is always the same sentence —
+ * "There is an issue with your configuration. Check the underlying error for
+ * more details" — and the detail that names the actual cause lives in
+ * `underlyingErrorMessage`. Reporting only the headline tells you a category
+ * and nothing else, which on a release build is where the trail goes cold.
+ */
+export function describeError(err: unknown): string {
+  if (!err || typeof err !== 'object') return String(err ?? 'Unknown error');
+  const e = err as {
+    message?: string;
+    code?: string | number;
+    readableErrorCode?: string;
+    underlyingErrorMessage?: string;
+  };
+  return [
+    e.message,
+    e.underlyingErrorMessage ? `Underlying: ${e.underlyingErrorMessage}` : null,
+    e.readableErrorCode ? `Code: ${e.readableErrorCode}` : e.code ? `Code: ${e.code}` : null,
+  ]
+    .filter(Boolean)
+    .join('\n\n');
+}
+
 function isUserCancelled(err: unknown): boolean {
   const code = (err as { code?: string })?.code;
   return (
