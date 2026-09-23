@@ -67,10 +67,12 @@ const SHOTS = [
     theme: 'light',
   },
   {
-    file: '06-share.png',
-    line1: 'Share it with',
-    line2: 'the *whole house*',
-    sub: 'One code. Everyone sees the same list, live.',
+    // Swap back to a full-screen capture of the invite sheet when there is one:
+    // "share it with the whole house" is the feature competitors don't have.
+    file: '06-cuisine.png',
+    line1: 'Cook the world',
+    line2: 'on a *Tuesday*',
+    sub: 'Browse by cuisine and country, from Italian to Japanese.',
     theme: 'dark',
   },
   {
@@ -154,7 +156,7 @@ function phoneFrame(theme) {
           rx="${PHONE.radius}" fill="${frameFill}" filter="url(#drop)"/>`;
 }
 
-async function screenInner(file) {
+async function screenInner(file, trimTop) {
   const innerW = PHONE.w - BEZEL * 2;
   const innerH = PHONE.h - BEZEL * 2;
   const src = path.join(__dirname, 'shots', file);
@@ -173,10 +175,39 @@ async function screenInner(file) {
 
   // Cover-fit and anchor to the top: the status bar and header are the part of
   // a screenshot worth showing, and the bottom is what the frame crops anyway.
-  return sharp(src)
-    .resize(innerW, innerH, { fit: 'cover', position: 'top' })
-    .png()
-    .toBuffer();
+  //
+  // Cover only flatters a source at least as tall, proportionally, as the frame.
+  // Feed it a cropped sheet and it zooms until the sides fall off the edges —
+  // silently, which is worse than failing, so say so.
+  const meta = await sharp(src).metadata();
+  const frameAspect = innerH / innerW;
+  const srcAspect = meta.height / meta.width;
+  if (srcAspect < frameAspect * 0.9) {
+    console.warn(
+      `  ! ${file} is ${meta.width}x${meta.height} — too short for the frame; ` +
+        `it will be zoomed ${(innerW / meta.width).toFixed(1)}x and cropped at the sides. ` +
+        `Recapture it full-screen.`,
+    );
+  } else if (meta.width < 700) {
+    console.warn(
+      `  ! ${file} is only ${meta.width}px wide; upscaling to ${innerW}px will look soft. ` +
+        `A native device capture (1080px+) would be sharper.`,
+    );
+  }
+
+  // `trimTop` (a fraction of source height) exists for captures that include the
+  // device status bar — the clock, the battery and whatever notification icons
+  // were up are not the app, and a 2% battery reads as carelessness. The current
+  // captures arrive already trimmed, so it defaults to nothing: cropping blind
+  // ate the nav bar on the screens whose header sits highest.
+  const bar = Math.round(meta.height * (trimTop || 0));
+
+  const pipeline = sharp(src);
+  if (bar > 0) {
+    pipeline.extract({ left: 0, top: bar, width: meta.width, height: meta.height - bar });
+  }
+
+  return pipeline.resize(innerW, innerH, { fit: 'cover', position: 'top' }).png().toBuffer();
 }
 
 /** Round the screen's top corners so it sits inside the bezel cleanly. */
@@ -210,7 +241,7 @@ async function build(shot, index) {
       ${phoneFrame(shot.theme)}
     </svg>`;
 
-  const screen = await roundedScreen(await screenInner(shot.file));
+  const screen = await roundedScreen(await screenInner(shot.file, shot.trimTop));
 
   const outDir = path.join(__dirname, 'out');
   fs.mkdirSync(outDir, { recursive: true });
