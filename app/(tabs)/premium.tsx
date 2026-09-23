@@ -1,8 +1,8 @@
-import { useUser } from '@clerk/clerk-expo';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useQuery } from 'convex/react';
-import { Link } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useUser } from "@clerk/clerk-expo";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useQuery } from "convex/react";
+import { Link } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -10,46 +10,51 @@ import {
   ScrollView,
   Text,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { api } from '@/convex/_generated/api';
-import { useEntitlement, type Entitlement } from '@/hooks/useEntitlement';
+import { api } from "@/convex/_generated/api";
+import { useEntitlement, type Entitlement } from "@/hooks/useEntitlement";
 import {
   PurchaseCancelled,
   getPlans,
   openPlaySubscriptions,
   purchasePlan,
+  plansDiagnostic,
   purchasesEnabled,
   restorePurchases,
   type Plans,
-} from '@/lib/purchases';
+} from "@/lib/purchases";
 
-type BillingPeriod = 'monthly' | 'annual';
+type BillingPeriod = "monthly" | "annual";
 
 // Import leads deliberately. The other three are all discovery, which free
 // users already get plenty of; import is the one that makes Plinth the place
 // someone's cooking lives, and it's what this category actually charges for.
-const perks: { icon: keyof typeof Ionicons.glyphMap; title: string; desc: string }[] = [
+const perks: {
+  icon: keyof typeof Ionicons.glyphMap;
+  title: string;
+  desc: string;
+}[] = [
   {
-    icon: 'link',
-    title: 'Import any recipe',
-    desc: 'Paste a link from any recipe site, or the caption from an Instagram reel, and Plinth pulls out the ingredients and steps.',
+    icon: "link",
+    title: "Import any recipe",
+    desc: "Paste a link from any recipe site, or the caption from an Instagram reel, and Plinth pulls out the ingredients and steps.",
   },
   {
-    icon: 'globe',
-    title: 'Dishes by region',
-    desc: 'Browse recipes filtered by cuisine and country, right on your home tab.',
+    icon: "globe",
+    title: "Dishes by region",
+    desc: "Browse recipes filtered by cuisine and country, right on your home tab.",
   },
   {
-    icon: 'calendar',
-    title: 'Dish for the day',
-    desc: 'Get a hand-picked recipe each day, delivered automatically.',
+    icon: "calendar",
+    title: "Dish for the day",
+    desc: "Get a hand-picked recipe each day, delivered automatically.",
   },
   {
-    icon: 'nutrition',
-    title: 'Dietitian plan',
-    desc: 'Macros, calories, and meal plans tuned for cutting, bulking, or maintenance.',
+    icon: "nutrition",
+    title: "Dietitian plan",
+    desc: "Macros, calories, and meal plans tuned for cutting, bulking, or maintenance.",
   },
 ];
 
@@ -57,14 +62,15 @@ export default function PremiumScreen() {
   const entitlement = useEntitlement();
   const { tier } = entitlement;
   const { user, isSignedIn } = useUser();
-  const sub = useQuery(api.subscriptions.getMyStatus, isSignedIn ? {} : 'skip');
+  const sub = useQuery(api.subscriptions.getMyStatus, isSignedIn ? {} : "skip");
 
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   // Annual is preselected: it's better value for the user and better cash flow
   // for us, and people rarely switch off a sensible default.
-  const [period, setPeriod] = useState<BillingPeriod>('annual');
+  const [period, setPeriod] = useState<BillingPeriod>("annual");
   const [manageBusy, setManageBusy] = useState(false);
   const [plans, setPlans] = useState<Plans | null>(null);
+  const [plansError, setPlansError] = useState<string | null>(null);
 
   // Prices come from Play rather than from a constant in the app. Play converts
   // and localises them per country, so a hardcoded rand figure would be wrong
@@ -76,8 +82,14 @@ export default function PremiumScreen() {
       .then((p) => {
         if (!cancelled) setPlans(p);
       })
-      .catch(() => {
-        if (!cancelled) setPlans({ monthly: null, annual: null });
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setPlans({ monthly: null, annual: null });
+        setPlansError(
+          err instanceof Error
+            ? err.message
+            : "Could not reach the Play Store.",
+        );
       });
     return () => {
       cancelled = true;
@@ -88,16 +100,19 @@ export default function PremiumScreen() {
     if (!user || checkoutBusy) return;
     if (!purchasesEnabled) {
       Alert.alert(
-        'Checkout unavailable',
-        'This build has no billing key. Set EXPO_PUBLIC_REVENUECAT_ANDROID_KEY and rebuild.',
+        "Checkout unavailable",
+        "This build has no billing key. Set EXPO_PUBLIC_REVENUECAT_ANDROID_KEY and rebuild.",
       );
       return;
     }
-    const pkg = period === 'annual' ? plans?.annual : plans?.monthly;
+    const pkg = period === "annual" ? plans?.annual : plans?.monthly;
     if (!pkg) {
+      // Say why. On a release build this alert is the only window into it.
       Alert.alert(
-        'Plans unavailable',
-        "Couldn't reach the Play Store. Check your connection and try again.",
+        "Plans unavailable",
+        plansError ??
+          plansDiagnostic ??
+          "Couldn't reach the Play Store. Check your connection and try again.",
       );
       return;
     }
@@ -108,13 +123,16 @@ export default function PremiumScreen() {
       // the purchase landed. Their entitlement updates when Convex does, which
       // is typically within a second or two of Google confirming.
       Alert.alert(
-        'Welcome to Premium',
-        'Your subscription is active. It may take a moment to appear.',
+        "Welcome to Premium",
+        "Your subscription is active. It may take a moment to appear.",
       );
     } catch (err) {
       // Backing out of Google's sheet is a normal thing to do, not an error.
       if (err instanceof PurchaseCancelled) return;
-      Alert.alert('Purchase failed', err instanceof Error ? err.message : 'Unknown');
+      Alert.alert(
+        "Purchase failed",
+        err instanceof Error ? err.message : "Unknown",
+      );
     } finally {
       setCheckoutBusy(false);
     }
@@ -130,13 +148,16 @@ export default function PremiumScreen() {
     try {
       const restored = await restorePurchases();
       Alert.alert(
-        restored ? 'Purchases restored' : 'Nothing to restore',
+        restored ? "Purchases restored" : "Nothing to restore",
         restored
-          ? 'Your subscription is active again.'
-          : 'No active subscription was found for this Google account.',
+          ? "Your subscription is active again."
+          : "No active subscription was found for this Google account.",
       );
     } catch (err) {
-      Alert.alert('Could not restore', err instanceof Error ? err.message : 'Try again.');
+      Alert.alert(
+        "Could not restore",
+        err instanceof Error ? err.message : "Try again.",
+      );
     } finally {
       setManageBusy(false);
     }
@@ -154,7 +175,10 @@ export default function PremiumScreen() {
     try {
       await openPlaySubscriptions(sub?.plan);
     } catch (err) {
-      Alert.alert('Could not open Play', err instanceof Error ? err.message : 'Unknown');
+      Alert.alert(
+        "Could not open Play",
+        err instanceof Error ? err.message : "Unknown",
+      );
     }
   };
 
@@ -169,11 +193,13 @@ export default function PremiumScreen() {
           ))}
         </View>
 
-        {(tier === 'trial' || tier === 'premium') && (
+        {(tier === "trial" || tier === "premium") && (
           <Link href="/dietitian" asChild>
             <Pressable className="mb-3 flex-row items-center justify-between rounded-2xl bg-brand-500 px-5 py-4 active:opacity-80">
               <View>
-                <Text className="text-base font-semibold text-white">Open dietitian plan</Text>
+                <Text className="text-base font-semibold text-white">
+                  Open dietitian plan
+                </Text>
                 <Text className="text-xs text-brand-100">
                   Set your goal and get tailored macros
                 </Text>
@@ -183,7 +209,7 @@ export default function PremiumScreen() {
           </Link>
         )}
 
-        {tier === 'premium' ? (
+        {tier === "premium" ? (
           <ManageSection
             busy={manageBusy}
             onManageInPlay={onManageInPlay}
@@ -198,7 +224,11 @@ export default function PremiumScreen() {
               busy={checkoutBusy}
               onPress={onSubscribe}
             />
-            <Pressable onPress={onRestore} disabled={manageBusy} className="mt-3 py-2">
+            <Pressable
+              onPress={onRestore}
+              disabled={manageBusy}
+              className="mt-3 py-2"
+            >
               <Text className="text-center text-sm text-stone-500 dark:text-stone-400">
                 Already subscribed? Restore purchase
               </Text>
@@ -213,17 +243,17 @@ export default function PremiumScreen() {
 function Hero({ entitlement }: { entitlement: Entitlement }) {
   const { tier, daysRemaining, expiresAt, cancelled } = entitlement;
 
-  if (tier === 'premium') {
-    const date = expiresAt ? formatDate(expiresAt) : '';
+  if (tier === "premium") {
+    const date = expiresAt ? formatDate(expiresAt) : "";
     return (
       <View className="rounded-3xl bg-brand-500 p-6">
         <Ionicons
-          name={cancelled ? 'warning' : 'checkmark-circle'}
+          name={cancelled ? "warning" : "checkmark-circle"}
           size={32}
           color="#ffffff"
         />
         <Text className="mt-3 text-3xl font-bold text-white">
-          {cancelled ? 'Cancelled' : "You're Premium"}
+          {cancelled ? "Cancelled" : "You're Premium"}
         </Text>
         <Text className="mt-2 text-base text-brand-100">
           {cancelled
@@ -234,14 +264,16 @@ function Hero({ entitlement }: { entitlement: Entitlement }) {
     );
   }
 
-  if (tier === 'trial') {
+  if (tier === "trial") {
     return (
       <View className="rounded-3xl bg-brand-500 p-6">
         <Ionicons name="sparkles" size={32} color="#ffffff" />
-        <Text className="mt-3 text-3xl font-bold text-white">Your free trial is on</Text>
+        <Text className="mt-3 text-3xl font-bold text-white">
+          Your free trial is on
+        </Text>
         <Text className="mt-2 text-base text-brand-100">
-          {daysRemaining} day{daysRemaining === 1 ? '' : 's'} of premium remaining. Subscribe before
-          the trial ends to keep these features.
+          {daysRemaining} day{daysRemaining === 1 ? "" : "s"} of premium
+          remaining. Subscribe before the trial ends to keep these features.
         </Text>
       </View>
     );
@@ -276,7 +308,9 @@ function Perk({
         <Text className="text-base font-semibold text-stone-900 dark:text-stone-50">
           {title}
         </Text>
-        <Text className="mt-1 text-sm text-stone-500 dark:text-stone-400">{desc}</Text>
+        <Text className="mt-1 text-sm text-stone-500 dark:text-stone-400">
+          {desc}
+        </Text>
       </View>
     </View>
   );
@@ -288,9 +322,16 @@ function Perk({
  * loses people and is not what app stores expect of a paid feature.
  */
 /** Static copy only. Every price on this screen comes from the store. */
-const PLAN_COPY: Record<BillingPeriod, { label: string; caption: string; badge?: string }> = {
-  monthly: { label: 'Monthly', caption: 'Billed every month' },
-  annual: { label: 'Yearly', caption: 'Billed once a year', badge: '2 MONTHS FREE' },
+const PLAN_COPY: Record<
+  BillingPeriod,
+  { label: string; caption: string; badge?: string }
+> = {
+  monthly: { label: "Monthly", caption: "Billed every month" },
+  annual: {
+    label: "Yearly",
+    caption: "Billed once a year",
+    badge: "2 MONTHS FREE",
+  },
 };
 
 function PlanPicker({
@@ -304,12 +345,12 @@ function PlanPicker({
 }) {
   return (
     <View className="mb-3 flex-row gap-3">
-      {(['annual', 'monthly'] as BillingPeriod[]).map((p) => {
+      {(["annual", "monthly"] as BillingPeriod[]).map((p) => {
         const plan = PLAN_COPY[p];
-        const pkg = p === 'annual' ? plans?.annual : plans?.monthly;
+        const pkg = p === "annual" ? plans?.annual : plans?.monthly;
         // Play's own localised string — "R129.99", "$6.99", "₹499" — rather
         // than a figure we'd have to keep in step with the console by hand.
-        const price = pkg?.product.priceString ?? '—';
+        const price = pkg?.product.priceString ?? "—";
         const active = selected === p;
         return (
           <Pressable
@@ -317,19 +358,23 @@ function PlanPicker({
             onPress={() => onSelect(p)}
             className={`flex-1 rounded-2xl border p-4 active:opacity-80 ${
               active
-                ? 'border-brand-500 bg-brand-50 dark:bg-brand-900'
-                : 'border-stone-200 dark:border-stone-800'
-            }`}>
+                ? "border-brand-500 bg-brand-50 dark:bg-brand-900"
+                : "border-stone-200 dark:border-stone-800"
+            }`}
+          >
             <View className="flex-row items-center justify-between">
               <Text
                 className={`text-sm font-semibold ${
                   active
-                    ? 'text-brand-700 dark:text-brand-100'
-                    : 'text-stone-700 dark:text-stone-300'
-                }`}>
+                    ? "text-brand-700 dark:text-brand-100"
+                    : "text-stone-700 dark:text-stone-300"
+                }`}
+              >
                 {plan.label}
               </Text>
-              {active ? <Ionicons name="checkmark-circle" size={18} color="#ea580c" /> : null}
+              {active ? (
+                <Ionicons name="checkmark-circle" size={18} color="#ea580c" />
+              ) : null}
             </View>
             <Text className="mt-2 text-2xl font-bold text-stone-900 dark:text-stone-50">
               {price}
@@ -339,7 +384,9 @@ function PlanPicker({
             </Text>
             {plan.badge ? (
               <View className="mt-2 self-start rounded-full bg-brand-500 px-2 py-0.5">
-                <Text className="text-[10px] font-semibold text-white">{plan.badge}</Text>
+                <Text className="text-[10px] font-semibold text-white">
+                  {plan.badge}
+                </Text>
               </View>
             ) : null}
           </Pressable>
@@ -355,12 +402,12 @@ function SubscribeCTA({
   busy,
   onPress,
 }: {
-  tier: 'free' | 'trial' | 'premium';
+  tier: "free" | "trial" | "premium";
   ready: boolean;
   busy: boolean;
   onPress: () => void;
 }) {
-  if (!ready && tier === 'free') {
+  if (!ready && tier === "free") {
     return (
       <View className="rounded-2xl border border-stone-200 px-5 py-4 dark:border-stone-800">
         <Text className="text-center text-sm text-stone-500">Loading…</Text>
@@ -371,12 +418,13 @@ function SubscribeCTA({
     <Pressable
       onPress={onPress}
       disabled={busy}
-      className="rounded-2xl bg-brand-500 px-5 py-4 active:opacity-80 disabled:opacity-60">
+      className="rounded-2xl bg-brand-500 px-5 py-4 active:opacity-80 disabled:opacity-60"
+    >
       {busy ? (
         <ActivityIndicator color="#fff" />
       ) : (
         <Text className="text-center text-base font-semibold text-white">
-          {tier === 'trial' ? 'Subscribe to keep premium' : 'Subscribe'}
+          {tier === "trial" ? "Subscribe to keep premium" : "Subscribe"}
         </Text>
       )}
     </Pressable>
@@ -396,7 +444,8 @@ function ManageSection({
     <View className="gap-3">
       <Pressable
         onPress={onManageInPlay}
-        className="flex-row items-center justify-between rounded-2xl border border-stone-200 px-5 py-4 active:bg-stone-100 dark:border-stone-800 dark:active:bg-stone-900">
+        className="flex-row items-center justify-between rounded-2xl border border-stone-200 px-5 py-4 active:bg-stone-100 dark:border-stone-800 dark:active:bg-stone-900"
+      >
         <View className="flex-1 pr-3">
           <Text className="text-base font-medium text-stone-900 dark:text-stone-50">
             Manage subscription
@@ -424,11 +473,11 @@ function ManageSection({
 function formatDate(ms: number): string {
   try {
     return new Date(ms).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   } catch {
-    return '';
+    return "";
   }
 }
