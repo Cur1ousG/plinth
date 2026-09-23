@@ -211,16 +211,24 @@ export function hasEntitlement(info: CustomerInfo): boolean {
  */
 export function describeError(err: unknown): string {
   if (!err || typeof err !== 'object') return String(err ?? 'Unknown error');
-  const e = err as {
+  type RcError = {
     message?: string;
     code?: string | number;
     readableErrorCode?: string;
     underlyingErrorMessage?: string;
   };
+  const e = err as RcError & { userInfo?: RcError };
+  // The native bridge puts the useful fields on `userInfo` on some platforms
+  // and at the top level on others, so read both.
+  const info = e.userInfo ?? {};
+
+  const underlying = e.underlyingErrorMessage ?? info.underlyingErrorMessage;
+  const readable = e.readableErrorCode ?? info.readableErrorCode;
+
   return [
-    e.message,
-    e.underlyingErrorMessage ? `Underlying: ${e.underlyingErrorMessage}` : null,
-    e.readableErrorCode ? `Code: ${e.readableErrorCode}` : e.code ? `Code: ${e.code}` : null,
+    e.message ?? info.message,
+    underlying ? `Underlying: ${underlying}` : null,
+    readable ? `Code: ${readable}` : e.code != null ? `Code: ${e.code}` : null,
   ]
     .filter(Boolean)
     .join('\n\n');
