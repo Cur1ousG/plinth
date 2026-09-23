@@ -44,6 +44,23 @@ if (!convexUrl) {
 }
 
 /**
+ * Billing key. Without it lib/purchases.ts no-ops by design, which is right for
+ * a Metro dev build and catastrophic for a release: the premium screen would
+ * load, show no prices, and refuse to sell anything — a silent failure that
+ * only surfaces as nobody ever subscribing.
+ */
+const revenueCatKey = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY ?? '';
+if (!revenueCatKey) {
+  problems.push(
+    'EXPO_PUBLIC_REVENUECAT_ANDROID_KEY is missing. A production build cannot sell subscriptions without it.',
+  );
+} else if (revenueCatKey.startsWith('test_')) {
+  problems.push(
+    'EXPO_PUBLIC_REVENUECAT_ANDROID_KEY is a sandbox key (test_…). Use the Play key, which starts goog_.',
+  );
+}
+
+/**
  * Does the backend URL actually answer? The production profile once pointed at
  * `insightful-opossum-557.eu-west-1.convex.cloud` — a guess at the region that
  * returned 404, because that deployment isn't in eu-west-1. Every check above

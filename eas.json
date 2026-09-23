@@ -14,10 +14,9 @@
       "env": {
         "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_cHJlcGFyZWQta2F0eWRpZC0zMy5jbGVyay5hY2NvdW50cy5kZXYk",
         "EXPO_PUBLIC_CONVEX_URL": "https://intent-kingfisher-855.eu-west-1.convex.cloud",
-        "EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_MONTHLY": "2147738",
-        "EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_ANNUAL": "2147745",
         "EXPO_PUBLIC_SENTRY_DSN": "https://0187487063afc0d6f6ddc51bcd6e696a@o4511802840252416.ingest.de.sentry.io/4511802937311312",
-        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true",
+        "EXPO_PUBLIC_REVENUECAT_ANDROID_KEY": "goog_eXApwJyxEDtwaRfMDcVVqtipmEt"
       }
     },
     "preview": {
@@ -32,10 +31,9 @@
       "env": {
         "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_cHJlcGFyZWQta2F0eWRpZC0zMy5jbGVyay5hY2NvdW50cy5kZXYk",
         "EXPO_PUBLIC_CONVEX_URL": "https://intent-kingfisher-855.eu-west-1.convex.cloud",
-        "EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_MONTHLY": "2147738",
-        "EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_ANNUAL": "2147745",
         "EXPO_PUBLIC_SENTRY_DSN": "https://0187487063afc0d6f6ddc51bcd6e696a@o4511802840252416.ingest.de.sentry.io/4511802937311312",
-        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true",
+        "EXPO_PUBLIC_REVENUECAT_ANDROID_KEY": "goog_eXApwJyxEDtwaRfMDcVVqtipmEt"
       }
     },
     "internal": {
@@ -47,10 +45,9 @@
       "env": {
         "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_cHJlcGFyZWQta2F0eWRpZC0zMy5jbGVyay5hY2NvdW50cy5kZXYk",
         "EXPO_PUBLIC_CONVEX_URL": "https://intent-kingfisher-855.eu-west-1.convex.cloud",
-        "EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_MONTHLY": "2147738",
-        "EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_ANNUAL": "2147745",
         "EXPO_PUBLIC_SENTRY_DSN": "https://0187487063afc0d6f6ddc51bcd6e696a@o4511802840252416.ingest.de.sentry.io/4511802937311312",
-        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true",
+        "EXPO_PUBLIC_REVENUECAT_ANDROID_KEY": "goog_eXApwJyxEDtwaRfMDcVVqtipmEt"
       }
     },
     "production": {
@@ -62,10 +59,9 @@
       "env": {
         "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsucGxpbnRocmVjaXBlcy5jb20k",
         "EXPO_PUBLIC_CONVEX_URL": "https://deafening-anaconda-703.eu-west-1.convex.cloud",
-        "EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_MONTHLY": "2147738",
-        "EXPO_PUBLIC_LEMONSQUEEZY_VARIANT_ANNUAL": "2147745",
         "EXPO_PUBLIC_SENTRY_DSN": "https://0187487063afc0d6f6ddc51bcd6e696a@o4511802840252416.ingest.de.sentry.io/4511802937311312",
-        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true",
+        "EXPO_PUBLIC_REVENUECAT_ANDROID_KEY": "goog_eXApwJyxEDtwaRfMDcVVqtipmEt"
       }
     }
   },
