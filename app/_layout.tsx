@@ -4,6 +4,7 @@ import { ClerkLoaded, ClerkProvider, useAuth, useUser } from '@clerk/clerk-expo'
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
 import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme as useNativewindColorScheme } from 'nativewind';
 import { useEffect } from 'react';
@@ -24,6 +25,22 @@ import { SettingsProvider, useSettings } from '@/providers/settings-provider';
 initSentry();
 configurePurchases();
 
+/**
+ * Hold the splash screen until the app can actually draw something.
+ *
+ * Without this it hides the instant the native view mounts — before Clerk has
+ * resolved a session, before settings have been read from storage, and before
+ * the theme is applied. What you see is the splash, then a bare frame, then the
+ * real screen snapping into place: three states in a few hundred milliseconds,
+ * which reads as a glitch rather than a launch.
+ *
+ * The fade makes the handover a transition instead of a cut.
+ */
+SplashScreen.preventAutoHideAsync().catch(() => {
+  // Already hidden, or the module isn't available. Not worth failing a launch.
+});
+SplashScreen.setOptions({ duration: 300, fade: true });
+
 export const unstable_settings = {
   anchor: '(tabs)',
 };
@@ -43,6 +60,7 @@ function RootLayout() {
         <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
           <SettingsProvider>
             <AppDataProvider>
+              <SplashGate />
               <IdentityTag />
               <ThemedShell />
             </AppDataProvider>
@@ -54,6 +72,36 @@ function RootLayout() {
 }
 
 export default wrapRoot(RootLayout);
+
+/**
+ * Drops the splash once the first screen can render properly.
+ *
+ * `ready` means settings have been read and, for a device we've not seen
+ * before, that the account's profile has come back — which is what decides
+ * whether onboarding shows. Waiting for it is what stops the welcome flow
+ * flashing up at someone who finished it months ago.
+ *
+ * The timeout is the important half. That profile lookup is a network call, and
+ * a slow connection must not mean staring at a splash screen: after two and a
+ * half seconds we show the app regardless and let it settle on its own.
+ */
+function SplashGate() {
+  const { ready } = useSettings();
+
+  useEffect(() => {
+    const hide = () => {
+      SplashScreen.hideAsync().catch(() => {});
+    };
+    if (ready) {
+      hide();
+      return;
+    }
+    const timer = setTimeout(hide, 2500);
+    return () => clearTimeout(timer);
+  }, [ready]);
+
+  return null;
+}
 
 /**
  * Keeps Sentry's user context in sync with Clerk so crash reports can be grouped
