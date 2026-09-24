@@ -78,9 +78,31 @@ for (const [k, v] of Object.entries(profileEnv)) {
 // fix for CVE-2024-27980), and npx is npx.cmd there. Without it this failed
 // silently: the env printed, the update never ran, and nothing said why.
 // The message is quoted because a shell splits on spaces.
+/**
+ * `--clear-cache` is not optional here, and it is the whole reason this script
+ * is worth having.
+ *
+ * EXPO_PUBLIC_* values are inlined into the bundle when it is built, and
+ * Metro's cache key does not include them. So a cached bundle is reused with
+ * whatever credentials were inlined the first time it was built — on a dev
+ * machine, the dev ones — no matter what environment the publish is given.
+ * Setting the env correctly and watching it print is not enough; the bundle
+ * simply isn't rebuilt.
+ *
+ * That is how a production update shipped pointing at the dev deployment twice
+ * in a row, with the correct credentials printed on screen both times.
+ */
 const result = spawnSync(
   'npx',
-  ['eas', 'update', '--channel', channel, '--message', JSON.stringify(message)],
+  [
+    'eas',
+    'update',
+    '--channel',
+    channel,
+    '--clear-cache',
+    '--message',
+    JSON.stringify(message),
+  ],
   { stdio: 'inherit', env, shell: true },
 );
 
