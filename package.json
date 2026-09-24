@@ -9,7 +9,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "eas-build-pre-install": "node scripts/check-build-env.js"
+    "eas-build-pre-install": "node scripts/check-build-env.js",
+    "update:preview": "node scripts/publish-update.js preview",
+    "update:production": "node scripts/publish-update.js production"
   },
   "dependencies": {
     "@clerk/clerk-expo": "^2.19.31",
