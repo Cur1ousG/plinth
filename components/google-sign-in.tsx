@@ -24,13 +24,20 @@ WebBrowser.maybeCompleteAuthSession();
 /**
  * Android starts a fresh Custom Tab on every sign-in unless it's been warmed
  * up, which reads as a noticeable pause after tapping the button.
+ *
+ * Both calls swallow their errors. Warming up is an optimisation, not a
+ * requirement: a device with no Custom Tabs-capable browser, or with several
+ * and no default, throws "Cannot determine preferred package without
+ * satisfying it". Sign-in still works there — it just opens cold. `void`
+ * discards the promise without catching it, so these were surfacing as
+ * unhandled rejections in Sentry for a failure that changes nothing.
  */
 function useWarmUpBrowser() {
   useEffect(() => {
     if (Platform.OS !== 'android') return;
-    void WebBrowser.warmUpAsync();
+    WebBrowser.warmUpAsync().catch(() => {});
     return () => {
-      void WebBrowser.coolDownAsync();
+      WebBrowser.coolDownAsync().catch(() => {});
     };
   }, []);
 }
