@@ -74,10 +74,19 @@ for (const [k, v] of Object.entries(profileEnv)) {
   console.log(`  ${k}=${shown}`);
 }
 
+// `shell: true` because Node refuses to spawn a .cmd directly on Windows (the
+// fix for CVE-2024-27980), and npx is npx.cmd there. Without it this failed
+// silently: the env printed, the update never ran, and nothing said why.
+// The message is quoted because a shell splits on spaces.
 const result = spawnSync(
-  process.platform === 'win32' ? 'npx.cmd' : 'npx',
-  ['eas', 'update', '--channel', channel, '--message', message],
-  { stdio: 'inherit', env },
+  'npx',
+  ['eas', 'update', '--channel', channel, '--message', JSON.stringify(message)],
+  { stdio: 'inherit', env, shell: true },
 );
+
+if (result.error) {
+  console.error(`\n[publish-update] could not run eas: ${result.error.message}`);
+  process.exit(1);
+}
 
 process.exit(result.status ?? 1);
