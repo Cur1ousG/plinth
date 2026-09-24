@@ -12,16 +12,33 @@
  * still be reviewed before the real captures exist.
  */
 
-const fs = require('fs');
-const path = require('path');
-const sharp = require('sharp');
+const fs = require("fs");
+const path = require("path");
+const sharp = require("sharp");
 
-const W = 1920; // canvas height
-const CANVAS = { w: 1080, h: 1920 };
+/**
+ * Output size. Play wants 1080x1920; the App Store's required iPhone size is
+ * 6.9" at 1290x2796, which is both larger and a taller aspect. Everything below
+ * is expressed as a fraction of the canvas rather than in fixed pixels, so the
+ * same layout composes at either size.
+ *
+ *   node store/make-screenshots.js         → Play, into store/out/
+ *   node store/make-screenshots.js ios     → App Store, into store/out-ios/
+ */
+const TARGETS = {
+  play: { w: 1080, h: 1920, dir: "out", suffix: "play" },
+  ios: { w: 1290, h: 2796, dir: "out-ios", suffix: "ios" },
+};
 
-const BRAND = '#ea580c';
-const CREAM = '#fffbf7';
-const CHARCOAL = '#12100e';
+const TARGET = TARGETS[process.argv[2] === "ios" ? "ios" : "play"];
+const CANVAS = { w: TARGET.w, h: TARGET.h };
+
+const SCALE = CANVAS.w / 1080;
+const px = (n) => Math.round(n * SCALE);
+
+const BRAND = "#ea580c";
+const CREAM = "#fffbf7";
+const CHARCOAL = "#12100e";
 
 /**
  * One entry per screenshot. `*word*` renders italic in the accent colour —
@@ -32,67 +49,67 @@ const CHARCOAL = '#12100e';
  */
 const SHOTS = [
   {
-    file: '01-home.png',
-    line1: 'Dinner, decided',
-    line2: '*before* you ask',
+    file: "01-home.png",
+    line1: "Dinner, decided",
+    line2: "*before* you ask",
     sub: "A pick for today, and what's trending, on open.",
-    theme: 'light',
+    theme: "light",
   },
   {
-    file: '02-discover.png',
-    line1: 'Import a recipe',
-    line2: 'from *anywhere*',
-    sub: 'Paste a link or a reel caption. Get a real recipe.',
-    theme: 'dark',
+    file: "02-discover.png",
+    line1: "Import a recipe",
+    line2: "from *anywhere*",
+    sub: "Paste a link or a reel caption. Get a real recipe.",
+    theme: "dark",
   },
   {
-    file: '03-recipe.png',
-    line1: 'Tick, then',
-    line2: '*straight* to the list',
-    sub: 'Check off what you have. Send the rest to your cart.',
-    theme: 'light',
+    file: "03-recipe.png",
+    line1: "Tick, then",
+    line2: "*straight* to the list",
+    sub: "Check off what you have. Send the rest to your cart.",
+    theme: "light",
   },
   {
-    file: '04-planner.png',
-    line1: 'Plan the week',
-    line2: '*in minutes*',
-    sub: 'Breakfast, lunch and dinner, sorted before Monday.',
-    theme: 'dark',
+    file: "04-planner.png",
+    line1: "Plan the week",
+    line2: "*in minutes*",
+    sub: "Breakfast, lunch and dinner, sorted before Monday.",
+    theme: "dark",
   },
   {
-    file: '05-cart.png',
-    line1: 'A list that',
-    line2: '*sorts itself*',
-    sub: 'Grouped by aisle, so you walk the shop once.',
-    theme: 'light',
+    file: "05-cart.png",
+    line1: "A list that",
+    line2: "*sorts itself*",
+    sub: "Grouped by aisle, so you walk the shop once.",
+    theme: "light",
   },
   {
     // Swap back to a full-screen capture of the invite sheet when there is one:
     // "share it with the whole house" is the feature competitors don't have.
-    file: '06-cuisine.png',
-    line1: 'Cook the world',
-    line2: 'on a *Tuesday*',
-    sub: 'Browse by cuisine and country, from Italian to Japanese.',
-    theme: 'dark',
+    file: "06-cuisine.png",
+    line1: "Cook the world",
+    line2: "on a *Tuesday*",
+    sub: "Browse by cuisine and country, from Italian to Japanese.",
+    theme: "dark",
   },
   {
-    file: '07-dietitian.png',
-    line1: 'Targets that fit',
-    line2: '*your* goal',
-    sub: 'Calories and protein, with recipes that match.',
-    theme: 'light',
+    file: "07-dietitian.png",
+    line1: "Targets that fit",
+    line2: "*your* goal",
+    sub: "Calories and protein, with recipes that match.",
+    theme: "light",
   },
   {
-    file: '08-preferences.png',
-    line1: 'Allergies handled',
-    line2: '*properly*',
-    sub: 'Excluded entirely, not just ranked lower.',
-    theme: 'dark',
+    file: "08-preferences.png",
+    line1: "Allergies handled",
+    line2: "*properly*",
+    sub: "Excluded entirely, not just ranked lower.",
+    theme: "dark",
   },
 ];
 
 const esc = (s) =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 /** Turn "that *sorts itself*" into tspans, accent segments italic + coloured. */
 function tspans(text, fill, accent) {
@@ -100,20 +117,20 @@ function tspans(text, fill, accent) {
     .split(/(\*[^*]+\*)/)
     .filter(Boolean)
     .map((part) => {
-      if (part.startsWith('*') && part.endsWith('*')) {
+      if (part.startsWith("*") && part.endsWith("*")) {
         const inner = esc(part.slice(1, -1));
         return `<tspan fill="${accent}" font-style="italic">${inner}</tspan>`;
       }
       return `<tspan fill="${fill}">${esc(part)}</tspan>`;
     })
-    .join('');
+    .join("");
 }
 
 function backdrop(theme) {
-  const bg = theme === 'dark' ? CHARCOAL : CREAM;
+  const bg = theme === "dark" ? CHARCOAL : CREAM;
   // A soft brand-tinted glow behind the phone, so the mockup doesn't float on
   // flat colour. Subtle on cream, stronger on charcoal where it reads as light.
-  const glowOpacity = theme === 'dark' ? 0.26 : 0.16;
+  const glowOpacity = theme === "dark" ? 0.26 : 0.16;
   return `
     <rect width="${CANVAS.w}" height="${CANVAS.h}" fill="${bg}"/>
     <ellipse cx="${CANVAS.w / 2}" cy="${CANVAS.h * 0.72}" rx="${CANVAS.w * 0.78}" ry="${CANVAS.h * 0.34}"
@@ -121,36 +138,61 @@ function backdrop(theme) {
 }
 
 function textLayer(shot) {
-  const light = shot.theme !== 'dark';
-  const fg = light ? '#1c1917' : '#fafaf9';
-  const subFg = light ? '#78716c' : '#a8a29e';
-  const accent = light ? BRAND : '#fb923c'; // lighter accent holds up on charcoal
+  const light = shot.theme !== "dark";
+  const fg = light ? "#1c1917" : "#fafaf9";
+  const subFg = light ? "#78716c" : "#a8a29e";
+  const accent = light ? BRAND : "#fb923c"; // lighter accent holds up on charcoal
 
   return `
-    <text xml:space="preserve" x="${CANVAS.w / 2}" y="250" text-anchor="middle"
+    <text xml:space="preserve" x="${CANVAS.w / 2}" y="${px(250)}" text-anchor="middle"
           font-family="Segoe UI, Helvetica, Arial, sans-serif"
-          font-size="94" font-weight="700" letter-spacing="-2">
+          font-size="${px(94)}" font-weight="700" letter-spacing="${-px(2)}">
       ${tspans(shot.line1, fg, accent)}
     </text>
-    <text xml:space="preserve" x="${CANVAS.w / 2}" y="368" text-anchor="middle"
+    <text xml:space="preserve" x="${CANVAS.w / 2}" y="${px(368)}" text-anchor="middle"
           font-family="Segoe UI, Helvetica, Arial, sans-serif"
-          font-size="94" font-weight="700" letter-spacing="-2">
+          font-size="${px(94)}" font-weight="700" letter-spacing="${-px(2)}">
       ${tspans(shot.line2, fg, accent)}
     </text>
-    <text xml:space="preserve" x="${CANVAS.w / 2}" y="452" text-anchor="middle"
+    <text xml:space="preserve" x="${CANVAS.w / 2}" y="${px(452)}" text-anchor="middle"
           font-family="Segoe UI, Helvetica, Arial, sans-serif"
-          font-size="38" font-weight="400" fill="${subFg}">
+          font-size="${px(38)}" font-weight="400" fill="${subFg}">
       ${esc(shot.sub)}
     </text>`;
 }
 
 // Phone geometry. The frame runs off the bottom edge, which is what makes the
 // reference listings read as a product shot rather than a boxed thumbnail.
-const PHONE = { w: 760, x: (CANVAS.w - 760) / 2, y: 560, h: 1480, radius: 62 };
-const BEZEL = 14;
+const BEZEL = px(14);
+
+/**
+ * The frame's proportions follow the canvas, not a fixed pixel size.
+ *
+ * Scaling width and height independently was wrong: the App Store canvas is a
+ * taller aspect than Play's, which made the frame proportionally narrow and
+ * cropped 18% off the sides of every screenshot. So the height is what the
+ * canvas dictates — top at 29%, running off the bottom edge — and the width is
+ * derived from it at roughly a phone's own aspect, which is what the sources
+ * are. The cap stops it growing into the margins on a very tall canvas.
+ */
+const PHONE_TOP = Math.round(CANVAS.h * 0.29);
+const PHONE_H = CANVAS.h - PHONE_TOP + px(120);
+const PHONE_INNER_H = PHONE_H - BEZEL * 2;
+const PHONE_INNER_W = Math.min(
+  Math.round(PHONE_INNER_H / 2.0),
+  Math.round(CANVAS.w * 0.8),
+);
+
+const PHONE = {
+  w: PHONE_INNER_W + BEZEL * 2,
+  x: Math.round((CANVAS.w - (PHONE_INNER_W + BEZEL * 2)) / 2),
+  y: PHONE_TOP,
+  h: PHONE_H,
+  radius: px(62),
+};
 
 function phoneFrame(theme) {
-  const frameFill = theme === 'dark' ? '#000000' : '#1c1917';
+  const frameFill = theme === "dark" ? "#000000" : "#1c1917";
   return `
     <rect x="${PHONE.x}" y="${PHONE.y}" width="${PHONE.w}" height="${PHONE.h}"
           rx="${PHONE.radius}" fill="${frameFill}" filter="url(#drop)"/>`;
@@ -159,7 +201,7 @@ function phoneFrame(theme) {
 async function screenInner(file, trimTop) {
   const innerW = PHONE.w - BEZEL * 2;
   const innerH = PHONE.h - BEZEL * 2;
-  const src = path.join(__dirname, 'shots', file);
+  const src = path.join(__dirname, "shots", file);
 
   if (!fs.existsSync(src)) {
     // Placeholder so the layout is reviewable before real captures exist.
@@ -204,10 +246,18 @@ async function screenInner(file, trimTop) {
 
   const pipeline = sharp(src);
   if (bar > 0) {
-    pipeline.extract({ left: 0, top: bar, width: meta.width, height: meta.height - bar });
+    pipeline.extract({
+      left: 0,
+      top: bar,
+      width: meta.width,
+      height: meta.height - bar,
+    });
   }
 
-  return pipeline.resize(innerW, innerH, { fit: 'cover', position: 'top' }).png().toBuffer();
+  return pipeline
+    .resize(innerW, innerH, { fit: "cover", position: "top" })
+    .png()
+    .toBuffer();
 }
 
 /** Round the screen's top corners so it sits inside the bezel cleanly. */
@@ -220,7 +270,7 @@ async function roundedScreen(buf) {
      </svg>`,
   );
   return sharp(buf)
-    .composite([{ input: mask, blend: 'dest-in' }])
+    .composite([{ input: mask, blend: "dest-in" }])
     .png()
     .toBuffer();
 }
@@ -241,11 +291,16 @@ async function build(shot, index) {
       ${phoneFrame(shot.theme)}
     </svg>`;
 
-  const screen = await roundedScreen(await screenInner(shot.file, shot.trimTop));
+  const screen = await roundedScreen(
+    await screenInner(shot.file, shot.trimTop),
+  );
 
-  const outDir = path.join(__dirname, 'out');
+  const outDir = path.join(__dirname, TARGET.dir);
   fs.mkdirSync(outDir, { recursive: true });
-  const out = path.join(outDir, `${String(index + 1).padStart(2, '0')}-play.png`);
+  const out = path.join(
+    outDir,
+    `${String(index + 1).padStart(2, "0")}-${TARGET.suffix}.png`,
+  );
 
   await sharp(Buffer.from(base))
     .composite([{ input: screen, left: PHONE.x + BEZEL, top: PHONE.y + BEZEL }])
@@ -258,7 +313,9 @@ async function build(shot, index) {
 (async () => {
   for (const [i, shot] of SHOTS.entries()) {
     const out = await build(shot, i);
-    const have = fs.existsSync(path.join(__dirname, 'shots', shot.file));
-    console.log(`${path.basename(out)}  ${have ? 'with ' + shot.file : 'PLACEHOLDER'}`);
+    const have = fs.existsSync(path.join(__dirname, "shots", shot.file));
+    console.log(
+      `${path.basename(out)}  ${have ? "with " + shot.file : "PLACEHOLDER"}`,
+    );
   }
 })();
