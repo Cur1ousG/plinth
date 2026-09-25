@@ -28,9 +28,11 @@ const sharp = require("sharp");
 const TARGETS = {
   play: { w: 1080, h: 1920, dir: "out", suffix: "play", shots: "shots" },
   ios: { w: 1290, h: 2796, dir: "out-ios", suffix: "ios", shots: "shots-ios" },
+  // 13-inch iPad. Required once app.json sets supportsTablet.
+  ipad: { w: 2064, h: 2752, dir: "out-ipad", suffix: "ipad", shots: "shots-ipad" },
 };
 
-const TARGET = TARGETS[process.argv[2] === "ios" ? "ios" : "play"];
+const TARGET = TARGETS[process.argv[2]] ?? TARGETS.play;
 const CANVAS = { w: TARGET.w, h: TARGET.h };
 
 const SCALE = CANVAS.w / 1080;
