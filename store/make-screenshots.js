@@ -26,8 +26,8 @@ const sharp = require("sharp");
  *   node store/make-screenshots.js ios     → App Store, into store/out-ios/
  */
 const TARGETS = {
-  play: { w: 1080, h: 1920, dir: "out", suffix: "play" },
-  ios: { w: 1290, h: 2796, dir: "out-ios", suffix: "ios" },
+  play: { w: 1080, h: 1920, dir: "out", suffix: "play", shots: "shots" },
+  ios: { w: 1290, h: 2796, dir: "out-ios", suffix: "ios", shots: "shots-ios" },
 };
 
 const TARGET = TARGETS[process.argv[2] === "ios" ? "ios" : "play"];
@@ -201,7 +201,7 @@ function phoneFrame(theme) {
 async function screenInner(file, trimTop) {
   const innerW = PHONE.w - BEZEL * 2;
   const innerH = PHONE.h - BEZEL * 2;
-  const src = path.join(__dirname, "shots", file);
+  const src = path.join(__dirname, TARGET.shots, file);
 
   if (!fs.existsSync(src)) {
     // Placeholder so the layout is reviewable before real captures exist.
@@ -209,7 +209,7 @@ async function screenInner(file, trimTop) {
         <rect width="${innerW}" height="${innerH}" fill="#292524"/>
         <text x="${innerW / 2}" y="${innerH / 2}" text-anchor="middle"
               font-family="Segoe UI, Arial, sans-serif" font-size="34" fill="#78716c">
-          ${esc(file)} — drop your screenshot in store/shots/
+          ${esc(file)} — drop it in store/${TARGET.shots}/
         </text>
       </svg>`;
     return sharp(Buffer.from(svg)).png().toBuffer();
