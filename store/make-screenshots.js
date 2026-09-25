@@ -26,10 +26,10 @@ const sharp = require("sharp");
  *   node store/make-screenshots.js ios     → App Store, into store/out-ios/
  */
 const TARGETS = {
-  play: { w: 1080, h: 1920, dir: "out", suffix: "play", shots: "shots" },
-  ios: { w: 1290, h: 2796, dir: "out-ios", suffix: "ios", shots: "shots-ios" },
+  play: { w: 1080, h: 1920, dir: "out", suffix: "play", shots: "shots", frameAspect: 2.0 },
+  ios: { w: 1290, h: 2796, dir: "out-ios", suffix: "ios", shots: "shots-ios", frameAspect: 2.0 },
   // 13-inch iPad. Required once app.json sets supportsTablet.
-  ipad: { w: 2064, h: 2752, dir: "out-ipad", suffix: "ipad", shots: "shots-ipad" },
+  ipad: { w: 2064, h: 2752, dir: "out-ipad", suffix: "ipad", shots: "shots-ipad", frameAspect: 1.4 },
 };
 
 const TARGET = TARGETS[process.argv[2]] ?? TARGETS.play;
@@ -177,11 +177,14 @@ const BEZEL = px(14);
  * derived from it at roughly a phone's own aspect, which is what the sources
  * are. The cap stops it growing into the margins on a very tall canvas.
  */
-const PHONE_TOP = Math.round(CANVAS.h * 0.29);
+// Below the text, always. The headline positions scale with canvas width while
+// this scales with height, so on a squarer canvas — the iPad — 29% put the
+// frame on top of the subtitle and hid it completely.
+const PHONE_TOP = Math.max(Math.round(CANVAS.h * 0.29), px(452) + px(115));
 const PHONE_H = CANVAS.h - PHONE_TOP + px(120);
 const PHONE_INNER_H = PHONE_H - BEZEL * 2;
 const PHONE_INNER_W = Math.min(
-  Math.round(PHONE_INNER_H / 2.0),
+  Math.round(PHONE_INNER_H / TARGET.frameAspect),
   Math.round(CANVAS.w * 0.8),
 );
 
