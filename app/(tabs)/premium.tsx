@@ -19,7 +19,8 @@ import {
   PurchaseCancelled,
   describeError,
   getPlans,
-  openPlaySubscriptions,
+  STORE_NAME,
+  openStoreSubscriptions,
   purchasePlan,
   plansDiagnostic,
   purchasesEnabled,
@@ -158,19 +159,19 @@ export default function PremiumScreen() {
   }, []);
 
   /**
-   * Cancelling, resuming and changing a card all happen in Play, not here.
+   * Cancelling, resuming and changing a card all happen in the store, not here.
    *
-   * There is no API to cancel a Play subscription on the user's behalf — Google
+   * Neither store offers an API to cancel on the user's behalf — Google
    * owns that screen deliberately, so nobody can be talked out of leaving by an
    * app's own retention flow. Deep-linking to the right subscription is the
    * most we can do, and it is also what Google's policy expects us to do.
    */
-  const onManageInPlay = async () => {
+  const onManageInStore = async () => {
     try {
-      await openPlaySubscriptions(sub?.plan);
+      await openStoreSubscriptions(sub?.plan);
     } catch (err) {
       Alert.alert(
-        "Could not open Play",
+        `Could not open ${STORE_NAME}`,
         err instanceof Error ? err.message : "Unknown",
       );
     }
@@ -206,7 +207,7 @@ export default function PremiumScreen() {
         {tier === "premium" ? (
           <ManageSection
             busy={manageBusy}
-            onManageInPlay={onManageInPlay}
+            onManageInStore={onManageInStore}
             onRestore={onRestore}
           />
         ) : (
@@ -427,17 +428,17 @@ function SubscribeCTA({
 
 function ManageSection({
   busy,
-  onManageInPlay,
+  onManageInStore,
   onRestore,
 }: {
   busy: boolean;
-  onManageInPlay: () => void;
+  onManageInStore: () => void;
   onRestore: () => void;
 }) {
   return (
     <View className="gap-3">
       <Pressable
-        onPress={onManageInPlay}
+        onPress={onManageInStore}
         className="flex-row items-center justify-between rounded-2xl border border-stone-200 px-5 py-4 active:bg-stone-100 dark:border-stone-800 dark:active:bg-stone-900"
       >
         <View className="flex-1 pr-3">
@@ -445,7 +446,7 @@ function ManageSection({
             Manage subscription
           </Text>
           <Text className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
-            Cancel, change plan or update your card in Google Play
+            Cancel, change plan or update your card in {STORE_NAME}
           </Text>
         </View>
         <Ionicons name="open-outline" size={18} color="#78716c" />

@@ -246,10 +246,32 @@ function isUserCancelled(err: unknown): boolean {
  * Cancelling and changing payment details both belong to Play, not to us —
  * Google requires it and there is no API to do it in-app.
  */
-export function openPlaySubscriptions(productId?: string) {
+/** Where "manage subscription" sends someone, in their words. */
+export const STORE_NAME = Platform.OS === "ios" ? "the App Store" : "Google Play";
+
+export async function openStoreSubscriptions(productId?: string) {
+  // The SDK knows which store the customer actually bought from, which matters
+  // for anyone who subscribed on one platform and signed in on the other.
+  if (purchasesEnabled) {
+    try {
+      await Purchases.showManageSubscriptions();
+      return;
+    } catch {
+      // Nothing to manage, or the sheet couldn't be presented. Fall through to
+      // the store's own page, which is better than an error for a button whose
+      // whole job is "take me somewhere I can cancel".
+    }
+  }
+
+  if (Platform.OS === "ios") {
+    await Linking.openURL("https://apps.apple.com/account/subscriptions");
+    return;
+  }
+
   const base = "https://play.google.com/store/account/subscriptions";
-  const url = productId
-    ? `${base}?sku=${encodeURIComponent(productId)}&package=com.plinth.recipes`
-    : base;
-  return Linking.openURL(url);
+  await Linking.openURL(
+    productId
+      ? `${base}?sku=${encodeURIComponent(productId)}&package=com.plinth.recipes`
+      : base,
+  );
 }
