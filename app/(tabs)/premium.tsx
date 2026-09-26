@@ -228,6 +228,7 @@ export default function PremiumScreen() {
                 Already subscribed? Restore purchase
               </Text>
             </Pressable>
+            <SubscriptionTerms />
           </>
         )}
       </ScrollView>
@@ -316,6 +317,46 @@ function Perk({
  * what Plinth cost was the Lemon Squeezy page after tapping Subscribe, which
  * loses people and is not what app stores expect of a paid feature.
  */
+/**
+ * The renewal terms and legal links a subscription paywall has to carry.
+ *
+ * Apple requires the title, length and price of each subscription to be shown
+ * alongside functional links to the terms of use and the privacy policy, on the
+ * screen where someone actually buys. Google expects the same disclosure. The
+ * prices and lengths are in the plan picker above; this is the rest of it.
+ *
+ * Without this the paywall looks complete and gets rejected under 3.1.2 — which
+ * is how it was found, in an App Review information request.
+ */
+function SubscriptionTerms() {
+  return (
+    <View className="mt-6 gap-2">
+      <Text className="text-center text-xs leading-5 text-stone-500 dark:text-stone-400">
+        Payment is charged to your store account at confirmation of purchase.
+        Subscriptions renew automatically unless cancelled at least 24 hours
+        before the end of the current period. Manage or cancel in your store
+        account settings at any time.
+      </Text>
+      <View className="flex-row justify-center gap-6">
+        <Link href="/legal/terms" asChild>
+          <Pressable hitSlop={8} className="py-1">
+            <Text className="text-xs font-medium text-brand-600 dark:text-brand-400">
+              Terms of Use
+            </Text>
+          </Pressable>
+        </Link>
+        <Link href="/legal/privacy" asChild>
+          <Pressable hitSlop={8} className="py-1">
+            <Text className="text-xs font-medium text-brand-600 dark:text-brand-400">
+              Privacy Policy
+            </Text>
+          </Pressable>
+        </Link>
+      </View>
+    </View>
+  );
+}
+
 /** Static copy only. Every price on this screen comes from the store. */
 const PLAN_COPY: Record<
   BillingPeriod,
