@@ -40,8 +40,8 @@ export default function PrivacyPolicyScreen() {
         </Bullet>
         <Bullet>
           <B>Subscription details</B> — when you subscribe to Plinth Premium, we record the status
-          of your subscription. Payment card details are handled entirely by Lemon Squeezy and
-          never touch our servers.
+          of your subscription. Payment is taken by Apple or Google, depending on where you
+          bought it. Card details are handled entirely by the store and never touch our servers.
         </Bullet>
         <Bullet>
           <B>Crash and error reports</B> — when something goes wrong in the app we record the
@@ -82,8 +82,13 @@ export default function PrivacyPolicyScreen() {
           matching results. Queries are not tied to your identity from Spoonacular&apos;s side.
         </Bullet>
         <Bullet>
-          <B>Lemon Squeezy</B> (payments) — handles subscription checkout and stores billing data.
-          We receive only your subscription status, not your payment details.
+          <B>Apple and Google</B> (payments) — whichever store you bought from takes the payment
+          and holds the billing details. We never see them.
+        </Bullet>
+        <Bullet>
+          <B>RevenueCat</B> (subscription management) — receives your purchase from the store and
+          tells us whether your subscription is active, using an identifier for your account. It
+          does not receive your payment details.
         </Bullet>
         <Bullet>
           <B>Sentry</B> (crash reporting) — receives error reports when the app misbehaves,

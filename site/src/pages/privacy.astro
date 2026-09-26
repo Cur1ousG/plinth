@@ -86,8 +86,13 @@ const updated = '22 September 2026';
           matching results. Queries are not tied to your identity on Spoonacular's side.
         </li>
         <li>
-          <strong>Lemon Squeezy</strong> (payments) — handles subscription checkout and stores
-          billing data. We receive only your subscription status, not your payment details.
+          <strong>Apple and Google</strong> (payments) — whichever store you bought from takes the
+          payment and holds the billing details. We never see them.
+        </li>
+        <li>
+          <strong>RevenueCat</strong> (subscription management) — receives your purchase from the
+          store and tells us whether your subscription is active, using an identifier for your
+          account. It does not receive your payment details.
         </li>
         <li>
           <strong>Sentry</strong> (crash reporting) — receives error reports when the app

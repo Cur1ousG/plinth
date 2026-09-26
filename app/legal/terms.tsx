@@ -43,20 +43,23 @@ export default function TermsScreen() {
 
       <Section title="Subscription & billing">
         <Bullet>
-          Plinth Premium is a paid subscription billed through Lemon Squeezy. Pricing is shown at
-          checkout in your local currency.
+          Plinth Premium is a paid subscription billed through the App Store or Google Play,
+          depending on where you bought it. Pricing is shown in the app in your local currency
+          before you buy.
         </Bullet>
         <Bullet>
           Subscriptions auto-renew at the end of each billing period unless cancelled. We&apos;ll
           renew at the same price you signed up at.
         </Bullet>
         <Bullet>
-          You can cancel any time from Premium tab → Cancel subscription. You keep access until
-          the end of the current billing period.
+          You can cancel any time from Premium tab → Manage subscription, which opens your
+          subscription in the App Store or Google Play. You keep access until the end of the
+          current billing period.
         </Bullet>
         <Bullet>
-          Refunds are at our discretion and handled per Lemon Squeezy&apos;s terms. Email us if you
-          believe a charge was made in error.
+          Refunds are handled by the store that took the payment, under Apple&apos;s or
+          Google&apos;s refund policies rather than ours. Email us if you believe a charge was
+          made in error and we&apos;ll help where we can.
         </Bullet>
         <Bullet>
           We may change pricing for new sign-ups. Existing subscribers stay on the price they
