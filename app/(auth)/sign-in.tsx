@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppleSignInButton } from '@/components/apple-sign-in';
 import { GoogleSignInButton, OrDivider } from '@/components/google-sign-in';
 import { clerkErrorMessage } from '@/lib/clerkErrors';
 
@@ -208,7 +209,10 @@ export default function SignInScreen() {
           Sign in to sync your recipes and meal plans.
         </Text>
 
-        <GoogleSignInButton />
+        <View className="gap-3">
+          <AppleSignInButton />
+          <GoogleSignInButton />
+        </View>
         <OrDivider />
 
         <Field

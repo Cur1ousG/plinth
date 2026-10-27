@@ -11,7 +11,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.plinth.recipes",
+      "usesAppleSignIn": true,
       "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "This app requires access to your photo library to allow you to select and upload images to use as your profile photo. For example, you can select a selfie to show on your account profile.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -54,7 +56,8 @@
           "organization": "kozo-curious-creations"
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -15,7 +15,7 @@ import { clerkErrorMessage } from '@/lib/clerkErrors';
  * that isn't on its allowlist. This is the exact string to allowlist in Clerk,
  * for both iOS and Android.
  */
-const REDIRECT_URL = AuthSession.makeRedirectUri({ scheme: 'plinth', path: 'sso-callback' });
+export const REDIRECT_URL = AuthSession.makeRedirectUri({ scheme: 'plinth', path: 'sso-callback' });
 
 // Lets the browser tab close itself and hand the result back when the flow
 // ends on web. A no-op on native, where openAuthSessionAsync already does it.
@@ -32,7 +32,7 @@ WebBrowser.maybeCompleteAuthSession();
  * discards the promise without catching it, so these were surfacing as
  * unhandled rejections in Sentry for a failure that changes nothing.
  */
-function useWarmUpBrowser() {
+export function useWarmUpBrowser() {
   useEffect(() => {
     if (Platform.OS !== 'android') return;
     WebBrowser.warmUpAsync().catch(() => {});
