@@ -19,7 +19,17 @@ import {
 import { AuthGate } from '@/components/auth-gate';
 import { useCart } from '@/hooks/useCart';
 import { AISLE_ORDER, aisleFor, type Aisle } from '@/lib/aisles';
+import { maybeAskForReview } from '@/lib/review';
 import type { CartItem } from '@/services/types';
+
+/**
+ * Where an invited person without Plinth is sent.
+ *
+ * The site rather than a store link: it serves whichever platform they're on,
+ * and it already says the right thing about Android, so this stays correct
+ * when Android ships instead of sending half of them to a dead end.
+ */
+const DOWNLOAD_URL = 'https://plinthrecipes.com';
 
 export default function ShoppingCartScreen() {
   return (
@@ -51,6 +61,22 @@ function ShoppingCartInner() {
   }, [items]);
 
   const checkedCount = items.filter((i) => i.checked).length;
+
+  /**
+   * Ticking the last thing off a real shop is the one moment in Plinth where
+   * something has unambiguously just gone right for someone — they're standing
+   * in a shop holding everything they came for. That's where the rating prompt
+   * belongs. See lib/review.ts for why the prompts are a budget.
+   *
+   * The floor of three items is there so a one-item list doesn't count as a
+   * completed shop.
+   */
+  const onToggleItem = (item: CartItem) => {
+    void toggle(item.id);
+    const completesTheList =
+      !item.checked && items.length >= 3 && items.every((i) => i.id === item.id || i.checked);
+    if (completesTheList) void maybeAskForReview();
+  };
 
   const onClearChecked = () => {
     if (checkedCount === 0) return;
@@ -133,7 +159,7 @@ function ShoppingCartInner() {
           )}
           renderItem={({ item }) => (
             <Pressable
-              onPress={() => toggle(item.id)}
+              onPress={() => onToggleItem(item)}
               className="flex-row items-center rounded-xl px-3 py-3 active:bg-stone-100 dark:active:bg-stone-900">
               <View
                 className={`mr-3 h-5 w-5 items-center justify-center rounded border-2 ${
@@ -279,11 +305,16 @@ function ShareSheet({ visible, onClose }: { visible: boolean; onClose: () => voi
 
   const onShareCode = () => {
     if (!invite) return;
+    // Every shared list is someone recommending Plinth to the person they live
+    // with, which makes this the warmest install prompt the app has. It used to
+    // tell them to open an app they might not have, and gave them no way to get
+    // it — so the download line matters more than the instructions do.
     void Share.share({
       message:
         `Join my Plinth shopping list with the code ${invite.code}.\n\n` +
-        'Open Plinth, go to your shopping cart, tap the people icon and choose "Join a list". ' +
-        'The code works for 7 days.',
+        'In Plinth: open your shopping cart, tap the people icon and choose "Join a list". ' +
+        'The code works for 7 days.\n\n' +
+        `Don't have Plinth? ${DOWNLOAD_URL}`,
     });
   };
 
