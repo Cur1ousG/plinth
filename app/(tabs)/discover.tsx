@@ -170,7 +170,7 @@ function SuggestionsView() {
       </Text>
       <View className="rounded-2xl border border-stone-200 bg-stone-50 p-4 dark:border-stone-800 dark:bg-stone-900">
         <Text className="text-sm text-stone-600 dark:text-stone-400">
-          Search hundreds of thousands of recipes. Tap any result to see ingredients, nutrition,
+          Search thousands of recipes. Tap any result to see ingredients, nutrition,
           and cook it from the original site without leaving the app.
         </Text>
       </View>

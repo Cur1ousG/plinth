@@ -4,6 +4,23 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { useEntitlement } from '@/hooks/useEntitlement';
 
+/**
+ * Only cuisines Spoonacular can actually fill a grid for.
+ *
+ * Measured against the live API on 2026-10-29, totals for the whole corpus
+ * (5,221 recipes) with no dietary filters applied:
+ *
+ *   Mediterranean 370  American 346  Italian 271  Mexican 179  Indian 121
+ *   French 71  Chinese 43  Middle Eastern 32  Japanese 29  Greek 28
+ *   Spanish 28  Thai 25  Korean 23  Vietnamese 14  Nordic 6  Caribbean 5
+ *   African 2
+ *
+ * African is deliberately absent. The grid requests 16 and two exist, so a
+ * subscriber who paid for cuisine browsing tapped it and got two cards — worse
+ * than not offering it. Put it back when there are recipes to put behind it,
+ * which realistically means a curated collection of our own rather than a
+ * bigger Spoonacular plan: the corpus is identical on every tier.
+ */
 const CUISINES: { id: string; label: string; emoji: string }[] = [
   { id: 'Italian', label: 'Italian', emoji: '🇮🇹' },
   { id: 'Mexican', label: 'Mexican', emoji: '🇲🇽' },
@@ -19,7 +36,6 @@ const CUISINES: { id: string; label: string; emoji: string }[] = [
   { id: 'American', label: 'American', emoji: '🇺🇸' },
   { id: 'Mediterranean', label: 'Mediterranean', emoji: '🌊' },
   { id: 'Middle Eastern', label: 'Middle Eastern', emoji: '🥙' },
-  { id: 'African', label: 'African', emoji: '🌍' },
 ];
 
 export function CuisinesRail() {

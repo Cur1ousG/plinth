@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -34,12 +34,26 @@ function CuisineInner() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const filters = useMemo(
+    () => dietaryFiltersToParams(dietary, intolerances, excludedIngredients),
+    [dietary, intolerances, excludedIngredients],
+  );
+
+  /**
+   * Whether the user has narrowed anything themselves. Without this the empty
+   * state blamed their food preferences for every empty grid, including the
+   * ones where the catalogue simply has nothing — telling someone to loosen
+   * filters they never set.
+   */
+  const hasFilters = Boolean(
+    filters.diet || filters.intolerances || filters.excludeIngredients,
+  );
+
   useEffect(() => {
     if (!hasPremium || !cuisine) return;
     let active = true;
     setLoading(true);
     setError('');
-    const filters = dietaryFiltersToParams(dietary, intolerances, excludedIngredients);
     convex
       .action(api.spoonacular.byCuisine, {
         cuisine,
@@ -60,7 +74,7 @@ function CuisineInner() {
     return () => {
       active = false;
     };
-  }, [cuisine, hasPremium, dietary, intolerances, excludedIngredients]);
+  }, [cuisine, hasPremium, filters]);
 
   if (!hasPremium) {
     return (
@@ -111,9 +125,21 @@ function CuisineInner() {
               Nothing here right now
             </Text>
             <Text className="mt-2 text-center text-sm leading-5 text-stone-500 dark:text-stone-400">
-              No {cuisine} recipes matched your food preferences. Try loosening them in Settings.
+              {hasFilters
+                ? `No ${cuisine} recipes matched your food preferences. Try loosening them in Settings.`
+                : `We don't have any ${cuisine} recipes yet. This one's on us, not you — we're working on filling it in.`}
             </Text>
           </View>
+        }
+        ListFooterComponent={
+          // Say so when a grid comes back short for want of recipes rather
+          // than for want of a looser filter. Silently showing four cards
+          // where sixteen were asked for reads as a broken screen.
+          recipes.length > 0 && recipes.length < 6 && !hasFilters ? (
+            <Text className="px-4 pb-6 pt-2 text-center text-xs leading-5 text-stone-400 dark:text-stone-500">
+              That's everything we have for {cuisine} so far. More are on the way.
+            </Text>
+          ) : null
         }
         renderItem={({ item }) => (
           <Pressable
