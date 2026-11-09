@@ -137,7 +137,7 @@ function CuisineInner() {
           // where sixteen were asked for reads as a broken screen.
           recipes.length > 0 && recipes.length < 6 && !hasFilters ? (
             <Text className="px-4 pb-6 pt-2 text-center text-xs leading-5 text-stone-400 dark:text-stone-500">
-              That's everything we have for {cuisine} so far. More are on the way.
+              That&apos;s everything we have for {cuisine} so far. More are on the way.
             </Text>
           ) : null
         }
