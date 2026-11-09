@@ -65,6 +65,87 @@ recipes,meal plan,shopping list,grocery,cooking,dinner,meal prep,cookbook,food,k
 in your app name; Apple indexes those separately, so "Plinth", "recipes" and
 "meal plans" would be wasted here if duplicated.
 
+---
+
+# 1.0.1 metadata
+
+Revised after keyword research against App Store autocomplete (October 2026).
+Three indexed fields, with no word spent twice across them.
+
+## What the name already covers
+
+```
+Plinth: Recipes & Meal Plans
+```
+
+That indexes **Plinth, Recipes, Meal, Plans** for free. Every one of those is
+therefore wasted in the subtitle or the keyword field.
+
+## Subtitle (30) — currently empty
+
+```
+Meal planner & grocery list
+```
+
+27 characters. This field had never been filled in, which was throwing away 30
+characters of some of the most heavily weighted indexing on the App Store.
+
+It adds **planner, grocery, list** — the three best-validated terms that the app
+name doesn't already cover. "Meal" repeats from the name, which costs five
+characters, but the line has to read like a human wrote it: Apple rejects
+obvious keyword stuffing, and this is shown to users under the app name, so it
+affects conversion as well as ranking.
+
+App Store Connect's own banner lists only name, category and privacy policy as
+requiring a new version, so this may save immediately rather than waiting for a
+submission.
+
+## Keywords (100)
+
+```
+organizer,shopping,tracker,cookbook,dinner,prep,pantry,weekly,family,ideas,cook,healthy,quick,easy
+```
+
+98 characters. Single words, not phrases: Apple forms phrases from your
+individual words within a localisation, so `shopping` plus `list` (in the
+subtitle) already generates "shopping list" without spending the characters
+twice.
+
+Nothing here repeats the name or the subtitle. Dropped from 1.0: `recipes`,
+`meal plan` and `cooking` (covered by the name), `grocery` and `shopping list`
+(moved to the subtitle), and `food` and `kitchen` (too generic for a new app to
+rank on at all).
+
+## Why these words
+
+Autocomplete research, by seed:
+
+| Seed | Returned | Read as |
+|---|---|---|
+| `meal` | meal maker, meal planner, meal tracker, mealmory | **planner**, **tracker** confirmed |
+| `meal p` | meal planner, meal plan | **planner** confirmed twice — strongest signal |
+| `grocery` | grocery - smart shopping list, basket pal: grocery list | **grocery**, **shopping**, **list** confirmed |
+| `recipe o` | the recipe organizer, feedr - recipe organizer, simmr: recipe organizer | **organizer** confirmed |
+
+Most results were app names rather than search phrases. That is itself the
+signal: three separate apps put "recipe organizer" in their title, and apps only
+name themselves after a term that converts.
+
+`pantry`, `weekly`, `family`, `ideas`, `cookbook`, `prep`, `healthy`, `quick`
+and `easy` are judgement, not data — no autocomplete seed was run for them. If a
+later pass on the seeds `dinner`, `cook`, `shopping l`, `what to` and `family m`
+turns up nothing for one of them, swap it out for whatever does come back.
+
+One caution on `tracker`: that is calorie-logging intent. The Dietitian plan is
+adjacent to it, but Plinth is not a food logger, so people arriving on that term
+may bounce. Cheap to include, but don't build the listing around it.
+
+## Secondary category — currently unset
+
+Optional and free. Health & Fitness fits the Dietitian plan; Lifestyle is the
+safer general pick. Changing a category needs a new version, so it rides along
+with this one.
+
 ## URLs
 
 - **Support URL**: `https://plinthrecipes.com/support/`
