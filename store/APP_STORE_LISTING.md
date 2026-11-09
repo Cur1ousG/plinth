@@ -140,6 +140,36 @@ One caution on `tracker`: that is calorie-logging intent. The Dietitian plan is
 adjacent to it, but Plinth is not a food logger, so people arriving on that term
 may bounce. Cheap to include, but don't build the listing around it.
 
+## What's New (4000)
+
+```
+Sharing a shopping list now includes a link to the app, so the person you invite can actually get in.
+
+Browsing by cuisine tells you when a region is still thin, instead of showing you a half-empty screen. And it no longer blames your food preferences for an empty one when you haven't set any.
+
+Smaller fixes throughout.
+```
+
+330 characters, of 4000. Short on purpose.
+
+Most of this release already reached 1.0.0 users over the air, so the only
+genuinely new things in the binary are the invite link and the rating prompt —
+and a rating prompt is not something to announce. Padding the notes out invites
+people to look closely at a release that has little in it.
+
+Two things deliberately left out:
+
+- **The rating prompt.** Nobody wants to read that an app has started asking
+  them for things.
+- **African cuisine being removed from the rail.** It's an honest change and a
+  visible one, but release notes are read by existing users deciding whether to
+  update, and "we took a feature away" is not what that moment is for. If
+  anyone asks, the answer is straightforward: the catalogue had two recipes in
+  it and showing a tile that leads nowhere is worse than not showing it.
+
+What's New can't be edited after the version is released — only promotional text
+can. So this is the one pass at it.
+
 ## Secondary category — currently unset
 
 Optional and free. Health & Fitness fits the Dietitian plan; Lifestyle is the
