@@ -33,6 +33,7 @@ type RevenueCatEvent = {
     product_id?: string;
     expiration_at_ms?: number | null;
     store?: string;
+    environment?: string;
   };
 };
 
@@ -85,6 +86,23 @@ http.route({
     const body = (await request.json()) as RevenueCatEvent;
     const event = body.event;
     if (!event?.type) return new Response('Missing event type', { status: 400 });
+
+    // Sandbox purchases cost nothing. TestFlight builds, the Play internal
+    // track and Apple's own reviewers all buy in sandbox, and RevenueCat sends
+    // those events down the same webhook as real ones — so without this check a
+    // free test purchase writes a row indistinguishable from a paid
+    // subscription, granting premium and polluting every revenue figure.
+    //
+    // Acknowledged with 200 rather than rejected: a 4xx makes RevenueCat retry
+    // and eventually flag the webhook as failing, and there is nothing here to
+    // retry. Same reasoning as the unhandled-event-type case below.
+    //
+    // Only an explicit 'SANDBOX' is dropped. If RevenueCat ever stops sending
+    // the field, a missing value is treated as production — someone who paid
+    // and got nothing is a far worse failure than a tester who got in free.
+    if (event.environment === 'SANDBOX') {
+      return new Response('Ignored sandbox event', { status: 200 });
+    }
 
     const status = statusForEvent(event.type);
     if (!status) return new Response('Ignored', { status: 200 });
