@@ -1,0 +1,8 @@
+# Everything here is public marketing and legal copy — there's nothing to hide
+# from a crawler. The sitemap line is the point of this file: it's how a crawler
+# that arrives without being told anything finds the rest of the pages.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://plinthrecipes.com/sitemap-index.xml
