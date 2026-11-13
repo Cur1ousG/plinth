@@ -105,8 +105,8 @@ Recipe photographs and source links are served by Spoonacular from the original 
 ```
 Plinth has two auto-renewable subscriptions in a single subscription group, both unlocking the same "Premium" entitlement:
 
-- Plinth Premium Monthly — US$7.99 per month
-- Plinth Premium Yearly — US$79.99 per year
+- Plinth Premium Monthly — US$5.99 per month
+- Plinth Premium Yearly — US$39.99 per year
 
 To reach them: open the app, tap the "Premium" tab in the bottom bar. The plan picker shows both options with their titles, lengths and prices, the renewal terms, and links to the Terms of Use and Privacy Policy. Tapping "Subscribe" opens Apple's purchase sheet.
 
