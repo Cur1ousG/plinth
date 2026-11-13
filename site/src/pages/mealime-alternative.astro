@@ -1,0 +1,230 @@
+---
+import Base from '../layouts/Base.astro';
+
+const published = '13 November 2026';
+
+/**
+ * Written for people searching "Mealime alternative" after the 21 October 2026
+ * shutdown. Two rules this page follows, because getting either wrong would be
+ * worse than not ranking at all:
+ *
+ * 1. Mealime shut down without an export. Nothing can recover those recipes —
+ *    not Plinth, not anyone. The page says so plainly rather than letting a
+ *    "switch to Plinth" button imply otherwise.
+ * 2. Plinth is iPhone-only today. Mealime was on both platforms, so roughly
+ *    half of anyone landing here is on Android. They're told in the first
+ *    screen, not in fine print under a download button.
+ */
+
+const comparison = [
+  {
+    feature: 'Shopping list grouped by aisle',
+    mealime: 'Yes',
+    plinth: 'Yes',
+    plinthWins: false,
+  },
+  {
+    feature: 'Dietary filters and allergies',
+    mealime: 'Yes',
+    plinth: 'Yes',
+    plinthWins: false,
+  },
+  {
+    feature: 'Builds the week’s plan for you',
+    mealime: 'Yes, automatically',
+    plinth: 'No — you choose each meal',
+    plinthWins: false,
+  },
+  {
+    feature: 'Share one list with your household',
+    mealime: 'No',
+    plinth: 'Yes, with an invite code',
+    plinthWins: true,
+  },
+  {
+    feature: 'Save a recipe from any website',
+    mealime: 'No',
+    plinth: 'Yes, paste the link',
+    plinthWins: true,
+  },
+  {
+    feature: 'Calorie and protein targets',
+    mealime: 'No',
+    plinth: 'Yes',
+    plinthWins: true,
+  },
+  {
+    feature: 'Android',
+    mealime: 'Was available',
+    plinth: 'Not yet — iPhone only',
+    plinthWins: false,
+  },
+];
+---
+
+<Base
+  title="Mealime alternative — Plinth"
+  description="Mealime shut down on 21 October 2026 and its recipes weren't exportable. Here's an honest look at whether Plinth is a sensible replacement, and what it doesn't do."
+>
+  <div class="page-head">
+    <div class="wrap">
+      <h1>Mealime has shut down</h1>
+      <p class="updated">Last updated {published}</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="wrap prose">
+      <p>
+        Mealime closed on <strong>21 October 2026</strong>. Saved recipes, meal plans and
+        shopping lists went with it, and there was no export. The official replacement, Meals
+        Hub, lives inside the Albertsons, Safeway, Vons and Jewel-Osco grocery apps and needs an
+        account with one of those stores — which rules it out entirely if you don't shop at one.
+      </p>
+
+      <p>
+        So people are looking for somewhere else to go. Plinth might be it. This page is an
+        honest attempt at telling you whether it is, including the parts where the answer is no.
+      </p>
+
+      <h2>First, the bad news about your recipes</h2>
+
+      <p>
+        <strong>They're gone, and nothing can bring them back.</strong> Mealime deleted personal
+        data at shutdown and never offered an export, so there is no file to import — into
+        Plinth or anywhere else. Any app promising to migrate your Mealime library cannot do it.
+      </p>
+
+      <p>
+        If you still have a browser tab, a screenshot or an email with a recipe in it, that's
+        your copy. In Plinth you can paste a link from any recipe site and it will pull out the
+        ingredients and steps, which is the closest thing to a rescue route that exists.
+      </p>
+
+      <h2>Before you read further: Plinth is iPhone-only right now</h2>
+
+      <p>
+        Mealime was on both platforms. Plinth is on the App Store today, and the Android version
+        is built and in testing. If you're on Android, nothing below will help you this week —
+        but we'll email you the day it's out, and that's the only email you'll get.
+      </p>
+
+      <div class="btn-row">
+        <a
+          class="btn btn--ghost"
+          href="mailto:plinthrecipes@gmail.com?subject=Plinth%20on%20Android"
+        >
+          Tell me when Android's ready
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="wrap prose">
+      <h2>How Plinth compares</h2>
+      <p>
+        The rows where Mealime was better are in here too. You'd find out in a day anyway, and
+        you'd be annoyed.
+      </p>
+
+      <div class="table-scroll">
+        <table class="compare">
+          <thead>
+            <tr>
+              <th scope="col">&nbsp;</th>
+              <th scope="col">Mealime</th>
+              <th scope="col">Plinth</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              comparison.map((row) => (
+                <tr>
+                  <th scope="row">{row.feature}</th>
+                  <td>{row.mealime}</td>
+                  <td class={row.plinthWins ? 'compare__win' : undefined}>{row.plinth}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <h2>The biggest difference</h2>
+
+      <p>
+        Mealime picked your meals for you. You set your preferences and it produced a week.
+        Plinth doesn't do that — you search or import recipes and drop them onto the days
+        yourself. If what you loved about Mealime was not having to decide, Plinth will feel
+        like more work, and you should know that before you install it.
+      </p>
+
+      <p>
+        What you get in return is that the recipes are yours. Anything on the web can go in,
+        the week is arranged how you want it, and the shopping list can be shared with whoever
+        else does the shopping.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap prose">
+      <h2>What Plinth actually is</h2>
+
+      <ul>
+        <li>
+          <strong>A recipe search and a place to keep what you find.</strong> Thousands of
+          recipes, filtered by the cuisine, time and diet you want. Save the ones that worked.
+        </li>
+        <li>
+          <strong>A week you arrange yourself.</strong> Breakfast, lunch, dinner and dessert on
+          any day, sitting on your home screen.
+        </li>
+        <li>
+          <strong>A shopping list that sorts itself by aisle</strong> — and that you can share
+          with the people you live with, so nobody comes home with a second bag of onions.
+        </li>
+        <li>
+          <strong>Import from anywhere.</strong> Paste a link from any recipe site, or the
+          caption from a reel, and it becomes a proper recipe you can plan and shop for.
+        </li>
+        <li>
+          <strong>Calorie and protein targets</strong> if you want them, with recipes that fit.
+          It's a general wellness feature, not medical advice.
+        </li>
+        <li><strong>No ads, no trackers,</strong> and no ten-paragraph story before the recipe.</li>
+      </ul>
+
+      <h2>What it costs</h2>
+
+      <p>
+        Search, saving, the planner and the shopping list are <strong>free</strong> and stay
+        free. Importing recipes, browsing by region, the daily pick and the calorie and protein
+        targets are part of Premium.
+      </p>
+
+      <p>
+        Every account starts with <strong>21 days of Premium free</strong>, no card needed. After
+        that it's a monthly or yearly subscription — the App Store shows the price in your own
+        currency. Cancel from inside the app at any time.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="wrap" style="text-align: center;">
+      <h2>Try it</h2>
+      <p style="color: var(--ink-soft); max-width: 46ch; margin: 0 auto 2rem;">
+        Free to start, and you'll know within a week whether it suits how you cook.
+      </p>
+      <div class="btn-row">
+        <a class="btn btn--primary" href="https://apps.apple.com/app/id6815607292">
+          Download for iPhone
+        </a>
+        <a class="btn btn--ghost" href="/">What else Plinth does</a>
+      </div>
+      <small class="btn__note">On the App Store &middot; Android in testing</small>
+    </div>
+  </section>
+</Base>

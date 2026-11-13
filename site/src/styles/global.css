@@ -434,3 +434,55 @@ img {
   color: var(--ink-faint);
   margin: 0;
 }
+
+/* Comparison table --------------------------------------------------------- */
+
+/* Narrow screens get a scroll rather than a squeezed third column — three
+   columns of prose below ~30rem is unreadable whatever you do to the type. */
+.table-scroll {
+  overflow-x: auto;
+  margin: 1.5rem 0 0.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 21rem keeps all three columns on screen at 375px rather than pushing the
+   Plinth column — the one a reader came for — off the right edge behind a
+   swipe they have to discover. Cells wrap hard at that width; that's the
+   trade, and it reads better than hidden. Wider screens relax it. */
+.compare {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 21rem;
+  font-size: 0.9375rem;
+}
+.compare th,
+.compare td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.875rem 1rem 0.875rem 0;
+  text-align: left;
+  vertical-align: top;
+}
+.compare thead th {
+  color: var(--ink-faint);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.compare tbody th {
+  color: var(--ink);
+  font-weight: 600;
+  padding-right: 1rem;
+  width: 38%;
+}
+.compare td {
+  color: var(--ink-soft);
+}
+.compare tbody tr:last-child th,
+.compare tbody tr:last-child td {
+  border-bottom: 0;
+}
+.compare__win {
+  color: var(--ink);
+  font-weight: 500;
+}
